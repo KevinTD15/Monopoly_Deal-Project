@@ -14,6 +14,9 @@ class Propiedades(Cartas):
         self.cantGrupo = cantGrupo
         self.renta = renta
 
+    def __str__(self):
+        return f'{self.nombre}, {self.color}, {self.valor}, {self.renta}, {self.cantGrupo}'
+    
 class Dinero(Cartas):
     def __init__(self, nombre, tipo):
         Cartas.__init__(self, nombre, tipo)
@@ -51,3 +54,4 @@ class AccionRobarPropiedad(Accion):
         super().__init__(nombre, tipo, subtipo, valor)
         self.intercambio = intercambio
         self.cuantas = cuantas #si cuantas es none es que lo roba todo
+    
