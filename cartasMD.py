@@ -15,12 +15,15 @@ class Propiedades(Cartas):
         self.renta = renta
 
     def __str__(self):
-        return f'{self.nombre}, {self.color}, {self.valor}, {self.renta}, {self.cantGrupo}'
+        return f'tipo: {self.tipo}, nom: {self.nombre}, col: {self.color}, val: {self.valor}, rent: {self.renta}, cantGrup: {self.cantGrupo}'
     
 class Dinero(Cartas):
     def __init__(self, nombre, tipo):
         Cartas.__init__(self, nombre, tipo)
 
+    def __str__(self):
+        return f'tipo: {self.tipo}, val: {self.nombre}'
+    
 class Accion(Cartas):
     def __init__(self, nombre, tipo, subtipo, valor):
         Cartas.__init__(self, nombre, tipo)
@@ -33,25 +36,40 @@ class AccionRenta(Accion):
         self.todos = todos
         self.propiedades = propiedades
         
+    def __str__(self):
+        return f'tipo: {self.tipo}, subt: {self.subtipo}, nom: {self.nombre}, val: {self.valor}, props: {self.propiedades}, todos: {self.todos}'
+    
 class AccionConstruccion(Accion):
     def __init__(self, nombre, tipo, subtipo, valor, construccion, monto): #monto es cuanto da la casa
         super().__init__(nombre, tipo, subtipo, valor)
         self.construccion = construccion
         self.monto = monto
+    
+    def __str__(self):
+        return f'tipo: {self.tipo}, subt: {self.subtipo}, nom: {self.nombre}, val: {self.valor}, const: {self.construccion}, monto: {self.monto}'
 
 class AccionRapida(Accion):
     def __init__(self, nombre, tipo, subtipo, valor, turno : bool): #turno es si se juega la carta en tu turno o en el del contrario 
         super().__init__(nombre, tipo, subtipo, valor)
         self.turno = turno
+    
+    def __str__(self):
+        return f'tipo: {self.tipo}, subt: {self.subtipo}, nom: {self.nombre}, val: {self.valor}, turno: {self.turno}'
 
 class AccionRobarCarta(Accion):
     def __init__(self, nombre, tipo, subtipo, valor, cantCartasATomar):
         super().__init__(nombre, tipo, subtipo, valor)
         self.cantCartasATomar = cantCartasATomar
+    
+    def __str__(self):
+        return f'tipo: {self.tipo}, subt: {self.subtipo}, nom: {self.nombre}, val: {self.valor}, cant: {self.cantCartasATomar}'
         
 class AccionRobarPropiedad(Accion):
     def __init__(self, nombre, tipo, subtipo, valor, intercambio : bool, cuantas = None):
         super().__init__(nombre, tipo, subtipo, valor)
         self.intercambio = intercambio
         self.cuantas = cuantas #si cuantas es none es que lo roba todo
+    
+    def __str__(self):
+        return f'tipo: {self.tipo}, subt: {self.subtipo}, nom: {self.nombre}, val: {self.valor}, inter: {self.intercambio}, cant: {self.cuantas}'
     
