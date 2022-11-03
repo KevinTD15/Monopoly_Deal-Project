@@ -45,10 +45,14 @@ class JuegoMD:
         for i in range(2):
             JuegoMD._jugadores[JuegoMD._indiceJugadorActual].mano.append(JuegoMD._mazo.pop(0))
     
-    def RepartirCartas(): #poner que roba 5 en vez de 2
-        for j in JuegoMD._jugadores:
+    def RepartirCartas(aTodos : bool, indice = None): #poner que roba 5 en vez de 2
+        if(aTodos):
+            for j in JuegoMD._jugadores:
+                for i in range(2):
+                    j.mano.append(JuegoMD._mazo.pop(0))
+        else:
             for i in range(2):
-                j.mano.append(JuegoMD._mazo.pop(0))
+                JuegoMD._jugadores[indice].mano.append(JuegoMD._mazo.pop(0))
                 
     def VerificarMano():
         if(len(JuegoMD._jugadores[JuegoMD._indiceJugadorActual].mano) > 7):
@@ -66,11 +70,13 @@ class JuegoMD:
         if(JuegoMD._iniciarJuegoMD):
             JuegoMD._iniciarJuegoMD = False
             JuegoMD.BarajarMazo()
-            JuegoMD.RepartirCartas()
+            JuegoMD.RepartirCartas(True)
         else:
             if(JuegoMD._indiceJugadorActual >= len(JuegoMD._jugadores)):
                 JuegoMD._indiceJugadorActual = 0
             
+            if(len(JuegoMD._jugadores[JuegoMD._indiceJugadorActual].mano) == 0):
+                JuegoMD.RepartirCartas(False, JuegoMD._indiceJugadorActual)
             JuegoMD.TomarCartas()  
             JuegoMD.PosiblesJugadas()
             JuegoMD.OrganizarJugadas()
