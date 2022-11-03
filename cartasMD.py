@@ -13,11 +13,6 @@ class Propiedades(Cartas):
         self.valor = valor
         self.cantGrupo = cantGrupo
         self.renta = renta
-    
-    def print(self):
-        print(f'''El nombre es: {self.nombre} \n
-              El tipo es {self.tipo} \n
-              el color es: {self.color[0]} \n''')
 
 class Dinero(Cartas):
     def __init__(self, nombre, tipo):
@@ -56,17 +51,3 @@ class AccionRobarPropiedad(Accion):
         super().__init__(nombre, tipo, subtipo, valor)
         self.intercambio = intercambio
         self.cuantas = cuantas #si cuantas es none es que lo roba todo
-        
-
-#test
-tenese = Propiedades('tenese', 'propiedad', ['anaranjado'], 3, [1,3,5], 2)
-casa = AccionConstruccion('casa1', 'accion', 'construccion', 3, 'casa', 3)
-renta = AccionRenta('renta1', 'accion', 'renta', 4,['verde', 'azul'], True)
-robar = AccionRobarCarta('go', 'accion', 'robarcarta', 3, 2)
-diqno = AccionRapida('diqno', 'accion', 'rapida', 5, True)
-factordecisivo = AccionRobarPropiedad('fd', 'accion', 'robarprop',  5, False)
-
-cartas : Cartas = [tenese, casa, renta, robar, diqno, factordecisivo]
-print(cartas)
-
-
