@@ -7,7 +7,7 @@ class Cartas:
         self.tipo = tipo
     
 class Propiedades(Cartas):
-    def __init__(self, nombre, tipo, color : list, cantGrupo = None, renta : list = [], valor = None):
+    def __init__(self, nombre, tipo, color : list, cantGrupo : int = None, renta : list = [], valor : int = None):
         Cartas.__init__(self, nombre, tipo)
         self.color = color
         self.valor = valor
@@ -16,7 +16,16 @@ class Propiedades(Cartas):
 
     def __str__(self):
         return f'tipo: {self.tipo}, nom: {self.nombre}, col: {self.color}, val: {self.valor}, rent: {self.renta}, cantGrup: {self.cantGrupo}'
+
+class Comodin(Cartas):
+    def __init__(self, nombre, tipo, color : list, valor : int = None):
+        super().__init__(nombre, tipo)
+        self.color = color
+        self.valor = valor
     
+    def __str__(self):
+        return f'tipo: {self.tipo}, nom: {self.nombre}, col: {self.color}, val: {self.valor}'
+
 class Dinero(Cartas):
     def __init__(self, nombre, tipo):
         Cartas.__init__(self, nombre, tipo)
