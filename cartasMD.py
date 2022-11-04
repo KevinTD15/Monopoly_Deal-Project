@@ -49,7 +49,7 @@ class AccionConstruccion(Accion):
         return f'tipo: {self.tipo}, subt: {self.subtipo}, nom: {self.nombre}, val: {self.valor}, const: {self.construccion}, monto: {self.monto}'
 
 class AccionRapida(Accion):
-    def __init__(self, nombre, tipo, subtipo, valor, turno : bool): #turno es si se juega la carta en tu turno o en el del contrario 
+    def __init__(self, nombre, tipo, subtipo, valor, turno): #turno 1 si es en mi turno, 0 si no y -1 en ambos
         super().__init__(nombre, tipo, subtipo, valor)
         self.turno = turno
     
