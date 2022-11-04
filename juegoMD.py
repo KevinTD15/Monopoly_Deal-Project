@@ -1,3 +1,4 @@
+from math import inf
 from cartasMD import *
 from mazoCartas import *
 from jugadorAleatorio import *
@@ -17,6 +18,7 @@ class JuegoMD:
     juega : Jugada
     final = False
     indiceGanador : int
+    maxEval = -inf
     
     def BuscarGanador():
         #put your code here
@@ -38,7 +40,8 @@ class JuegoMD:
         pass
     
     def PosiblesJugadas():
-        #put your code here
+        jr, e1 = JugadaRandom(JuegoMD._jugadores[JuegoMD._indiceJugadorActual], JuegoMD._mazo, JuegoMD.descarte).CrearJugada()
+        #cojer el maximo de las evaluaciones y actualizarlo
         pass
     
     def BarajarMazo():
@@ -90,18 +93,18 @@ class JuegoMD:
                 JuegoMD.RepartirCartas(False, JuegoMD._indiceJugadorActual)
             JuegoMD.TomarCartas()  
             JuegoMD.PosiblesJugadas()
-            JuegoMD.OrganizarJugadas()
-            JuegoMD.juega = JuegoMD._jugadores[JuegoMD._indiceJugadorActual].Jugar(JuegoMD._jugadas)
+            #JuegoMD.OrganizarJugadas()
+            #JuegoMD.juega = JuegoMD._jugadores[JuegoMD._indiceJugadorActual].Jugar(JuegoMD._jugadas)
             
-            if(JuegoMD.EsJugadaValida(JuegoMD.juega)):
-                JuegoMD.EjecutarJugada()
-                JuegoMD.VerificarMano()
-                JuegoMD._indiceJugadorActual += 1
-                JuegoMD._jugadas.clear()
-                JuegoMD.FinDeJuegoMD()
+            #if(JuegoMD.EsJugadaValida(JuegoMD.juega)):
+            JuegoMD.EjecutarJugada()
+            JuegoMD.VerificarMano()
+            JuegoMD._indiceJugadorActual += 1
+            JuegoMD._jugadas.clear()
+            JuegoMD.FinDeJuegoMD()
                 
-                if(JuegoMD.final):
-                    JuegoMD.BuscarGanador()
+            if(JuegoMD.final):
+                JuegoMD.BuscarGanador()
             else:
                 JuegoMD.final = True
                 #AKI FALTA UNA COSA
