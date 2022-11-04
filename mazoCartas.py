@@ -1,6 +1,7 @@
 from cartasMD import *
 
 class Mazo(Cartas):
+    #PROPIEDADES
     ventnor        = Propiedades('ventnor', 'propiedad', 'amarillo', 3, [2, 4, 6], 3)
     atlantico      = Propiedades('atlantico', 'propiedad', 'amarillo', 3, [2, 4, 6], 3)
     jardinesM      = Propiedades('jardinesMarvin', 'propiedad', 'amarillo', 3, [2, 4, 6], 3)
@@ -28,7 +29,9 @@ class Mazo(Cartas):
     carolinaNorte  = Propiedades('carolinaNorte', 'propiedad', 'verde', 3, [2,4,7], 4)
     ilinois        = Propiedades('ilinois', 'propiedad', 'rojo', 3, [2,3,6], 3)
     indiana        = Propiedades('indiana', 'propiedad', 'rojo', 3, [2,3,6], 3)
-    kentucky       = Propiedades('kentucky', 'propiedad', 'rojo', 3, [2,3,6], 3)    
+    kentucky       = Propiedades('kentucky', 'propiedad', 'rojo', 3, [2,3,6], 3) 
+    
+    #ACCION   
     casa           = AccionConstruccion('casa1', 'accion', 'construccion', 3, 'casa', 3) #3
     hotel          = AccionConstruccion ('hotel1', 'accion', 'construccion', 4, 'hotel', 4) #2
     renta          = AccionRenta('renta1', 'accion', 'renta', 1,['verde', 'azul'], True) #2
@@ -43,12 +46,18 @@ class Mazo(Cartas):
     factordecisivo = AccionRobarPropiedad('factorDesicivo', 'accion', 'robarprop',  5, False) #2
     tratoA         = AccionRobarPropiedad('tratoAstuto', 'accion', 'robarprop', 3, False, 1) #3
     tratoF         = AccionRobarPropiedad('tratoForzado', 'accion', 'robarprop', 3, True, 1) #3
+    cumpleano      = AccionRobarDinero('cumpleano', 'accion', 'robardinero', 2, True, 2) #3
+    deuda          = AccionRobarDinero('cobradeuda', 'accion', 'robardinero', 3, False, 5) #3
+    
+    #DINERO
     dinero5        = Dinero('5', 'dinero') #2
     dinero4        = Dinero('4', 'dinero') #3
     dinero3        = Dinero('3', 'dinero') #3
     dinero2        = Dinero ('2', 'dinero') #5
     dinero1        = Dinero ('1', 'dinero') #6
     dinero10       = Dinero ('10', 'dinero') #1
+    
+    #COMODIN
     comodinM       = Comodin('comodinM', 'comodin', []) #2
     comodin        = Comodin('comodin2', 'comodin', ['anaranjado', 'morado'], 2) #2
     comodin2       = Comodin('comodin3', 'comodin', ['negro', 'verde'], 4)
@@ -57,8 +66,7 @@ class Mazo(Cartas):
     comodin5       = Comodin('comodin6', 'comodin', ['amarillo', 'rojo'], 3) #2
     comodin6       = Comodin('comodin7', 'comodin', ['azul', 'verde'], 4 )
     comodin7       = Comodin('comodin8', 'comodin', ['azulClaro', 'carmelita'], 1)
-    cumpleano      = AccionRobarDinero('cumpleano', 'accion', 'robarDinero', 2, True, 2) #3
-    deuda          = AccionRobarDinero('cobradeuda', 'accion', 'robarDinero', 3, False, 5) #3
+    
 
 
     cartas : Cartas = [ventnor, atlantico, jardinesM ,vermont ,oriental, connecticut  ,tenese,
