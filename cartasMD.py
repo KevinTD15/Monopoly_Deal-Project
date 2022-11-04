@@ -82,3 +82,13 @@ class AccionRobarPropiedad(Accion):
     def __str__(self):
         return f'tipo: {self.tipo}, subt: {self.subtipo}, nom: {self.nombre}, val: {self.valor}, inter: {self.intercambio}, cant: {self.cuantas}'
     
+class AccionRobarDinero(Accion):
+    def __init__(self, nombre, tipo, subtipo, valor, todos : bool, monto : int):
+        super().__init__(nombre, tipo, subtipo, valor)
+        self.todos = todos
+        self.monto = monto
+        
+    def __str__(self):
+        return f'tipo: {self.tipo}, subt: {self.subtipo}, nom: {self.nombre}, val: {self.valor}, cant: {self.todos}, monto: {self.monto}'
+        
+        
