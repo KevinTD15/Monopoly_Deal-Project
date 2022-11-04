@@ -7,7 +7,7 @@ class Cartas:
         self.tipo = tipo
     
 class Propiedades(Cartas):
-    def __init__(self, nombre, tipo, color : list, cantGrupo, renta : list, valor = None):
+    def __init__(self, nombre, tipo, color : list, cantGrupo = None, renta : list = [], valor = None):
         Cartas.__init__(self, nombre, tipo)
         self.color = color
         self.valor = valor
