@@ -1,7 +1,7 @@
 from abc import ABC, abstractstaticmethod
 
 class Jugador(ABC):
-
+    
     mano = []
     tablero = {
         'carmelita' : [],
@@ -29,12 +29,6 @@ class Jugador(ABC):
     
     def Jugar(posiblesJugadas):
         return Jugador.SeleccionarJugada(posiblesJugadas)
-    
-    #def PonerMano(self, carta):
-    #    self.mano.append(carta)
-    
-    def PonerEnTablero():
-        pass
     
     
     
