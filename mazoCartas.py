@@ -76,6 +76,3 @@ class Mazo(Cartas):
                     renta2, renta3, renta4, rentaT, robar, diqno, doblaR,factordecisivo, tratoA, 
                     tratoF, dinero5, dinero4, dinero3, dinero2, dinero1, dinero10, comodinM, comodin, 
                     comodin2, comodin3, comodin4, comodin5, comodin6, comodin7, cumpleano, deuda,]
-
-for i in Mazo.cartas:
-    print (i)
