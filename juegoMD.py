@@ -1,23 +1,18 @@
-from math import inf
 from cartasMD import *
 from mazoCartas import *
 from jugadorMD import *
 from jugada import *
-import time
 import random as rd
 
 class JuegoMD:
 
     _jugadores = []
-    _jugadas = []
     _indiceJugadorActual = 0
-    _manoJugador = []
     _iniciarJuegoMD = True
     _mazo = Mazo.cartas
     descarte = []
     final = False
     ganador : str
-    maxEval = -inf
     notificaciones = []
     
     def FinDeJuegoMD(): #no se si esto pinche
@@ -63,14 +58,6 @@ class JuegoMD:
         cantCartasEnMano = jugadorActual.mano
         if(len(cantCartasEnMano) > 7):
             jugadorActual.DescartarCartas(JuegoMD._mazo, JuegoMD.descarte)
-                       
-            
-    #def JugadorGanador(indiceGanador):
-    #    '''devuelve el ganador'''
-    #    if(indiceGanador == -1):
-    #        raise Exception('El tiene que haber un ganador siempre')
-    #    else:
-    #        print(f'Gana el jugador {JuegoMD._jugadores[JuegoMD.indiceGanador]}')
                     
     def EjecutarTurnoMD():
         '''aqui es donde se lleva a cabo la ejecucion de todo el JuegoMD'''
@@ -96,14 +83,15 @@ class JuegoMD:
             
             jugadorActual.EjecutarJugada(jugada, JuegoMD._mazo, JuegoMD.descarte)
             JuegoMD.VerificarMano()
-            JuegoMD._jugadas.clear()
             JuegoMD.final, JuegoMD.ganador = JuegoMD.FinDeJuegoMD()
             JuegoMD._indiceJugadorActual += 1
                 
     def EjecutarJuego(self):
+        count = -1
         while(not JuegoMD.final):
             JuegoMD.EjecutarTurnoMD()
-        self.notificaciones.append(f'Gano: {self.ganador}')
+            count += 1
+        self.notificaciones.append(f'Gano: {self.ganador} en {count} turnos')
         
 
         
