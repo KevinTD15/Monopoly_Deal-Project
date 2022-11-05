@@ -33,12 +33,12 @@ class Mazo(Cartas):
     
     #ACCION   
     #casa
-    casa            = AccionConstruccion('casa1', 'accion', 'construccion', 3, 'casa', 3)
-    casa2           = AccionConstruccion('casa2', 'accion', 'construccion', 3, 'casa', 3)
-    casa3           = AccionConstruccion('casa3', 'accion', 'construccion', 3, 'casa', 3)
+    casa            = AccionConstruccion('casa', 'accion', 'construccion', 3, 'casa', 3)
+    casa2           = AccionConstruccion('casa', 'accion', 'construccion', 3, 'casa', 3)
+    casa3           = AccionConstruccion('casa', 'accion', 'construccion', 3, 'casa', 3)
     #hotel
-    hotel          = AccionConstruccion ('hotel1', 'accion', 'construccion', 4, 'hotel', 4)
-    hotel2         = AccionConstruccion ('hotel2', 'accion', 'construccion', 4, 'hotel', 4)
+    hotel          = AccionConstruccion ('hotel', 'accion', 'construccion', 4, 'hotel', 4)
+    hotel2         = AccionConstruccion ('hotel', 'accion', 'construccion', 4, 'hotel', 4)
     #renta
     renta0         = AccionRenta('rentaVA', 'accion', 'renta', 1,['verde', 'azul'], True)
     renta00        = AccionRenta('rentaVA', 'accion', 'renta', 1,['verde', 'azul'], True)
@@ -110,17 +110,17 @@ class Mazo(Cartas):
     dinero10       = Dinero ('10', 'dinero')
     
     #COMODIN
-    comodinM       = Comodin('comodinM', 'comodin', [])
-    comodinM1       = Comodin('comodinM', 'comodin', [])
-    comodin        = Comodin('comodin2', 'comodin', ['anaranjado', 'morado'], 2)
-    comodina        = Comodin('comodin2', 'comodin', ['anaranjado', 'morado'], 2)
-    comodin2       = Comodin('comodin3', 'comodin', ['negro', 'verde'], 4)
-    comodin3       = Comodin('comodin4', 'comodin', ['blanco', 'negro'], 2)
-    comodin4       = Comodin('comodin5', 'comodin', ['azulClaro', 'negro'], 4)
-    comodin5       = Comodin('comodin6', 'comodin', ['amarillo', 'rojo'], 3)
-    comodin51       = Comodin('comodin6', 'comodin', ['amarillo', 'rojo'], 3)
-    comodin6       = Comodin('comodin7', 'comodin', ['azul', 'verde'], 4 )
-    comodin7       = Comodin('comodin8', 'comodin', ['azulClaro', 'carmelita'], 1)
+    comodinM       = Comodin('Maestro', 'comodin', [])
+    comodinM1       = Comodin('Maestro', 'comodin', [])
+    comodin        = Comodin('AnM', 'comodin', ['anaranjado', 'morado'], 2)
+    comodina        = Comodin('AnM', 'comodin', ['anaranjado', 'morado'], 2)
+    comodin2       = Comodin('NV', 'comodin', ['negro', 'verde'], 4)
+    comodin3       = Comodin('BN', 'comodin', ['blanco', 'negro'], 2)
+    comodin4       = Comodin('AcN', 'comodin', ['azulClaro', 'negro'], 4)
+    comodin5       = Comodin('AmR', 'comodin', ['amarillo', 'rojo'], 3)
+    comodin51       = Comodin('AmR', 'comodin', ['amarillo', 'rojo'], 3)
+    comodin6       = Comodin('AzV', 'comodin', ['azul', 'verde'], 4 )
+    comodin7       = Comodin('AcC', 'comodin', ['azulClaro', 'carmelita'], 1)
     
 
 
