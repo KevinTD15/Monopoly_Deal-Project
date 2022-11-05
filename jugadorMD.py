@@ -1,5 +1,5 @@
-import random as rd
 from jugador import Jugador
+from jugada import *
 
 class JugadorAleatorio(Jugador):
     
@@ -19,19 +19,19 @@ class JugadorAleatorio(Jugador):
             'dinero' : []
         }
         self.mano = []
-            
-    def SeleccionarJugada(self):
-        a = rd.randint(0, 3)
-        cantCartasAJugar = min(a, len(self.mano))
-        cartasAJugar = rd.sample(self.mano, cantCartasAJugar)
 
-        #for i in range(cantCartasAJugar):
-        #    indice = rd.randint(0, len(self.mano) - 1)
-        #    cartasAJugar.append(self.mano[indice])
-        #    indices.append(indice)
-                
-        return cartasAJugar
-
+    def DescartarCartas(self,mazo, descarte):
+        JugadaRandom(self, mazo, descarte).DescartarCartas()
+        
+    def SeleccionarJugada(self, mazo, descarte):
+        jugada = JugadaRandom(self, mazo, descarte).CrearJugada()
+        return jugada
+    
+    def EjecutarJugada(self, jugada, mazo, descarte):
+        j = JugadaRandom(self, mazo, descarte)
+        for i in jugada:
+            j.UsarCarta(i)
+        
 class JugadorInteligente(Jugador):
     def __init__(self, nombre, esBot):
         super().__init__(nombre, esBot)
@@ -50,5 +50,18 @@ class JugadorInteligente(Jugador):
         }
         self.mano = []
         
-    def SeleccionarJugada(self):
+    def EvaluarJugada():
         pass
+    
+    def PosiblesJugadas(self, mazo, descarte):
+        jr = JugadaRandom(self, mazo, descarte).CrearJugada()
+    #cojer el maximo de las evaluaciones y actualizarlo
+    pass
+    
+    def SeleccionarJugada(self, mazo, descarte):
+        jugada = self.PosiblesJugadas(mazo, descarte)
+        return jugada
+    
+    def EjecutarJugada(self, jugada):
+        for i in jugada:
+            self.UsarCarta(i)
