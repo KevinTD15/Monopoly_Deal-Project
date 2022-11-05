@@ -29,7 +29,7 @@ class Crupier:
                     j.mano.append(mazo.pop(0))
         else:
             for i in range(cantCartas):
-                jugadores[indice].mano.append(mazo.pop(0))
+                jugadores.mano.append(mazo.pop(0))
         
          
     def VerificarMano(jugadorActual, mazo, descarte):
