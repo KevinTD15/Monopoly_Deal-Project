@@ -47,12 +47,15 @@ class JugadaRandom(Jugada):
     def UsarCarta(self, carta):
         jugadorActual = self.jugador
         juegoMD.JuegoMD.notificaciones.append(f'{jugadorActual.nombre} intentara jugar la {carta.tipo} {carta.nombre}') 
+        
         if(carta.tipo == 'propiedad'):
             jugadorActual.tablero[carta.color].append(carta)
             jugadorActual.mano.remove(carta)
+        
         elif(carta.tipo == 'dinero'):
             jugadorActual.tablero[carta.tipo].append(carta)
             jugadorActual.mano.remove(carta)
+        
         elif(carta.tipo == 'comodin'):
             if (len(carta.color) > 0):
                 col = rd.sample(carta.color, 1)
@@ -67,18 +70,30 @@ class JugadaRandom(Jugada):
                 else:
                     pass               
             jugadorActual.mano.remove(carta)
+        
         else:
+            
             if(carta.subtipo == 'renta'):
                 pass
+            
             elif(carta.subtipo == 'construccion'):
-                pass
+                col = rd.sample(sorted(jugadorActual.tablero), 1)
+                if (col[0] in jugadorActual.tablero and len(jugadorActual.tablero[col[0]]) == 3):
+                    jugadorActual.tablero[col[0]].append(carta)
+                else:
+                    jugadorActual.tablero['dinero'].append(carta)
+                jugadorActual.mano.remove(carta)
+                               
             elif(carta.subtipo == 'rapida'):
                 pass
+            
             elif(carta.subtipo == 'robarprop'):
                 pass
+            
             elif(carta.subtipo == 'robardinero'):
                 pass
+            
             else: #robar carta
-                pass
+                pass#juegoMD.
             
     
