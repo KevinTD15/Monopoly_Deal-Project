@@ -1,7 +1,7 @@
 from cartasMD import *
 from mazoCartas import *
 from jugadorMD import *
-from jugada import *
+#from jugada import *
 import random as rd
 
 class JuegoMD:
@@ -60,7 +60,7 @@ class JuegoMD:
             jugadorActual.DescartarCartas(JuegoMD._mazo, JuegoMD.descarte)
                     
     def EjecutarTurnoMD():
-        '''aqui es donde se lleva a cabo la ejecucion de todo el JuegoMD'''
+        '''aqui es donde se lleva a cabo la ejecucion de un turno del juego'''
         if(JuegoMD._iniciarJuegoMD):
             JuegoMD._iniciarJuegoMD = False
             JuegoMD.BarajarMazo()
@@ -87,6 +87,7 @@ class JuegoMD:
             JuegoMD._indiceJugadorActual += 1
                 
     def EjecutarJuego(self):
+        '''aqui es donde se lleva a cabo la ejecucion del juego'''
         count = -1
         while(not JuegoMD.final):
             JuegoMD.EjecutarTurnoMD()
