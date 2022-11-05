@@ -15,76 +15,64 @@ class JuegoMD:
     _iniciarJuegoMD = True
     _mazo = Mazo.cartas
     descarte = []
-    juega : Jugada
     final = False
-    indiceGanador : int
+    ganador : str
     maxEval = -inf
-    
-    def BuscarGanador():
-        #put your code here
-        pass
-    
-    def EjecutarJugada(jugada):
-        for i in jugada:
-            JuegoMD.UsarCarta(i)
+    notificaciones = []
     
     def FinDeJuegoMD(): #no se si esto pinche
         count = 0
-        tableroJugadorActual = JuegoMD._jugadores[JuegoMD._indiceJugadorActual].tablero
+        jugadorActual = JuegoMD._jugadores[JuegoMD._indiceJugadorActual]
+        tableroJugadorActual = jugadorActual.tablero
         for i in tableroJugadorActual:
-            if(len(tableroJugadorActual[i]) >= 1 and i[0].tipo == 'propiedad' and len(i) == i.cantGrupo):
+            if(i == 'dinero'):
+                break
+            if(len(tableroJugadorActual[i]) >= 1 and len(tableroJugadorActual[i]) == tableroJugadorActual[i][0].cantGrupo):
                 count += 1
-        return count == 3
+        fin = count >= 3
+        return fin, jugadorActual.nombre
     
-    def OrganizarJugadas():
-        #put your code here
-        pass
-    
-    def PosiblesJugadas():
-        jr, e1 = JugadaRandom(JuegoMD._jugadores[JuegoMD._indiceJugadorActual], JuegoMD._mazo, JuegoMD.descarte).CrearJugada()
-        #cojer el maximo de las evaluaciones y actualizarlo
-        pass
+    #def OrganizarJugadas():
+    #    #put your code here
+    #    pass
     
     def BarajarMazo():
         rd.shuffle(JuegoMD._mazo)
     
     def TomarCartas():
-        for i in range(2):
-            JuegoMD._jugadores[JuegoMD._indiceJugadorActual].mano.append(JuegoMD._mazo.pop(0))
+        jugadorActual = JuegoMD._jugadores[JuegoMD._indiceJugadorActual]
+        if(len(JuegoMD._mazo) < 2):
+            JuegoMD._mazo.extend(JuegoMD.descarte)
+            JuegoMD.descarte.clear()
+            JuegoMD.BarajarMazo()
+        else:
+            for i in range(2):
+                jugadorActual.mano.append(JuegoMD._mazo.pop(0))
     
-    def RepartirCartas(aTodos : bool, indice = None): #poner que roba 5 en vez de 4
+    def RepartirCartas(aTodos : bool, indice = None): #poner que roba 5 en vez de 8
         if(aTodos):
             for j in JuegoMD._jugadores:
-                for i in range(4):
+                for i in range(8):
                     j.mano.append(JuegoMD._mazo.pop(0))
         else:
             for i in range(2):
                 JuegoMD._jugadores[indice].mano.append(JuegoMD._mazo.pop(0))
-                
+         
     def VerificarMano():
-        if(len(JuegoMD._jugadores[JuegoMD._indiceJugadorActual].mano) > 7):
-            pass #IA            
+        jugadorActual = JuegoMD._jugadores[JuegoMD._indiceJugadorActual]
+        cantCartasEnMano = jugadorActual.mano
+        if(len(cantCartasEnMano) > 7):
+            jugadorActual.DescartarCartas(JuegoMD._mazo, JuegoMD.descarte)
+                       
             
-    def JugadorGanador(indiceGanador):
-        '''devuelve el ganador'''
-        if(indiceGanador == -1):
-            raise Exception('El tiene que haber un ganador siempre')
-        else:
-            print(f'Gana el jugador {JuegoMD._jugadores[JuegoMD.indiceGanador]}')
-            
-    def UsarCarta(carta):    
-        jugadorActual = JuegoMD._jugadores[JuegoMD._indiceJugadorActual]    
-        if(carta.tipo == 'propiedad'):
-            jugadorActual.tablero[carta.color].append(carta)
-            jugadorActual.mano.remove(carta)
-        elif(carta.tipo == 'dinero'):
-            jugadorActual.tablero[carta.tipo].append(carta)
-            jugadorActual.mano.remove(carta)
-        else:
-            jugadorActual.mano.remove(carta)
-            #arreglar estoooooooooooo
-            
-    def EjecutarJuegoMD():
+    #def JugadorGanador(indiceGanador):
+    #    '''devuelve el ganador'''
+    #    if(indiceGanador == -1):
+    #        raise Exception('El tiene que haber un ganador siempre')
+    #    else:
+    #        print(f'Gana el jugador {JuegoMD._jugadores[JuegoMD.indiceGanador]}')
+                    
+    def EjecutarTurnoMD():
         '''aqui es donde se lleva a cabo la ejecucion de todo el JuegoMD'''
         if(JuegoMD._iniciarJuegoMD):
             JuegoMD._iniciarJuegoMD = False
@@ -95,43 +83,29 @@ class JuegoMD:
                 JuegoMD._indiceJugadorActual = 0
             
             jugadorActual = JuegoMD._jugadores[JuegoMD._indiceJugadorActual]
+            JuegoMD.notificaciones.append(f'Turno de: {jugadorActual.nombre}')
+            
             if(len(jugadorActual.mano) == 0):
                 JuegoMD.RepartirCartas(False, JuegoMD._indiceJugadorActual)
+                JuegoMD.notificaciones.append(f'Se le repartieron 5 cartas a: {jugadorActual.nombre}')
             else:
-                JuegoMD.TomarCartas()  
+                JuegoMD.TomarCartas()
+                JuegoMD.notificaciones.append(f'{jugadorActual.nombre} toma 2 cartas del mazo')
             
-            if(jugadorActual is JugadorInteligente):
-                jugada = JuegoMD.PosiblesJugadas()
-            else:
-                jugada = jugadorActual.SeleccionarJugada()
-                
-            JuegoMD.EjecutarJugada(jugada)
+            jugada = jugadorActual.SeleccionarJugada(JuegoMD._mazo, JuegoMD.descarte)
+            
+            jugadorActual.EjecutarJugada(jugada, JuegoMD._mazo, JuegoMD.descarte)
             JuegoMD.VerificarMano()
-            JuegoMD._indiceJugadorActual += 1
             JuegoMD._jugadas.clear()
-            JuegoMD.final = JuegoMD.FinDeJuegoMD()
+            JuegoMD.final, JuegoMD.ganador = JuegoMD.FinDeJuegoMD()
+            JuegoMD._indiceJugadorActual += 1
                 
-            if(JuegoMD.final):
-                JuegoMD.BuscarGanador()
-            #else:
-            #    JuegoMD.final = True
-            #    #AKI FALTA UNA COSA
-                
-    def Simulador(self):
+    def EjecutarJuego(self):
         while(not JuegoMD.final):
-            JuegoMD.EjecutarJuegoMD()
-            time.sleep(1)
-
+            JuegoMD.EjecutarTurnoMD()
+        self.notificaciones.append(f'Gano: {self.ganador}')
         
-#test
-j = JuegoMD()
-j1 = JugadorAleatorio('pepe', True)
-j2 = JugadorAleatorio('jose', True)
-j3 = JugadorInteligente('kevin', True)
-j._jugadores.append(j1)
-j._jugadores.append(j2)
-j._jugadores.append(j3)
-j.Simulador()
+
         
     
 
