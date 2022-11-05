@@ -1,7 +1,6 @@
 from cartasMD import *
 from mazoCartas import *
 from jugadorMD import *
-#from jugada import *
 import random as rd
 from crupier import *
 
@@ -30,10 +29,10 @@ class JuegoMD:
             JuegoMD.notificaciones.append(f'Turno de: {jugadorActual.nombre}')
             
             if(len(jugadorActual.mano) == 0):
-                Crupier.RepartirCartas(False, JuegoMD._jugadores, JuegoMD._mazo, 5, JuegoMD.descarte, JuegoMD._indiceJugadorActual)
+                Crupier.RepartirCartas(False, jugadorActual, JuegoMD._mazo, 5, JuegoMD.descarte, JuegoMD._indiceJugadorActual)
                 JuegoMD.notificaciones.append(f'Se le repartieron 5 cartas a: {jugadorActual.nombre}')
             else:
-                Crupier.RepartirCartas(False, JuegoMD._jugadores, JuegoMD._mazo, 2, JuegoMD.descarte, JuegoMD._indiceJugadorActual)
+                Crupier.RepartirCartas(False, jugadorActual, JuegoMD._mazo, 2, JuegoMD.descarte, JuegoMD._indiceJugadorActual)
                 JuegoMD.notificaciones.append(f'{jugadorActual.nombre} toma 2 cartas del mazo')
             
             jugada = jugadorActual.SeleccionarJugada(JuegoMD._mazo, JuegoMD.descarte)
