@@ -63,7 +63,7 @@ class JugadaRandom(Jugada):
             else:
                 col = rd.sample(sorted(jugadorActual.tablero), 1)
                 if (col[0] in jugadorActual.tablero and len(jugadorActual.tablero[col[0]]) > 0 and len(jugadorActual.tablero[col[0]]) < 3):
-                    jugadorActual.tabblero[col[0]].append(carta)
+                    jugadorActual.tablero[col[0]].append(carta)
                 else:
                     pass               
             jugadorActual.mano.remove(carta)
