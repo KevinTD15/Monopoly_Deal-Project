@@ -3,28 +3,20 @@ from abc import ABC, abstractstaticmethod
 class Jugador(ABC):
     
     mano = []
-    tablero = {
-        'carmelita' : [],
-        'azulClaro' : [],
-        'morado' : [],
-        'anaranjado' : [],
-        'rojo' : [],
-        'amarillo' : [],
-        'verde' : [],
-        'azul' : [],
-        'negro' : [],
-        'blanco' : [],
-        'dinero' : []
-    }
+    tablero = {}
     
     def __init__(self, nombre, esBot):
         self.nombre = nombre
         self.esBot = esBot
-        self.mano = []
-        self.tablero = {}
-        
+        self.mano = Jugador.mano
+        self.tablero = Jugador.tablero
+
     @abstractstaticmethod
-    def SeleccionarJugada(posiblesJugadas):
+    def EjecutarJugada(jugada, tipo): #tipo es si es random, ogloso, etc
+        pass
+    
+    @abstractstaticmethod
+    def SeleccionarJugada(posiblesJugadas, mazo, descarte):
         pass
     
     def Jugar(posiblesJugadas):
