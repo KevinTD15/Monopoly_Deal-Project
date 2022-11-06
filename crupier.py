@@ -8,7 +8,7 @@ class Crupier:
         for i in tableroJugadorActual:
             if(i == 'dinero'):
                 break
-            if(len(tableroJugadorActual[i]) >= 1 and len(tableroJugadorActual[i]) == tableroJugadorActual[i][0].cantGrupo):
+            if(len(tableroJugadorActual[i]) >= 1 and len(tableroJugadorActual[i]) >= tableroJugadorActual[i][0].cantGrupo):
                 count += 1
         fin = count >= 3
         return fin, jugadorActual.nombre
