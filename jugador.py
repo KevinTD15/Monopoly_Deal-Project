@@ -16,6 +16,10 @@ class Jugador(ABC):
         pass
     
     @abstractstaticmethod
+    def Responder(self, jugadorActual, carta):
+        pass
+    
+    @abstractstaticmethod
     def SeleccionarJugada(posiblesJugadas, mazo, descarte):
         pass
     
