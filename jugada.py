@@ -50,24 +50,28 @@ class JugadaRandom(Jugada):
                 indicesUsados.append(a)
                 self.descarte.append(self.jugador.mano.pop(a))
                 
-    def ResponderAJugada(self, jugadorActual, carta, monto):
-        if(carta.subtipo == 'renta'):
-            band = True
-            for i in self.jugador.mano:
+    def UsarDiQNo(self, carta):
+        for i in self.jugador.mano:
                 if(i.nombre == 'diqno'):
                     usar = rd.randint(0, 1)
                     if(usar == 1):
                         self.descarte.append(i)
                         self.jugador.mano.remove(i)
-                        band = False
-                        juegoMD.JuegoMD.notificaciones.append(f'{self.jugador.nombre} usa la {i.tipo} {i.nombre} y niega el efecto de {carta.nombre} contra el') 
-            if(band):
+                        juegoMD.JuegoMD.notificaciones.append(f'{self.jugador.nombre} usa la {i.tipo} {i.nombre} y niega el efecto de {carta.nombre} contra el')
+                        return True
+        return False
                 
+    def ResponderAJugada(self, jugadorActual, carta, monto):
+        band = self.UsarDiQNo(carta)
+        if(not band):
+            if(carta.subtipo == 'renta'):
                 pass
-        elif(carta.subtipo == 'robarprop'):
-            pass
-        elif(carta.subtipo == 'robardinero'):
-            pass
+            elif(carta.subtipo == 'robarprop'):
+                pass
+            elif(carta.subtipo == 'robardinero'):
+                pass
+            else:
+                pass
         else:
             pass
     
@@ -89,7 +93,7 @@ class JugadaRandom(Jugada):
         elif(carta.tipo == 'comodin'):
             if (len(carta.color) > 0):
                 col = rd.sample(carta.color, 1)
-                if(len(jugadorActual.tablero[col[0]]) > 0 and jugadorActual.tablero[col[0]][0].cantGrupo < len(jugadorActual.tablero[col[0]])):
+                if(len(jugadorActual.tablero[col[0]]) > 0 and jugadorActual.tablero[col[0]][0].cantGrupo > len(jugadorActual.tablero[col[0]])):
                     jugadorActual.tablero[col[0]].append(carta)
                     juegoMD.JuegoMD.notificaciones.append(f'{jugadorActual.nombre} pone el {carta.tipo} {carta.nombre} en el grupo {col[0]}') 
                 else:
@@ -97,7 +101,7 @@ class JugadaRandom(Jugada):
                     juegoMD.JuegoMD.notificaciones.append(f'{jugadorActual.nombre} pone el {carta.tipo} {carta.nombre} como dinero') 
             else:
                 col = rd.sample(sorted(jugadorActual.tablero), 1)
-                if(len(jugadorActual.tablero[col[0]]) > 0 and col[0] != 'dinero' and jugadorActual.tablero[col[0]][0].cantGrupo < len(jugadorActual.tablero[col[0]])):                    
+                if(len(jugadorActual.tablero[col[0]]) > 0 and col[0] != 'dinero' and jugadorActual.tablero[col[0]][0].cantGrupo > len(jugadorActual.tablero[col[0]])):                    
                     jugadorActual.tablero[col[0]].append(carta)
                     juegoMD.JuegoMD.notificaciones.append(f'{jugadorActual.nombre} pone el {carta.tipo} {carta.nombre} en el grupo {col[0]}') 
                 else:
@@ -116,6 +120,7 @@ class JugadaRandom(Jugada):
                 if(len(posiblePago) == 0):
                     jugadorActual.tablero['dinero'].append(carta)
                     juegoMD.JuegoMD.notificaciones.append(f'{jugadorActual.nombre} usa la carta {carta.tipo} {carta.nombre} como dinero')
+                    jugadorActual.mano.remove(carta)
                 else:
                     col = rd.sample(posiblePago, 1)
                     monto = CalcularMonto(jugadorActual, col[0])
@@ -131,8 +136,8 @@ class JugadaRandom(Jugada):
                         juegoMD.JuegoMD.notificaciones.append(f'{jugadorActual.nombre} usa la carta {carta.tipo} {carta.nombre} contra {jug[0].nombre}')
                         jug[0].Responder(jugadorActual, self.mazo, self.descarte, carta, monto)
                         pass
-                self.descarte.append(carta)
-                jugadorActual.mano.remove(carta)
+                    self.descarte.append(carta)
+                    jugadorActual.mano.remove(carta)
             
             elif(carta.subtipo == 'construccion'):
                 coloresTablero = sorted(jugadorActual.tablero).copy()
