@@ -137,6 +137,8 @@ class JugadaRandom(Jugada):
             elif(carta.subtipo == 'construccion'):
                 coloresTablero = sorted(jugadorActual.tablero).copy()
                 coloresTablero.remove('dinero')
+                coloresTablero.remove('blanco')
+                coloresTablero.remove('negro')
                 col = rd.sample(coloresTablero, 1)
                 if(carta.nombre == 'casa'):
                     if (len(jugadorActual.tablero[col[0]]) > 0 and len(jugadorActual.tablero[col[0]]) == jugadorActual.tablero[col[0]][0].cantGrupo):
