@@ -32,9 +32,9 @@ class JugadorAleatorio(Jugador):
         for i in jugada:
             j.UsarCarta(i)
             
-    def Responder(self, jugadorActual, mazo, descarte, carta):
+    def Responder(self, jugadorActual, mazo, descarte, carta, monto):
         j = JugadaRandom(self, mazo, descarte)
-        j.ResponderAJugada(jugadorActual, carta)
+        j.ResponderAJugada(jugadorActual, carta, monto)
         
 class JugadorInteligente(Jugador):
     def __init__(self, nombre, esBot):
