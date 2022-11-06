@@ -83,8 +83,12 @@ class JugadaRandom(Jugada):
             
             elif(carta.subtipo == 'construccion'):
                 col = rd.sample(sorted(jugadorActual.tablero), 1)
-                if (col[0] in jugadorActual.tablero and len(jugadorActual.tablero[col[0]]) == 3):
-                    jugadorActual.tablero[col[0]].append(carta)
+                if(carta.nombre == 'casa' and col != 'dinero'):
+                    if (len(jugadorActual.tablero[col[0]]) > 0 and len(jugadorActual.tablero[col[0]]) == jugadorActual.tablero[col[0]][0].cantGrupo):
+                        jugadorActual.tablero[col[0]].append(carta)
+                elif(carta.nombre == 'hotel' and col != 'dinero'):
+                    if (len(jugadorActual.tablero[col[0]]) > 0 and len(jugadorActual.tablero[col[0]]) == jugadorActual.tablero[col[0]][0].cantGrupo + 1):
+                            jugadorActual.tablero[col[0]].append(carta)
                 else:
                     jugadorActual.tablero['dinero'].append(carta)
                 jugadorActual.mano.remove(carta)
