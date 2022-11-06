@@ -2,6 +2,7 @@ from abc import ABC, abstractclassmethod
 from jugador import *
 import random as rd
 import juegoMD
+from crupier import *
 
 class Jugada(ABC):
     def __init__(self, jugador, mazo, descarte) -> None:
@@ -46,29 +47,33 @@ class JugadaRandom(Jugada):
     
     def UsarCarta(self, carta):
         jugadorActual = self.jugador
-        juegoMD.JuegoMD.notificaciones.append(f'{jugadorActual.nombre} intentara jugar la {carta.tipo} {carta.nombre}') 
         
         if(carta.tipo == 'propiedad'):
             jugadorActual.tablero[carta.color].append(carta)
             jugadorActual.mano.remove(carta)
+            juegoMD.JuegoMD.notificaciones.append(f'{jugadorActual.nombre} pone la {carta.tipo} {carta.color} {carta.nombre} en su tablero') 
         
         elif(carta.tipo == 'dinero'):
             jugadorActual.tablero[carta.tipo].append(carta)
             jugadorActual.mano.remove(carta)
+            juegoMD.JuegoMD.notificaciones.append(f'{jugadorActual.nombre} pone la carta de {carta.tipo} de $ {carta.nombre} en su tablero')        
         
         elif(carta.tipo == 'comodin'):
             if (len(carta.color) > 0):
                 col = rd.sample(carta.color, 1)
                 if (col[0] in jugadorActual.tablero and len(jugadorActual.tablero[col[0]]) > 0 and len(jugadorActual.tablero[col[0]]) < 3):
                     jugadorActual.tablero[col[0]].append(carta)
+                    juegoMD.JuegoMD.notificaciones.append(f'{jugadorActual.nombre} pone el {carta.tipo} {carta.nombre} en el grupo {col[0]}') 
                 else:
                     jugadorActual.tablero['dinero'].append(carta)
+                    juegoMD.JuegoMD.notificaciones.append(f'{jugadorActual.nombre} pone el {carta.tipo} {carta.nombre} como dinero') 
             else:
                 col = rd.sample(sorted(jugadorActual.tablero), 1)
                 if (col[0] in jugadorActual.tablero and len(jugadorActual.tablero[col[0]]) > 0 and len(jugadorActual.tablero[col[0]]) < 3):
                     jugadorActual.tablero[col[0]].append(carta)
+                    juegoMD.JuegoMD.notificaciones.append(f'{jugadorActual.nombre} pone el {carta.tipo} {carta.nombre} en el grupo {col[0]}') 
                 else:
-                    pass               
+                    juegoMD.JuegoMD.notificaciones.append(f'{jugadorActual.nombre} no hace nada con el {carta.tipo} {carta.nombre}')                
             jugadorActual.mano.remove(carta)
         
         else:
@@ -94,6 +99,7 @@ class JugadaRandom(Jugada):
                 pass
             
             else: #robar carta
-                pass#juegoMD.
-            
+                Crupier.RepartirCartas(False, jugadorActual, self.mazo, int(carta.cantCartasATomar), self.descarte)
+                juegoMD.JuegoMD.notificaciones.append(f'{jugadorActual.nombre} usa la {carta.tipo} {carta.nombre} y toma {carta.cantCartasATomar} del mazo')                
+                pass
     
