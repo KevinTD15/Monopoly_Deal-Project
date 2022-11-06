@@ -37,7 +37,7 @@ class JuegoMD:
             
             jugada = jugadorActual.SeleccionarJugada(JuegoMD._mazo, JuegoMD.descarte)
             
-            jugadorActual.EjecutarJugada(jugada, JuegoMD._mazo, JuegoMD.descarte)
+            jugadorActual.EjecutarJugada(jugada, JuegoMD._mazo, JuegoMD.descarte, JuegoMD._jugadores)
             Crupier.VerificarMano(jugadorActual, JuegoMD._mazo, JuegoMD.descarte)
             JuegoMD.final, JuegoMD.ganador = Crupier.FinDeJuegoMD(jugadorActual)
             JuegoMD._indiceJugadorActual += 1
