@@ -60,12 +60,48 @@ class JugadaRandom(Jugada):
                         juegoMD.JuegoMD.notificaciones.append(f'{self.jugador.nombre} usa la {i.tipo} {i.nombre} y niega el efecto de {carta.nombre} contra el')
                         return True
         return False
+    
+    def DarCartas(self, jugadorActual, cartasADar = None):
+        if(cartasADar != None):
+            for i in cartasADar:
+                if(i.tipo == 'propiedad'):
+                    jugadorActual.tablero[i.color].append(i)
+                    juegoMD.JuegoMD.notificaciones.append(f'{self.jugador.nombre} le da la {i.tipo} {i.nombre} a {jugadorActual.nombre}')
+                else:
+                    jugadorActual.tablero['dinero'].append(i)
+                    juegoMD.JuegoMD.notificaciones.append(f'{self.jugador.nombre} le da la {i.tipo} {i.nombre} a {jugadorActual.nombre} como dinero')
+        else:
+            for i in self.jugador.tablero:
+                for j in self.jugador.tablero[i]:
+                    if(j.tipo == 'propiedad'):
+                        jugadorActual.tablero[j.color].append(j)
+                        juegoMD.JuegoMD.notificaciones.append(f'{self.jugador.nombre} le da la {j.tipo} {j.nombre} a {jugadorActual.nombre}')
+                    else:
+                        jugadorActual.tablero['dinero'].append(j)
+                        juegoMD.JuegoMD.notificaciones.append(f'{self.jugador.nombre} le da la {j.tipo} {j.nombre} a {jugadorActual.nombre} como dinero')
                 
     def ResponderAJugada(self, jugadorActual, carta, monto):
         band = self.UsarDiQNo(carta)
         if(not band):
             if(carta.subtipo == 'renta'):
-                pass
+                din, total = DineroPorBilletes(self.jugador)
+                dinProp, totalProp = DineroPorPropiedades(self.jugador)
+                din[0].extend(dinProp[0])
+                din[1].extend(dinProp[1])
+                pagar = 0
+                cartasADar = []
+                indicesUsados = []
+                if(total + totalProp >= monto):
+                    while(pagar < monto):
+                        indice = rd.randint(0, len(din[0]) - 1)
+                        if(indice not in indicesUsados):
+                            cartasADar.append(din[1][indice])
+                            pagar += din[0][indice]
+                            indicesUsados.append(indice)
+                    self.DarCartas(jugadorActual, cartasADar)
+                else:
+                    self.DarCartas(jugadorActual)
+                        
             elif(carta.subtipo == 'robarprop'):
                 pass
             elif(carta.subtipo == 'robardinero'):
@@ -172,10 +208,43 @@ def CalcularMonto(jugador, color):
     if(len(jugador.tablero[color]) <= jugador.tablero[color][0].cantGrupo):
         return jugador.tablero[color][0].renta[len(jugador.tablero[color]) - 1]
     else:
+        i = 0
+        cantPorGrupoColorI = jugador.tablero[color][0].cantGrupo
         acum = jugador.tablero[color][0].renta[len(jugador.tablero[color][0].renta) - 1]
-        if(len(jugador.tablero[color]) == jugador.tablero[color][0].cantGrupo + 1):
-            acum +=  jugador.tablero[color][len(jugador.tablero[color]) - 1].monto
-        elif(len(jugador.tablero[color]) == jugador.tablero[color][0].cantGrupo + 2):
-            acum +=  jugador.tablero[color][len(jugador.tablero[color]) - 2].monto
-            acum +=  jugador.tablero[color][len(jugador.tablero[color]) - 1].monto
+        while i + cantPorGrupoColorI < len(jugador.tablero[color]):
+            acum += jugador.tablero[color][len(jugador.tablero[color]) - i].monto
+            i += 1
         return acum
+        #if(len(jugador.tablero[color]) == jugador.tablero[color][0].cantGrupo + 1):
+        #    acum +=  jugador.tablero[color][len(jugador.tablero[color]) - 1].monto
+        #elif(len(jugador.tablero[color]) == jugador.tablero[color][0].cantGrupo + 2):
+        #    acum +=  
+        #    acum +=  jugador.tablero[color][len(jugador.tablero[color]) - 1].monto
+        #return acum
+
+def DineroPorBilletes(jugador):
+    sum = 0
+    dinero = ([],[])
+    for i in jugador.tablero['dinero']:
+        if (i.tipo == 'dinero'):
+            sum += int(i.nombre)
+            dinero[0].append(int(i.nombre))
+            dinero[1].append(i)
+        else:
+            sum += i.valor
+            dinero[0].append(i.valor)
+            dinero[1].append(i)
+    return dinero, sum
+
+def DineroPorPropiedades(jugador):
+    sum = 0
+    dinero = ([],[])
+    for i in jugador.tablero:
+        if(i != 'dinero'):
+            for j in jugador.tablero[i]:
+                if(j.nombre != 'Maestro'):
+                    sum += j.valor
+                    dinero[0].append(j.valor)
+                    dinero[1].append(j)
+    return dinero, sum
+    
