@@ -18,10 +18,11 @@ class Propiedades(Cartas):
         return f'tipo: {self.tipo}, nom: {self.nombre}, col: {self.color}, val: {self.valor}, rent: {self.renta}, cantGrup: {self.cantGrupo}'
 
 class Comodin(Cartas):
-    def __init__(self, nombre, tipo, color : list, valor : int = None):
+    def __init__(self, nombre, tipo, color : list, valor : int, enUso = None):
         super().__init__(nombre, tipo)
         self.color = color
         self.valor = valor
+        self.enUso = enUso
     
     def __str__(self):
         return f'tipo: {self.tipo}, nom: {self.nombre}, col: {self.color}, val: {self.valor}'

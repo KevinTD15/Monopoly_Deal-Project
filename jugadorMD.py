@@ -16,7 +16,8 @@ class JugadorAleatorio(Jugador):
             'azul' : [],
             'negro' : [],
             'blanco' : [],
-            'dinero' : []
+            'dinero' : [],
+            'comodines': [],
         }
         self.mano = []
 
@@ -30,7 +31,11 @@ class JugadorAleatorio(Jugador):
     def EjecutarJugada(self, jugada, mazo, descarte, jugadores):
         j = JugadaRandom(self, mazo, descarte, jugadores)
         for i in jugada:
-            j.UsarCarta(i)
+            j.UsarCarta(i, jugada)
+            
+    def RevisarTablero(self, mazo, descarte):
+        j = JugadaRandom(self, mazo, descarte)
+        j.AcomodarTablero()
             
     def Responder(self, jugadorActual, mazo, descarte, carta, monto):
         j = JugadaRandom(self, mazo, descarte)
@@ -50,7 +55,8 @@ class JugadorInteligente(Jugador):
             'azul' : [],
             'negro' : [],
             'blanco' : [],
-            'dinero' : []
+            'dinero' : [],
+            'comodines': []
         }
         self.mano = []
         

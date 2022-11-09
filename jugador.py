@@ -16,6 +16,10 @@ class Jugador(ABC):
         pass
     
     @abstractstaticmethod
+    def RevisarTablero(self):
+        pass
+    
+    @abstractstaticmethod
     def Responder(self, jugadorActual, carta):
         pass
     

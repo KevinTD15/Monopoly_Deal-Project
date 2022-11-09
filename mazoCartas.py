@@ -110,8 +110,8 @@ class Mazo(Cartas):
     dinero10       = Dinero ('10', 'dinero')
     
     #COMODIN
-    comodinM       = Comodin('Maestro', 'comodin', [])
-    comodinM1       = Comodin('Maestro', 'comodin', [])
+    comodinM       = Comodin('Maestro', 'comodin', [], 0)
+    comodinM1       = Comodin('Maestro', 'comodin', [], 0)
     comodin        = Comodin('AnM', 'comodin', ['anaranjado', 'morado'], 2)
     comodina        = Comodin('AnM', 'comodin', ['anaranjado', 'morado'], 2)
     comodin2       = Comodin('NV', 'comodin', ['negro', 'verde'], 4)

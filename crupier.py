@@ -16,7 +16,7 @@ class Crupier:
     def BarajarMazo(mazo):
         rd.shuffle(mazo)
     
-    def RepartirCartas(aTodos : bool, jugadores, mazo, cantCartas, descarte,indice = None): #poner que roba 5 en vez de 8
+    def RepartirCartas(aTodos : bool, jugadores, mazo, cantCartas, descarte,indice = None): 
         if(len(mazo) + len(descarte) < cantCartas):
             raise Exception('Se acabaron todas las cartas del juego')
         if(len(mazo) <= cantCartas):
@@ -26,10 +26,18 @@ class Crupier:
         if(aTodos):
             for j in jugadores:
                 for i in range(cantCartas):
-                    j.mano.append(mazo.pop(0))
+                    h = mazo.pop(0)
+                    if(h in j.mano):
+                        a = 5
+                    #j.mano.append(mazo.pop(0)) OJOOO
+                    j.mano.append(h)
         else:
             for i in range(cantCartas):
-                jugadores.mano.append(mazo.pop(0))
+                h = mazo.pop(0)
+                if(h in jugadores.mano):
+                    a = 5
+                #jugadores.mano.append(mazo.pop(0)) OJOOO
+                jugadores.mano.append(h)
         
          
     def VerificarMano(jugadorActual, mazo, descarte):

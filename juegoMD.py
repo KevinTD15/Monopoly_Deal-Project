@@ -14,6 +14,7 @@ class JuegoMD:
     final = False
     ganador : str
     notificaciones = []
+    count = -1
                     
     def EjecutarTurnoMD():
         '''aqui es donde se lleva a cabo la ejecucion de un turno del juego'''
@@ -38,19 +39,44 @@ class JuegoMD:
             jugada = jugadorActual.SeleccionarJugada(JuegoMD._mazo, JuegoMD.descarte)
             
             jugadorActual.EjecutarJugada(jugada, JuegoMD._mazo, JuegoMD.descarte, JuegoMD._jugadores)
+            for jug in JuegoMD._jugadores:
+                jug.RevisarTablero(JuegoMD._mazo, JuegoMD.descarte)
             Crupier.VerificarMano(jugadorActual, JuegoMD._mazo, JuegoMD.descarte)
             JuegoMD.final, JuegoMD.ganador = Crupier.FinDeJuegoMD(jugadorActual)
             JuegoMD._indiceJugadorActual += 1
                 
     def EjecutarJuego(self):
         '''aqui es donde se lleva a cabo la ejecucion del juego'''
-        count = -1
+        JuegoMD.count = -1
+        JuegoMD._indiceJugadorActual = 0
+        JuegoMD.descarte = []
+        JuegoMD.notificaciones = []
+        JuegoMD.final = False
+        JuegoMD._iniciarJuegoMD = True
+        JuegoMD.ganador = ''
+        JuegoMD._mazo = Mazo.cartas.copy()
+        for i in self._jugadores:
+            i.mano.clear()
+            for k in i.tablero:
+                i.tablero[k].clear()
         while(not JuegoMD.final):
             JuegoMD.EjecutarTurnoMD()
-            count += 1
-        self.notificaciones.append(f'Gano: {self.ganador} en {count} turnos')
+            JuegoMD.count += 1
+        self.notificaciones.append(f'Gano: {self.ganador} en {self.count} turnos')
         
-
+    def Reestablecer(self):
+        self.count = -1
+        self._indiceJugadorActual = 0
+        self.descarte = []
+        self.notificaciones = []
+        self.final = False
+        self._iniciarJuegoMD = True
+        self.ganador = ''
+        self._mazo = Mazo.cartas.copy()
+        for i in self._jugadores:
+            i.mano.clear()
+            for k in i.tablero:
+                i.tablero[k].clear()
         
     
 
