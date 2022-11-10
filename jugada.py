@@ -128,7 +128,7 @@ class JugadaRandom(Jugada):
                         return True
         return False  
     
-    def UsarDoblaRenta(self, carta, cartasAUsar, monto): #PONER ESTO DONDE VA!!!!
+    def UsarDoblaRenta(self, carta, cartasAUsar, monto):
         for i in cartasAUsar:
             if(i.nombre == 'doblaRenta'):
                 usar = rd.randint(0, 1)
