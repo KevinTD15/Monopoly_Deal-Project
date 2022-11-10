@@ -1,5 +1,6 @@
 from jugador import Jugador
 from jugada import *
+from utiles import *
 
 class JugadorAleatorio(Jugador):
     
@@ -33,13 +34,10 @@ class JugadorAleatorio(Jugador):
         for i in jugada:
             j.UsarCarta(i, jugada)
             
-    def RevisarTablero(self, mazo, descarte):
-        j = JugadaRandom(self, mazo, descarte)
-        j.AcomodarTablero()
-            
     def Responder(self, jugadorActual, mazo, descarte, carta, monto):
         j = JugadaRandom(self, mazo, descarte)
         j.ResponderAJugada(jugadorActual, carta, monto)
+        
         
 class JugadorInteligente(Jugador):
     def __init__(self, nombre, esBot):
