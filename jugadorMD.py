@@ -58,12 +58,20 @@ class JugadorInteligente(Jugador):
         }
         self.mano = []
         
-    def EvaluarJugada():
+    def EvaluarJugada(jugadorActual, jugada):
         pass
     
     def PosiblesJugadas(self, mazo, descarte):
-        jr = JugadaRandom(self, mazo, descarte).CrearJugada()
-    #cojer el maximo de las evaluaciones y actualizarlo
+        listaJugadas = []
+        listaJugadas.append(JugadaRandom(self, mazo, descarte).CrearJugada())
+        max = -1000 #poner el min value
+        result = {}
+        for i in listaJugadas:
+            ev = JugadorInteligente.EvaluarJugada(self, i)
+            result[ev] = i
+            if(ev > max):
+                max = ev
+        return result[max]   
     pass
     
     def SeleccionarJugada(self, mazo, descarte):
