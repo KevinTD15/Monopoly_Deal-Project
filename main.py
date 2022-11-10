@@ -11,10 +11,12 @@ def main():
     j2 = JugadorAleatorio('jose', True)
     j3 = JugadorAleatorio('cucu', True)
     j4 = JugadorAleatorio('fifi', True)
+    j5 = JugadorAleatorio('popo', True)
     j._jugadores.append(j1)
     j._jugadores.append(j2)
-    #j._jugadores.append(j3)
+    j._jugadores.append(j3)
     #j._jugadores.append(j4)
+    #j._jugadores.append(j5)
     #j.notificaciones.append('COMIENZO DEL JUEGO')
     
     init() #para dar color a los cambios de turno
