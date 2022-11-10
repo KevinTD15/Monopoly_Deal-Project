@@ -20,6 +20,18 @@ class JugadorAleatorio(Jugador):
             'dinero' : [],
             'comodines': [],
         }
+        self.colorCantGrupo = {
+            'carmelita' : 2,
+            'azulClaro' : 3,
+            'morado' : 3,
+            'anaranjado' : 3,
+            'rojo' : 3,
+            'amarillo' : 3,
+            'verde' : 3,
+            'azul' : 2,
+            'negro' : 4,
+            'blanco' : 2,
+        }
         self.mano = []
 
     def DescartarCartas(self,mazo, descarte):
@@ -55,6 +67,18 @@ class JugadorInteligente(Jugador):
             'blanco' : [],
             'dinero' : [],
             'comodines': []
+        }
+        self.colorCantGrupo = {
+            'carmelita' : 2,
+            'azulClaro' : 3,
+            'morado' : 3,
+            'anaranjado' : 3,
+            'rojo' : 3,
+            'amarillo' : 3,
+            'verde' : 3,
+            'azul' : 2,
+            'negro' : 4,
+            'blanco' : 2,
         }
         self.mano = []
         
