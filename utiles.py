@@ -70,4 +70,16 @@ def CantidadDeConstrucciones(listaDeUnColor):
         if(i.tipo == 'accion'):
             cont += 1
     return cont
+
+def RankingPropiedades(jugadorActual):
+    rank = {}
+    for i in jugadorActual.tablero:
+        if(len(jugadorActual.tablero[i]) > 0 and CantidadDeConstrucciones(jugadorActual.tablero[i]) == 0):
+            val = jugadorActual.tablero[i][0].cantGrupo - len(jugadorActual.tablero[i])
+            rank[val] = i
+        elif(len(jugadorActual.tablero[i]) == 0):
+            pass
+            #HACER ALGOOOOOOOOOOOOOO
+    return rank
+    
         
