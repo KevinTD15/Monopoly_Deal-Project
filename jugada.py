@@ -3,6 +3,7 @@ from jugador import *
 import random as rd
 import juegoMD
 from crupier import *
+from utiles import *
 
 class Jugada(ABC):
     def __init__(self, jugador, mazo, descarte, jugadores = None):
@@ -16,10 +17,6 @@ class Jugada(ABC):
         pass
     
     @abstractclassmethod
-    def AcomodarTablero():
-        pass
-    
-    @abstractclassmethod
     def DescartarCartas():
         pass
     
@@ -28,8 +25,53 @@ class Jugada(ABC):
         pass
     
     @abstractclassmethod
+    def UsarDoblaRenta():
+        pass
+    
+    @abstractclassmethod
     def ResponderAJugada():
         pass
+    
+    @abstractclassmethod
+    def UsarDiQNo():
+        pass
+    
+    def DarCartas(self, jugadorActual, cartasADar = None):
+        if(cartasADar != None):
+            for i in cartasADar:
+                if(type(i) != list):
+                    if(i.tipo == 'propiedad'):
+                        self.jugador.AnadirPropiedad(jugadorActual,i )
+                        juegoMD.JuegoMD.notificaciones.append(f'{self.jugador.nombre} le da la {i.tipo} {i.nombre} a {jugadorActual.nombre}')
+                    elif(i.tipo == 'comodin' ):
+                        self.jugador.AnadirComodin(jugadorActual,i)
+                        juegoMD.JuegoMD.notificaciones.append(f'{self.jugador.nombre} le da la {i.tipo} {i.nombre} a {jugadorActual.nombre} como comodin')             
+                    else:
+                        self.jugador.AnadirDinero(jugadorActual,i)
+                        juegoMD.JuegoMD.notificaciones.append(f'{self.jugador.nombre} le da la {i.tipo} {i.nombre} a {jugadorActual.nombre} como dinero')
+                else:
+                    col = i[0].color
+                    for j in i:
+                        jugadorActual.tablero[col].append(j)
+                        self.jugador.tablero[col].remove(j)
+                        juegoMD.JuegoMD.notificaciones.append(f'{self.jugador.nombre} le da la {j.tipo} {j.nombre} a {jugadorActual.nombre}') 
+        else:
+            for i in self.jugador.tablero:
+                if(i != 'dinero' and i!='comodines' and len(self.jugador.tablero[i])>0 and self.jugador.tablero[i][len(self.jugador.tablero[i]) - 1].tipo != 'propiedad' and self.jugador.tablero[i][len(self.jugador.tablero[i]) - 1].tipo != 'comodin'):
+                    for k in self.jugador.tablero[i]:
+                       jugadorActual.tablero[i].append(k)
+                       self.jugador.tablero[i].remove(k)
+                       juegoMD.JuegoMD.notificaciones.append(f'{self.jugador.nombre} le da la {k.tipo} {k.nombre} a {jugadorActual.nombre}')
+                for j in self.jugador.tablero[i]:
+                    if(j.tipo == 'propiedad'):
+                        self.jugador.AnadirPropiedad(jugadorActual, j)
+                        juegoMD.JuegoMD.notificaciones.append(f'{self.jugador.nombre} le da la {j.tipo} {j.nombre} a {jugadorActual.nombre}')
+                    elif(j.tipo == 'comodin'):  #OJOOO revisar este tratamiento de comodin con el de arriba, busca palabra tratamiento
+                        self.jugador.AnadirComodin(jugadorActual, j)
+                        juegoMD.JuegoMD.notificaciones.append(f'{self.jugador.nombre} le da la {j.tipo} {j.nombre} a {jugadorActual.nombre} como comodin')            
+                    else:
+                        self.jugador.AnadirDinero(jugadorActual, j)
+                        juegoMD.JuegoMD.notificaciones.append(f'{self.jugador.nombre} le da la {j.tipo} {j.nombre} a {jugadorActual.nombre} como dinero')
     
 class JugadaRandom(Jugada):
     def __init__(self, jugador, mazo, descarte, jugada = None):
@@ -63,94 +105,19 @@ class JugadaRandom(Jugada):
                         self.jugador.mano.remove(i)
                         juegoMD.JuegoMD.notificaciones.append(f'{self.jugador.nombre} usa la {i.tipo} {i.nombre} y niega el efecto de {carta.nombre} contra el')
                         return True
-        return False
+        return False  
     
-    
-    
-    def AnadirPropiedadMano(self,carta):
-        jugadorActual = self.jugador
-        if(len(jugadorActual.tablero[carta.color]) < carta.cantGrupo):
-            jugadorActual.tablero[carta.color].append(carta)
-            juegoMD.JuegoMD.notificaciones.append(f'{jugadorActual.nombre} pone la {carta.tipo} {carta.color} {carta.nombre} en su tablero') 
-        elif(len(jugadorActual.tablero[carta.color]) > 0 and len(jugadorActual.tablero[carta.color]) >= jugadorActual.tablero[carta.color][0].cantGrupo):
-            for k in jugadorActual.tablero[carta.color]:
-                if(k.tipo == 'comodin'):
-                    jugadorActual.tablero[carta.color].insert(0, carta)
-                    jugadorActual.tablero['comodines'].append(k)
-                    k.enUso = None
-                    jugadorActual.tablero[carta.color].remove(k)
-        jugadorActual.mano.remove(carta)
-
-            
-    def AnadirPropiedad(self, jugadorActual,carta ):
-        if(len(jugadorActual.tablero[carta.color]) > 0 and len(jugadorActual.tablero[carta.color]) >= jugadorActual.tablero[carta.color][0].cantGrupo):
-            for k in jugadorActual.tablero[carta.color]:
-                if(k.tipo == 'comodin'):
-                    jugadorActual.tablero[carta.color].insert(0, carta)
-                    self.jugador.tablero[carta.color].remove(carta)
-                    jugadorActual.tablero['comodines'].append(k)
-                    k.enUso = None
-                    jugadorActual.tablero[carta.color].remove(k)                   
-        else:
-            jugadorActual.tablero[carta.color].append(carta)
-            self.jugador.tablero[carta.color].remove(carta)
- 
-    def AnadirComodin(self, jugadorActual,carta):
-        if (carta.enUso != None and carta.enUso != 'dinero'): #OJOOO revisar este tratamiento de comodin con el de abajo
-            jugadorActual.tablero['comodines'].append(carta)
-            self.jugador.tablero[carta.enUso].remove(carta) 
-            carta.enUso = None   
-        elif (carta.tipo == 'comodin' and carta.enUso == None):
-            jugadorActual.tablero['comodines'].append(carta)
-            self.jugador.tablero['comodines'].remove(carta)    
-            
-    def AnadirSimple(self, jugadorActual,carta):
-        jugadorActual.tablero[carta.tipo].append(carta)
-        self.jugador.tablero[carta.tipo].remove(carta)
-    
-    def AnadirDinero(self, jugadorActual,carta):
-        jugadorActual.tablero['dinero'].append(carta)
-        self.jugador.tablero['dinero'].remove(carta)
-                        
-                            
-    def DarCartas(self, jugadorActual, cartasADar = None):
-        if(cartasADar != None):
-            for i in cartasADar:
-                if(type(i) != list):
-                    if(i.tipo == 'propiedad'):
-                        self.AnadirPropiedad(jugadorActual,i )
-                        juegoMD.JuegoMD.notificaciones.append(f'{self.jugador.nombre} le da la {i.tipo} {i.nombre} a {jugadorActual.nombre}')
-                    elif(i.tipo == 'comodin' ):
-                        self.AnadirComodin(jugadorActual,i)
-                        juegoMD.JuegoMD.notificaciones.append(f'{self.jugador.nombre} le da la {i.tipo} {i.nombre} a {jugadorActual.nombre} como comodin')             
-                    else:
-                        self.AnadirDinero(jugadorActual,i)
-                        juegoMD.JuegoMD.notificaciones.append(f'{self.jugador.nombre} le da la {i.tipo} {i.nombre} a {jugadorActual.nombre} como dinero')
-                else:
-                    col = i[0].color
-                    for j in i:
-                        jugadorActual.tablero[col].append(j)
-                        self.jugador.tablero[col].remove(j)
-                        #OJOOO anadi notificacion
-                        juegoMD.JuegoMD.notificaciones.append(f'{self.jugador.nombre} le da la {j.tipo} {j.nombre} a {jugadorActual.nombre}')
- 
-        else:
-            for i in self.jugador.tablero:
-                if(i != 'dinero' and i!='comodines' and len(self.jugador.tablero[i])>0 and self.jugador.tablero[i][len(self.jugador.tablero[i]) - 1].tipo != 'propiedad' and self.jugador.tablero[i][len(self.jugador.tablero[i]) - 1].tipo != 'comodin'):
-                    for k in self.jugador.tablero[i]:
-                       jugadorActual.tablero[i].append(k)
-                       self.jugador.tablero[i].remove(k)
-                       juegoMD.JuegoMD.notificaciones.append(f'{self.jugador.nombre} le da la {k.tipo} {k.nombre} a {jugadorActual.nombre}')
-                for j in self.jugador.tablero[i]:
-                    if(j.tipo == 'propiedad'):
-                        self.AnadirPropiedad(jugadorActual, j)
-                        juegoMD.JuegoMD.notificaciones.append(f'{self.jugador.nombre} le da la {j.tipo} {j.nombre} a {jugadorActual.nombre}')
-                    elif(j.tipo == 'comodin'):  #OJOOO revisar este tratamiento de comodin con el de arriba, busca palabra tratamiento
-                        self.AnadirComodin(jugadorActual, j)
-                        juegoMD.JuegoMD.notificaciones.append(f'{self.jugador.nombre} le da la {j.tipo} {j.nombre} a {jugadorActual.nombre} como comodin')            
-                    else:
-                        self.AnadirDinero(jugadorActual, j)
-                        juegoMD.JuegoMD.notificaciones.append(f'{self.jugador.nombre} le da la {j.tipo} {j.nombre} a {jugadorActual.nombre} como dinero')
+    def UsarDoblaRenta(self, carta, cartasAUsar, monto): #PONER ESTO DONDE VA!!!!
+        for i in cartasAUsar:
+            if(i.nombre == 'doblaRenta'):
+                usar = rd.randint(0, 1)
+                if(usar == 1):
+                    self.descarte.append(i)
+                    self.jugador.mano.remove(i)
+                    cartasAUsar.remove(i)
+                    juegoMD.JuegoMD.notificaciones.append(f'{self.jugador.nombre} usa la {i.tipo} {i.nombre} y duplica el monto a pagar de {carta.nombre}')
+                    return 2 * monto
+        return monto                       
                             
     def ResponderAJugada(self, jugadorActual, carta, monto):
         band = self.UsarDiQNo(carta)
@@ -192,47 +159,23 @@ class JugadaRandom(Jugada):
                 if(carta.cuantas != None):
                     for i in propsADar:
                         if(i.tipo == 'propiedad'):
-                            self.AnadirPropiedad(jugadorActual, i)
+                            self.jugador.AnadirPropiedad(jugadorActual, i)
                         else:
-                            self.AnadirComodin(jugadorActual, i)
+                            self.jugador.AnadirComodin(jugadorActual, i)
                         juegoMD.JuegoMD.notificaciones.append(f'{self.jugador.nombre} le da la {i.tipo} {i.nombre} a {jugadorActual.nombre}')
                 else:
                     jugadorActual.tablero[propsADar[0].color].extend(propsADar)
                     self.jugador.tablero[propsADar[0].color].clear()
             else:
-                pass
-    
-    def AcomodarTablero(self): #####COMPLETAR ESTOOOOOOOOOOOOOOOOOOOO
-        for i in self.jugador.tablero:
-            if(i != 'dinero' and i != 'comodines'):
-                if(len(self.jugador.tablero[i]) == 1 and self.jugador.tablero[i][0].tipo == 'comodin'):
-                    self.jugador.tablero[i][0].enUso = None
-                    self.jugador.tablero['comodines'].append(self.jugador.tablero[i][0])
-                    self.jugador.tablero[i].remove(self.jugador.tablero[i][0])
-                else:
-                    if(len(self.jugador.tablero[i]) > 1 and self.jugador.tablero[i][0].tipo == 'comodin'):
-                        band = False
-                        for k in range(len(self.jugador.tablero[i])):
-                            if(self.jugador.tablero[i][k].tipo == 'propiedad'):
-                                tmp = self.jugador.tablero[i][0]
-                                prop = self.jugador.tablero[i][k]
-                                self.jugador.tablero[i].remove(prop)
-                                self.jugador.tablero[i].remove(tmp)
-                                self.jugador.tablero[i].insert(0, prop)
-                                self.jugador.tablero[i].insert(k, tmp)
-                                band = True
-                        if(not band):
-                            for k in self.jugador.tablero[i]:
-                                self.jugador.tablero['comodines'].append(k)
-                                k.enUso = None
-                            self.jugador.tablero[i].clear()    
+                pass 
     
     def UsarCarta(self, carta, jugada):
         jugadorActual = self.jugador  #OJOOO duda jugador ahi quien es
         
         if(carta.tipo == 'propiedad'):
-            self.AnadirPropiedadMano(carta)
-            pass
+            jugadorActual.AnadirPropiedadMano(carta)
+            juegoMD.JuegoMD.notificaciones.append(f'{jugadorActual.nombre} pone la {carta.tipo} {carta.color} {carta.nombre} en su tablero') 
+        
         elif(carta.tipo == 'dinero'):
             jugadorActual.tablero[carta.tipo].append(carta)
             jugadorActual.mano.remove(carta)
@@ -279,13 +222,14 @@ class JugadaRandom(Jugada):
                 else:
                     col = rd.sample(posiblePago, 1)
                     monto = CalcularMonto(jugadorActual, col[0])
-                    monto = UsarDoblaRenta(jugadorActual, self.descarte, carta, jugada, monto)
+                    monto = self.UsarDoblaRenta(carta, jugada, monto)
                     if(carta.todos):
                         juegoMD.JuegoMD.notificaciones.append(f'{jugadorActual.nombre} usa la carta {carta.tipo} {carta.nombre} contra todos')
                         for j in self.jugadores:
                             if (j != jugadorActual):
                                 j.Responder(jugadorActual, self.mazo, self.descarte, carta, monto)
-                                #self.AcomodarTablero()
+                                j.AcomodarTablero()
+                                jugadorActual.AcomodarTablero()
                     else:
                         jug = self.jugadores[0]
                         while(jug == jugadorActual):
@@ -294,6 +238,8 @@ class JugadaRandom(Jugada):
                         #jugs.remove(jugadorActual)
                         #jug = rd.sample(jugs, 1)
                         jug.Responder(jugadorActual, self.mazo, self.descarte, carta, monto)
+                        jug.AcomodarTablero()
+                        jugadorActual.AcomodarTablero()
                         juegoMD.JuegoMD.notificaciones.append(f'{jugadorActual.nombre} usa la carta {carta.tipo} {carta.nombre} contra {jug.nombre}')
                         
                     self.descarte.append(carta)
@@ -339,6 +285,8 @@ class JugadaRandom(Jugada):
                                 if(indice not in indices and jugAsociado[jug] == jugAsociado[indice] and type(propEnT[indice]) != list):
                                     propsADar.append(propEnT[indice])                                                              
                             jugAsociado[jug].Responder(jugadorActual, self.mazo, self.descarte, carta, (propsADar, propsInter))
+                            jugAsociado[jug].AcomodarTablero()
+                            jugadorActual.AcomodarTablero()
                     else:                                  
                         jug = rd.randint(0, len(jugAsociado) - 1)
                         propsADar = []
@@ -349,6 +297,8 @@ class JugadaRandom(Jugada):
                                 if(indice not in indices and jugAsociado[jug] == jugAsociado[indice] and type(propEnT[indice]) != list):
                                     propsADar.append(propEnT[indice])                                                              
                             jugAsociado[jug].Responder(jugadorActual, self.mazo, self.descarte, carta, propsADar)
+                            jugAsociado[jug].AcomodarTablero()
+                            jugadorActual.AcomodarTablero()
                         else:
                             #FACTOR DECISIVO
                             grupCompl = []
@@ -360,98 +310,25 @@ class JugadaRandom(Jugada):
                             if(len(grupCompl) > 0):        
                                 indice = rd.randint(0, len(grupCompl) - 1)
                                 jugAs[indice].Responder(jugadorActual, self.mazo, self.descarte, carta, grupCompl[indice])
-                            
+                                jugAs[indice].AcomodarTablero()
+                                jugadorActual.AcomodarTablero()
             elif(carta.subtipo == 'robardinero'):
                 if(carta.todos):
                     juegoMD.JuegoMD.notificaciones.append(f'{jugadorActual.nombre} usa la carta {carta.tipo} {carta.nombre} contra todos')
                     for i in self.jugadores:
                         if (i != jugadorActual):
                             i.Responder(jugadorActual, self.mazo, self.descarte, carta, carta.monto)
+                            i.AcomodarTablero()
+                            jugadorActual.AcomodarTablero()
                 else:
                     jug = self.jugadores[0]
                     while(jug == jugadorActual):
                         jug = rd.sample(self.jugadores, 1)[0]
                     juegoMD.JuegoMD.notificaciones.append(f'{jugadorActual.nombre} usa la carta {carta.tipo} {carta.nombre} contra {jug.nombre}')
                     jug.Responder(jugadorActual, self.mazo, self.descarte, carta, carta.monto)
+                    jug.AcomodarTablero()
+                    jugadorActual.AcomodarTablero()
             
             else: #robar carta
                 Crupier.RepartirCartas(False, jugadorActual, self.mazo, int(carta.cantCartasATomar), self.descarte)
                 juegoMD.JuegoMD.notificaciones.append(f'{jugadorActual.nombre} usa la {carta.tipo} {carta.nombre} y toma {carta.cantCartasATomar} del mazo')                
-    
-def CalcularMonto(jugador, color):
-    if(len(jugador.tablero[color]) <= jugador.tablero[color][0].cantGrupo):
-        return jugador.tablero[color][0].renta[len(jugador.tablero[color]) - 1]
-    else:
-        i = 0
-        cantPorGrupoColorI = jugador.tablero[color][0].cantGrupo
-        acum = jugador.tablero[color][0].renta[len(jugador.tablero[color][0].renta) - 1]
-        while i + cantPorGrupoColorI < len(jugador.tablero[color]):
-            acum += jugador.tablero[color][len(jugador.tablero[color]) - 1 - i].monto
-            i += 1
-        return acum
-
-def DineroPorBilletes(jugador):
-    sum = 0
-    dinero = ([],[])
-    for i in jugador.tablero['dinero']:
-        if (i.tipo == 'dinero'):
-            sum += int(i.nombre)
-            dinero[0].append(int(i.nombre))
-            dinero[1].append(i)
-        else:
-            sum += i.valor
-            dinero[0].append(i.valor)
-            dinero[1].append(i)
-    return dinero, sum
-
-def DineroPorPropiedades(jugador):
-    sum = 0
-    dinero = ([],[])
-    for i in jugador.tablero:
-        if(i != 'dinero'):
-            if(len(jugador.tablero[i])>0 and jugador.tablero[i][len(jugador.tablero[i]) - 1].tipo != 'propiedad' and jugador.tablero[i][len(jugador.tablero[i]) - 1].tipo != 'comodin'):
-                m = CalcularMonto(jugador, i)
-                sum += m
-                dinero[0].append(m)
-                grupoEntero = []
-                for k in jugador.tablero[i]:
-                    grupoEntero.append(k)
-                dinero[1].append(grupoEntero)
-            else:
-                for j in jugador.tablero[i]:
-                    if(j.nombre != 'Maestro'):
-                        sum += j.valor
-                        dinero[0].append(j.valor)
-                        dinero[1].append(j)
-    return dinero, sum
-    
-def PropiedadesEnTablero(jugadorActual, jugadores):
-    cartas = []
-    jug = []
-    for i in jugadores:
-        if(i != jugadorActual):
-            for j in i.tablero:
-                if(j != 'dinero' and len(i.tablero[j])>0 and i.tablero[j][len(i.tablero[j]) - 1].tipo != 'propiedad' and i.tablero[j][len(i.tablero[j]) - 1].tipo != 'comodin'):
-                    grupoEntero = []
-                    for h in i.tablero[j]:
-                        grupoEntero.append(h)
-                    cartas.append(grupoEntero)
-                    jug.append(i)
-                else :
-                    for k in i.tablero[j]:
-                        if(k.tipo == 'propiedad' or (k.tipo == 'comodin' and k.enUso != 'dinero')):
-                            cartas.append(k)
-                            jug.append(i)
-    return cartas, jug
-
-def UsarDoblaRenta(self, descarte,carta, cartasAUsar, monto): #PONER ESTO DONDE VA!!!!
-        for i in cartasAUsar:
-            if(i.nombre == 'doblaRenta'):
-                usar = rd.randint(0, 1)
-                if(usar == 1):
-                    descarte.append(i)
-                    self.mano.remove(i)
-                    cartasAUsar.remove(i)
-                    juegoMD.JuegoMD.notificaciones.append(f'{self.nombre} usa la {i.tipo} {i.nombre} y duplica el monto a pagar de {carta.nombre}')
-                    return 2 * monto
-        return monto
