@@ -33,10 +33,11 @@ class JuegoMD:
                 Crupier.RepartirCartas(False, jugadorActual, JuegoMD._mazo, 5, JuegoMD.descarte, JuegoMD._indiceJugadorActual)
                 JuegoMD.notificaciones.append(f'Se le repartieron 5 cartas a: {jugadorActual.nombre}')
             else:
+                #OJOO si pasas jugadoractual para q pasas el indiceactual y pq aqui se pasa descarte
                 Crupier.RepartirCartas(False, jugadorActual, JuegoMD._mazo, 2, JuegoMD.descarte, JuegoMD._indiceJugadorActual)
                 JuegoMD.notificaciones.append(f'{jugadorActual.nombre} toma 2 cartas del mazo')
             
-            jugada = jugadorActual.SeleccionarJugada(JuegoMD._mazo, JuegoMD.descarte)
+            jugada = jugadorActual.SeleccionarJugada(JuegoMD._mazo, JuegoMD.descarte, JuegoMD._jugadores)
             
             jugadorActual.EjecutarJugada(jugada, JuegoMD._mazo, JuegoMD.descarte, JuegoMD._jugadores)
 
