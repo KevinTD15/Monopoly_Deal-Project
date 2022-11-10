@@ -59,7 +59,14 @@ class JugadorInteligente(Jugador):
         self.mano = []
         
     def EvaluarJugada(jugadorActual, jugada):
-        pass
+        valor = 0
+        for i in jugada:
+            if(i.tipo == 'propiedad'):
+                ranking = RankingPropiedades(jugadorActual)
+                for k in ranking:
+                    if(i.color in ranking[k] and k != 0):
+                        valor += 1 / k
+        return 0
     
     def PosiblesJugadas(self, mazo, descarte):
         listaJugadas = []
@@ -67,7 +74,7 @@ class JugadorInteligente(Jugador):
         max = -1000 #poner el min value
         result = {}
         for i in listaJugadas:
-            ev = JugadorInteligente.EvaluarJugada(self, i)
+            ev = self.EvaluarJugada(i)
             result[ev] = i
             if(ev > max):
                 max = ev
