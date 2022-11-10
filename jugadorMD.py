@@ -37,14 +37,18 @@ class JugadorAleatorio(Jugador):
     def DescartarCartas(self,mazo, descarte):
         JugadaRandom(self, mazo, descarte).DescartarCartas()
         
-    def SeleccionarJugada(self, mazo, descarte):
-        jugada = JugadaRandom(self, mazo, descarte).CrearJugada()
-        return jugada
+    def SeleccionarJugada(self, mazo, descarte,jugadores):
+        j = JugadaRandom(self, mazo, descarte,jugadores)
+        jugada = j.CrearJugada()
+        cartasConUso = []
+        for i in jugada:
+            cartasConUso.append(j.ComoUsarCarta(i, jugada))
+        return cartasConUso
     
     def EjecutarJugada(self, jugada, mazo, descarte, jugadores):
         j = JugadaRandom(self, mazo, descarte, jugadores)
         for i in jugada:
-            j.UsarCarta(i, jugada)
+            j.UsarCarta(i[0], i, jugada)
             
     def Responder(self, jugadorActual, mazo, descarte, carta, monto):
         j = JugadaRandom(self, mazo, descarte)
@@ -92,21 +96,29 @@ class JugadorInteligente(Jugador):
                         valor += 1 / k
         return 0
     
-    def PosiblesJugadas(self, mazo, descarte):
+    def PosiblesJugadas(self, mazo, descarte, jugadores):
         listaJugadas = []
-        listaJugadas.append(JugadaRandom(self, mazo, descarte).CrearJugada())
+        for i in range(5):
+            j = JugadaRandom(self, mazo, descarte,jugadores)
+            jugada = j.CrearJugada()
+            cartasConUso = []
+            for i in jugada:
+                cartasConUso.append(j.ComoUsarCarta(i, jugada))
+            listaJugadas.append([self, cartasConUso])
+
+        #listaJugadas.append(JugadaRandom(self, mazo, descarte, jugadores))
         max = -1000 #poner el min value
         result = {}
         for i in listaJugadas:
-            ev = self.EvaluarJugada(i)
+            ev = i[0].EvaluarJugada(i[1])
             result[ev] = i
             if(ev > max):
                 max = ev
         return result[max]   
     pass
     
-    def SeleccionarJugada(self, mazo, descarte):
-        jugada = self.PosiblesJugadas(mazo, descarte)
+    def SeleccionarJugada(self, mazo, descarte, jugadores):
+        jugada = self.PosiblesJugadas(mazo, descarte, jugadores)
         return jugada
     
     def EjecutarJugada(self, jugada):
