@@ -5,6 +5,7 @@ class Jugador(ABC):
     
     mano = []
     tablero = {}
+    colorCantGrupo = {}
     
     def __init__(self, nombre, esBot):
         self.nombre = nombre
