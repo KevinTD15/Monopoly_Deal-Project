@@ -33,6 +33,10 @@ class Jugada(ABC):
         pass
     
     @abstractclassmethod
+    def ReponerComodin():
+        pass
+    
+    @abstractclassmethod
     def UsarDiQNo():
         pass
     
@@ -95,7 +99,24 @@ class JugadaRandom(Jugada):
                 juegoMD.JuegoMD.notificaciones.append(f'{self.jugador.nombre} descarta {self.jugador.mano[a].tipo} {self.jugador.mano[a].nombre}') 
                 indicesUsados.append(a)
                 self.descarte.append(self.jugador.mano.pop(a))
-                
+               
+    def ReponerComodin(self):
+        jugadorActual = self.jugador
+        for i in jugadorActual.tablero['comodines']:
+            if(len(i.color) > 0):
+                col = rd.sample(i.color, 1)[0]
+            else:
+                colores = []
+                for k in jugadorActual.tablero:
+                    if(k != 'dinero' and k != 'comodines'):
+                        colores.append(k)
+                col = rd.sample(colores, 1)[0]
+            if(len(jugadorActual.tablero[col]) > 0 and len(jugadorActual.tablero[col]) < jugadorActual.tablero[col][0].cantGrupo):
+                i.enUso = col
+                jugadorActual.tablero[col].append(i)
+                juegoMD.JuegoMD.notificaciones.append(f'{jugadorActual.nombre} mueve su comodin {i.nombre} para el grupo {col}') 
+                jugadorActual.tablero['comodines'].remove(i)
+     
     def UsarDiQNo(self, carta):
         for i in self.jugador.mano:
                 if(i.nombre == 'diqno'):
@@ -171,6 +192,7 @@ class JugadaRandom(Jugada):
     
     def UsarCarta(self, carta, jugada):
         jugadorActual = self.jugador  #OJOOO duda jugador ahi quien es
+        self.ReponerComodin()
         
         if(carta.tipo == 'propiedad'):
             jugadorActual.AnadirPropiedadMano(carta)
