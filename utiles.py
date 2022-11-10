@@ -73,13 +73,16 @@ def CantidadDeConstrucciones(listaDeUnColor):
 
 def RankingPropiedades(jugadorActual):
     rank = {}
-    for i in jugadorActual.tablero:
-        if(len(jugadorActual.tablero[i]) > 0 and CantidadDeConstrucciones(jugadorActual.tablero[i]) == 0):
-            val = jugadorActual.tablero[i][0].cantGrupo - len(jugadorActual.tablero[i])
-            rank[val] = i
-        elif(len(jugadorActual.tablero[i]) == 0):
-            pass
-            #HACER ALGOOOOOOOOOOOOOO
+    valUsados = []
+    for i in jugadorActual.colorCantGrupo:
+        if(len(jugadorActual.tablero[i]) < jugadorActual.colorCantGrupo[i]):
+            val = jugadorActual.colorCantGrupo[i] - len(jugadorActual.tablero[i])
+            if(val in valUsados):
+                rank[val].append(i)
+            else:
+                rank[val] = []
+                rank[val].append(i)
+                valUsados.append(val)
     return rank
     
         
