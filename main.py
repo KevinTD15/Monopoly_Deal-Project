@@ -13,9 +13,9 @@ def main():
     j4 = JugadorAleatorio('fifi', True)
     j5 = JugadorAleatorio('popo', True)
     j6 = JugadorInteligente('kevin', True)
-    #j._jugadores.append(j1)
+    j._jugadores.append(j1)
     j._jugadores.append(j2)
-    j._jugadores.append(j6)
+    #j._jugadores.append(j6)
     #j._jugadores.append(j3)
     #j._jugadores.append(j4)
     #j._jugadores.append(j5)
@@ -26,7 +26,7 @@ def main():
     #hilo = threading.Thread(target=mytimer, args=(j,),)
     #hilo.start()
 
-    for i in range(1000):
+    for i in range(5):
         j.notificaciones.append('COMIENZO DEL JUEGO')
         j.EjecutarJuego()
         j.notificaciones.append('FIN DEL JUEGO')

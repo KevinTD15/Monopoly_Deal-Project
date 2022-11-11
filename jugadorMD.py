@@ -34,8 +34,10 @@ class JugadorAleatorio(Jugador):
         }
         self.mano = []
 
-    def DescartarCartas(self,mazo, descarte):
-        JugadaRandom(self, mazo, descarte).DescartarCartas()
+    def DescartarCartasJ(self,mazo, descarte):
+        j = JugadaRandom(self, mazo, descarte)
+        cart = j.CartasADescartar()
+        j.DescartarCartas(cart)        
         
     def SeleccionarJugada(self, mazo, descarte,jugadores):
         j = JugadaRandom(self, mazo, descarte,jugadores)
@@ -43,12 +45,16 @@ class JugadorAleatorio(Jugador):
         cartasConUso = []
         for i in jugada:
             cartasConUso.append(j.ComoUsarCarta(i, jugada))
+        cartasConUso.append(j.ComodinesAReponer())
         return cartasConUso
     
     def EjecutarJugada(self, jugada, mazo, descarte, jugadores):
         j = JugadaRandom(self, mazo, descarte, jugadores)
         for i in jugada:
-            j.UsarCarta(i[0], i, jugada)
+            if(i == jugada[len(jugada) - 1]):
+                break
+            if(i != None):
+                j.UsarCarta(i[0], i, jugada)
             
     def Responder(self, jugadorActual, mazo, descarte, carta, monto):
         j = JugadaRandom(self, mazo, descarte)
@@ -86,27 +92,35 @@ class JugadorInteligente(Jugador):
         }
         self.mano = []
         
+        
     def EvaluarJugada(jugadorActual, jugada):
+        '''HEURISTICA DE PROPIEDADES'''
         valor = 0
         for i in jugada:
-            if(i.tipo == 'propiedad'):
-                ranking = RankingPropiedades(jugadorActual)
-                for k in ranking:
-                    if(i.color in ranking[k] and k != 0):
-                        valor += 1 / k
+            if(type(i) != list):
+                if(i[0].tipo == 'propiedad'):
+                    ranking = RankingPropiedades(jugadorActual)
+                    for k in ranking:
+                        if(i[0].color in ranking[k] and k != 0):
+                            valor += 1 / k
+                            ranking[k - 1].append(i[0].color)
+                            ranking[k].remove(i[0].color)
+                            break
+                elif(i[0].tipo == 'comodin'):
+                    pass
+                #poner aki las cosas!!!!!!!!!!!!
         return 0
     
     def PosiblesJugadas(self, mazo, descarte, jugadores):
         listaJugadas = []
-        for i in range(5):
+        for i in range(5): #Poner otro numero!!!!!!!!!!!
             j = JugadaRandom(self, mazo, descarte,jugadores)
             jugada = j.CrearJugada()
             cartasConUso = []
             for i in jugada:
                 cartasConUso.append(j.ComoUsarCarta(i, jugada))
+            cartasConUso.append(j.ComodinesAReponer())
             listaJugadas.append([self, cartasConUso])
-
-        #listaJugadas.append(JugadaRandom(self, mazo, descarte, jugadores))
         max = -1000 #poner el min value
         result = {}
         for i in listaJugadas:
@@ -114,16 +128,36 @@ class JugadorInteligente(Jugador):
             result[ev] = i
             if(ev > max):
                 max = ev
-        return result[max]   
+        return result[max][1]  
     pass
     
     def SeleccionarJugada(self, mazo, descarte, jugadores):
         jugada = self.PosiblesJugadas(mazo, descarte, jugadores)
         return jugada
     
-    def EjecutarJugada(self, jugada):
+    def EjecutarJugada(self, jugada, mazo, descarte, jugadores):
+        j = JugadaRandom(self, mazo, descarte, jugadores)
         for i in jugada:
-            self.UsarCarta(i)
+            if(i == jugada[len(jugada) - 1]):
+                break
+            if(i != None):
+                j.UsarCarta(i[0], i, jugada)
+                
+    def DescartarCartasJ(self,mazo, descarte):
+        j = JugadaRandom(self, mazo, descarte)
+        cartasADescartar = []
+        for i in range(5):
+            cartasADescartar.append(j.CartasADescartar())
+        max = -1000 #poner el min value
+        result = {}
+        for i in cartasADescartar:
+            ev = i[0].EvaluarJugada(i[1])
+            result[ev] = i
+            if(ev > max):
+                max = ev
+        return result[max][1] 
+            
+            
     
     def Responder():
         pass

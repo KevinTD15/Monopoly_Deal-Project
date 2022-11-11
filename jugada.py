@@ -29,7 +29,7 @@ class Jugada(ABC):
         pass
     
     @abstractclassmethod
-    def ReponerComodin():
+    def ComodinesAReponer():
         pass
     
     @abstractclassmethod
@@ -40,9 +40,29 @@ class Jugada(ABC):
     def ComoUsarCarta():
         pass
     
+    def ReponerComodin(self, comAReponer):
+        if(len(comAReponer) > 0):
+            for k in comAReponer:
+                col = k[1]
+                i = k[0]
+                jugadorActual = self.jugador
+                if(len(jugadorActual.tablero[col]) > 0 and len(jugadorActual.tablero[col]) < jugadorActual.tablero[col][0].cantGrupo):
+                    i.enUso = col
+                    jugadorActual.tablero[col].append(i)
+                    juegoMD.JuegoMD.notificaciones.append(f'{jugadorActual.nombre} mueve su comodin {i.nombre} para el grupo {col}') 
+                    jugadorActual.tablero['comodines'].remove(i)
+                else:
+                    i.enUso = None
+    
+    def DescartarCartas(self, cartasADescartar): #ver xq descarto propiedades
+        for i in cartasADescartar:
+            juegoMD.JuegoMD.notificaciones.append(f'{self.jugador.nombre} descarta {self.jugador.mano[i].tipo} {self.jugador.mano[i].nombre}') 
+            self.descarte.append(self.jugador.mano[i])
+            self.jugador.mano.remove(i)
+    
     def UsarCarta(self, carta, jugada, cartasAUsar):
-        jugadorActual = self.jugador  #OJOOO duda jugador ahi quien es
-        self.ReponerComodin()
+        jugadorActual = self.jugador
+        self.ReponerComodin(cartasAUsar[len(cartasAUsar) - 1])
                 
         if(carta.tipo == 'propiedad'):
             jugadorActual.AnadirPropiedadMano(carta)
@@ -84,6 +104,8 @@ class Jugada(ABC):
                 elif(jugada[3]):
                     juegoMD.JuegoMD.notificaciones.append(f'{jugadorActual.nombre} usa la accion doblaRenta y duplica el monto a pagar de {carta.nombre}')
                     for i in cartasAUsar:
+                        if(i == cartasAUsar[len(cartasAUsar) - 1]):
+                            break
                         if(i[0].nombre == 'doblaRenta'):
                             self.descarte.append(i[0])
                             jugadorActual.mano.remove(i[0])
@@ -225,34 +247,34 @@ class JugadaRandom(Jugada):
                 
         return cartasAJugar
     
-    def DescartarCartas(self): #ver xq descarto propiedades
+    def CartasADescartar(self):
         cantCartasADescartar = len(self.jugador.mano) - 7
         indicesUsados = []
-        for i in range(cantCartasADescartar):
+        i = 0
+        while i < cantCartasADescartar:
             a = rd.randint(0, len(self.jugador.mano) - 1)
             if(a in indicesUsados or self.jugador.mano[a].tipo == 'propiedad'):
-                i -= 1
+                pass
             else:
-                juegoMD.JuegoMD.notificaciones.append(f'{self.jugador.nombre} descarta {self.jugador.mano[a].tipo} {self.jugador.mano[a].nombre}') 
                 indicesUsados.append(a)
-                self.descarte.append(self.jugador.mano.pop(a))
+                i += 1
+        return indicesUsados
                
-    def ReponerComodin(self):
+    def ComodinesAReponer(self):
         jugadorActual = self.jugador
+        result = []
         for i in jugadorActual.tablero['comodines']:
             if(len(i.color) > 0):
                 col = rd.sample(i.color, 1)[0]
+                result.append([i, col])
             else:
                 colores = []
                 for k in jugadorActual.tablero:
                     if(k != 'dinero' and k != 'comodines'):
                         colores.append(k)
                 col = rd.sample(colores, 1)[0]
-            if(len(jugadorActual.tablero[col]) > 0 and len(jugadorActual.tablero[col]) < jugadorActual.tablero[col][0].cantGrupo):
-                i.enUso = col
-                jugadorActual.tablero[col].append(i)
-                juegoMD.JuegoMD.notificaciones.append(f'{jugadorActual.nombre} mueve su comodin {i.nombre} para el grupo {col}') 
-                jugadorActual.tablero['comodines'].remove(i)
+                result.append([i, col])
+        return result
      
     def UsarDiQNo(self, carta):
         for i in self.jugador.mano:

@@ -42,5 +42,5 @@ class Crupier:
     def VerificarMano(jugadorActual, mazo, descarte):
         cantCartasEnMano = jugadorActual.mano
         if(len(cantCartasEnMano) > 7):
-            jugadorActual.DescartarCartas(mazo, descarte)
+            jugadorActual.DescartarCartasJ(mazo, descarte)
             

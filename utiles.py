@@ -77,12 +77,18 @@ def RankingPropiedades(jugadorActual):
     for i in jugadorActual.colorCantGrupo:
         if(len(jugadorActual.tablero[i]) < jugadorActual.colorCantGrupo[i]):
             val = jugadorActual.colorCantGrupo[i] - len(jugadorActual.tablero[i])
+            if(val < 0):
+                val = 0
             if(val in valUsados):
                 rank[val].append(i)
             else:
                 rank[val] = []
                 rank[val].append(i)
                 valUsados.append(val)
+    if( 0 not in rank):
+        rank[0] = []
+    if( 1 not in rank):
+        rank[1] = []
     return rank
     
         

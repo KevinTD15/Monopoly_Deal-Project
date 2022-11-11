@@ -25,6 +25,10 @@ class Jugador(ABC):
     def SeleccionarJugada():
         pass
     
+    @abstractstaticmethod
+    def DescartarCartasJ():
+        pass
+    
     def Jugar(posiblesJugadas):
         return Jugador.SeleccionarJugada(posiblesJugadas)
     
