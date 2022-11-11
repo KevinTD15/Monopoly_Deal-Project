@@ -42,7 +42,7 @@ class Jugada(ABC):
     
     def ReponerComodin(self, comAReponer):
         if(len(comAReponer) > 0):
-            for k in comAReponer:
+            for k  in comAReponer:
                 col = k[1]
                 i = k[0]
                 jugadorActual = self.jugador
@@ -56,13 +56,13 @@ class Jugada(ABC):
     
     def DescartarCartas(self, cartasADescartar): #ver xq descarto propiedades
         for i in cartasADescartar:
-            juegoMD.JuegoMD.notificaciones.append(f'{self.jugador.nombre} descarta {self.jugador.mano[i].tipo} {self.jugador.mano[i].nombre}') 
-            self.descarte.append(self.jugador.mano[i])
+            juegoMD.JuegoMD.notificaciones.append(f'{self.jugador.nombre} descarta {i.tipo} {i.nombre}') 
+            self.descarte.append(i)
             self.jugador.mano.remove(i)
     
     def UsarCarta(self, carta, jugada, cartasAUsar):
         jugadorActual = self.jugador
-        self.ReponerComodin(cartasAUsar[len(cartasAUsar) - 1])
+        #self.ReponerComodin(cartasAUsar[len(cartasAUsar) - 1])
                 
         if(carta.tipo == 'propiedad'):
             jugadorActual.AnadirPropiedadMano(carta)
@@ -249,16 +249,17 @@ class JugadaRandom(Jugada):
     
     def CartasADescartar(self):
         cantCartasADescartar = len(self.jugador.mano) - 7
-        indicesUsados = []
+        cartasADescartar = []
+        manoJugador = self.jugador.mano
         i = 0
         while i < cantCartasADescartar:
-            a = rd.randint(0, len(self.jugador.mano) - 1)
-            if(a in indicesUsados or self.jugador.mano[a].tipo == 'propiedad'):
+            a = rd.randint(0, len(manoJugador) - 1)
+            if(manoJugador[a] in cartasADescartar or manoJugador[a].tipo == 'propiedad'):
                 pass
             else:
-                indicesUsados.append(a)
+                cartasADescartar.append(manoJugador[a])
                 i += 1
-        return indicesUsados
+        return cartasADescartar
                
     def ComodinesAReponer(self):
         jugadorActual = self.jugador

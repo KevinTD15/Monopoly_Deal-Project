@@ -55,6 +55,7 @@ class JugadorAleatorio(Jugador):
                 break
             if(i != None):
                 j.UsarCarta(i[0], i, jugada)
+        j.ReponerComodin(jugada[len(jugada) - 1])
             
     def Responder(self, jugadorActual, mazo, descarte, carta, monto):
         j = JugadaRandom(self, mazo, descarte)

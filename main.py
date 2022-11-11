@@ -26,7 +26,7 @@ def main():
     #hilo = threading.Thread(target=mytimer, args=(j,),)
     #hilo.start()
 
-    for i in range(5):
+    for i in range(1000):
         j.notificaciones.append('COMIENZO DEL JUEGO')
         j.EjecutarJuego()
         j.notificaciones.append('FIN DEL JUEGO')
