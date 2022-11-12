@@ -66,7 +66,7 @@ class Jugador(ABC):
             jugadorActual.tablero['comodines'].append(carta)
             jugadorObjetivo.tablero[carta.enUso].remove(carta) 
             carta.enUso = None   
-        elif (carta.tipo == 'comodin' and carta.enUso == None):
+        elif (carta.enUso == None):
             jugadorActual.tablero['comodines'].append(carta)
             jugadorObjetivo.tablero['comodines'].remove(carta)
     
