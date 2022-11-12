@@ -1,3 +1,9 @@
+def TieneProp(jugador):
+    for i in jugador.tablero:
+        if(len(jugador.tablero[i]) > 0):
+            return True
+    return False
+
 def CalcularMonto(jugador, color):
     if(len(jugador.tablero[color]) <= jugador.tablero[color][0].cantGrupo):
         return jugador.tablero[color][0].renta[len(jugador.tablero[color]) - 1]
@@ -85,10 +91,9 @@ def RankingPropiedades(jugadorActual):
                 rank[val] = []
                 rank[val].append(i)
                 valUsados.append(val)
-    if( 0 not in rank):
-        rank[0] = []
-    if( 1 not in rank):
-        rank[1] = []
+    for i in range(5):
+        if(i not in rank):
+            rank[i] = []
     return rank
     
         
