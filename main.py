@@ -13,8 +13,9 @@ def main():
     j4 = JugadorAleatorio('fifi', True)
     j5 = JugadorAleatorio('popo', True)
     j6 = JugadorInteligente('kevin', True)
+    j7 = JugadorInteligente('mapa', True)
     j._jugadores.append(j1)
-    j._jugadores.append(j2)
+    j._jugadores.append(j6)
     #j._jugadores.append(j6)
     #j._jugadores.append(j3)
     #j._jugadores.append(j4)
@@ -22,21 +23,33 @@ def main():
     #j.notificaciones.append('COMIENZO DEL JUEGO')
     
     init() #para dar color a los cambios de turno
-    #evento = threading.Event()8888
+    #evento = threading.Event()
     #hilo = threading.Thread(target=mytimer, args=(j,),)
     #hilo.start()
-
-    for i in range(1000):
+    dic = {}
+    total = 0
+    for i in j._jugadores:
+        dic[i.nombre] = 0
+    dic['Nadie'] = 0
+    
+    for i in range(5):
         j.notificaciones.append('COMIENZO DEL JUEGO')
-        j.EjecutarJuego()
+        j.EjecutarJuego()       
+        dic[j.ganador] += 1
+        total += 1
+        j.notificaciones.append(f'Gano: {j.ganador} en {j.count} turnos')
         j.notificaciones.append('FIN DEL JUEGO')
         for i in j.notificaciones:
             print(i)
-    a = 5
+            
+    print('\nRESUMEN DE PARTIDAS')
+    for i in dic:
+        if(i != 'Nadie'):
+            print(f'{i} tiene {dic[i]} victorias')
     #evento.clear()
 
-    for i in j.notificaciones:
-        print(i)
+    #for i in j.notificaciones:
+    #    print(i)
     
 def mytimer(j):
     global idnotificacion
