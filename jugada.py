@@ -24,9 +24,9 @@ class Jugada(ABC):
     def UsarDoblaRenta():
         pass
     
-    @abstractclassmethod
-    def ResponderAJugada():
-        pass
+    #@abstractclassmethod
+    #def ResponderAJugada():
+    #    pass
     
     @abstractclassmethod
     def ComodinesAReponer():
@@ -55,10 +55,15 @@ class Jugada(ABC):
                     i.enUso = None
     
     def DescartarCartas(self, cartasADescartar): #ver xq descarto propiedades
-        for i in cartasADescartar:
-            juegoMD.JuegoMD.notificaciones.append(f'{self.jugador.nombre} descarta {i.tipo} {i.nombre}') 
-            self.descarte.append(i)
-            self.jugador.mano.remove(i)
+        if(type(cartasADescartar) != list):
+            juegoMD.JuegoMD.final = True
+            juegoMD.JuegoMD.ganador = 'Nadie'        
+            juegoMD.JuegoMD.notificaciones.append(f'{cartasADescartar.nombre} tiene mas de 7 propiedades en la mano por lo que se anula el juego')
+        else:
+            for i in cartasADescartar:
+                juegoMD.JuegoMD.notificaciones.append(f'{self.jugador.nombre} descarta {i.tipo} {i.nombre}') 
+                self.descarte.append(i)
+                self.jugador.mano.remove(i)
     
     def UsarCarta(self, carta, jugada, cartasAUsar):
         jugadorActual = self.jugador
@@ -151,13 +156,15 @@ class Jugada(ABC):
                     if(carta.intercambio):
                         jug = jugada[3]
                         propsADar = jugada[2]
-                        propsInter = jugada[1]                           
+                        propsInter = jugada[1]  
+                        juegoMD.JuegoMD.notificaciones.append(f'{jugadorActual.nombre} usa la carta {carta.tipo} {carta.nombre} contra {jug.nombre}')                         
                         jug.Responder(jugadorActual, self.mazo, self.descarte, carta, (propsADar, propsInter))
                         jug.AcomodarTablero()
                         jugadorActual.AcomodarTablero()
                     elif(carta.cuantas != None):
                         jug = jugada[2]
-                        propsADar = jugada[1]                                                             
+                        propsADar = jugada[1]            
+                        juegoMD.JuegoMD.notificaciones.append(f'{jugadorActual.nombre} usa la carta {carta.tipo} {carta.nombre} contra {jug.nombre}')                                                 
                         jug.Responder(jugadorActual, self.mazo, self.descarte, carta, propsADar)
                         jug.AcomodarTablero()
                         jugadorActual.AcomodarTablero()
@@ -170,6 +177,7 @@ class Jugada(ABC):
                         else:
                             jugadorObjetivo = jugada[2]
                             grupo = jugada[1]
+                            juegoMD.JuegoMD.notificaciones.append(f'{jugadorActual.nombre} usa la carta {carta.tipo} {carta.nombre} contra {jugadorObjetivo.nombre}')
                             jugadorObjetivo.Responder(jugadorActual, self.mazo, self.descarte, carta, grupo)
                             jugadorObjetivo.AcomodarTablero()
                             jugadorActual.AcomodarTablero()
@@ -183,7 +191,7 @@ class Jugada(ABC):
             elif(carta.subtipo == 'robardinero'):
                 if(carta.todos):
                     juegoMD.JuegoMD.notificaciones.append(f'{jugadorActual.nombre} usa la carta {carta.tipo} {carta.nombre} contra todos')
-                    for i in jugada[1]:
+                    for i in jugada[2]:
                         if (i != jugadorActual):
                             i.Responder(jugadorActual, self.mazo, self.descarte, carta, carta.monto)
                             i.AcomodarTablero()
@@ -198,6 +206,43 @@ class Jugada(ABC):
             else: #robar carta
                 Crupier.RepartirCartas(False, jugadorActual, self.mazo, int(carta.cantCartasATomar), self.descarte)
                 juegoMD.JuegoMD.notificaciones.append(f'{jugadorActual.nombre} usa la {carta.tipo} {carta.nombre} y toma {carta.cantCartasATomar} del mazo')                
+    
+    def ResponderAJugada(self, respuesta):
+        jugadorObjetivo = self.jugador
+        carta = respuesta[0]
+        if(carta.nombre == 'diqno' and respuesta[1] == True):
+            juegoMD.JuegoMD.notificaciones.append(f'{self.jugador.nombre} usa la {carta.tipo} {carta.nombre} y niega el efecto contra el')
+            self.descarte.append(respuesta[0])
+            jugadorObjetivo.mano.remove(respuesta[0])
+        elif(len(respuesta) == 3):
+            self.DarCartas(respuesta[1], respuesta[2])
+        elif(len(respuesta) == 2):
+            self.DarCartas(respuesta[1])
+        elif(carta.tipo == 'accion'):
+            if(carta.subtipo == 'robarprop'):
+                if(carta.intercambio == True): #AKI FALTA LA OTRA MITAD CREO
+                    for i in respuesta[3]:
+                        if(i.tipo == 'propiedad'):
+                            self.jugador.tablero[i.color].append(i)
+                            respuesta[1].tablero[i.color].remove(i)
+                        elif(i.tipo == 'comodin'):
+                            self.jugador.tablero['comodines'].append(i)
+                            if(i.enUso != None):
+                                respuesta[1].tablero[i.enUso].remove(i)
+                            else:
+                                respuesta[1].tablero['comodines'].remove(i)
+                            i.enUso = None
+                elif(carta.cuantas != None):
+                    propsADar = respuesta[2]
+                    for i in propsADar:
+                        if(i.tipo == 'propiedad'):
+                            self.jugador.AnadirPropiedad(respuesta[2], i)
+                        else:
+                            self.jugador.AnadirComodin(respuesta[2], i)
+                        juegoMD.JuegoMD.notificaciones.append(f'{self.jugador.nombre} le da la {i.tipo} {i.nombre} a {respuesta[2].nombre}')
+                else:
+                    respuesta[1].tablero[respuesta[2]].extend(propsADar)
+                    self.jugador.tablero[respuesta[2]].clear()
     
     def DarCartas(self, jugadorActual, cartasADar = None):
         if(cartasADar != None):
@@ -250,15 +295,20 @@ class JugadaRandom(Jugada):
     def CartasADescartar(self):
         cantCartasADescartar = len(self.jugador.mano) - 7
         cartasADescartar = []
+        usado = []
         manoJugador = self.jugador.mano
         i = 0
         while i < cantCartasADescartar:
             a = rd.randint(0, len(manoJugador) - 1)
+            if(a not in usado):
+                usado.append(a)
             if(manoJugador[a] in cartasADescartar or manoJugador[a].tipo == 'propiedad'):
                 pass
             else:
                 cartasADescartar.append(manoJugador[a])
                 i += 1
+            if(len(usado) == len(manoJugador)):
+                return self.jugador
         return cartasADescartar
                
     def ComodinesAReponer(self):
@@ -282,11 +332,11 @@ class JugadaRandom(Jugada):
                 if(i.nombre == 'diqno'):
                     usar = rd.randint(0, 1)
                     if(usar == 1):
-                        self.descarte.append(i)
-                        self.jugador.mano.remove(i)
-                        juegoMD.JuegoMD.notificaciones.append(f'{self.jugador.nombre} usa la {i.tipo} {i.nombre} y niega el efecto de {carta.nombre} contra el')
-                        return True
-        return False  
+                        #self.descarte.append(i)
+                        #self.jugador.mano.remove(i)
+                        #juegoMD.JuegoMD.notificaciones.append(f'{self.jugador.nombre} usa la {i.tipo} {i.nombre} y niega el efecto de {carta.nombre} contra el')
+                        return True, i
+        return False, None  
     
     def UsarDoblaRenta(self, carta, cartasAUsar, monto):
         for i in cartasAUsar:
@@ -295,58 +345,39 @@ class JugadaRandom(Jugada):
                 if(usar == 1):             
                     return 2 * monto, True
         return monto, False                       
-                            
-    def ResponderAJugada(self, jugadorActual, carta, monto):
-        band = self.UsarDiQNo(carta)
-        if(not band):
-            if(carta.subtipo == 'renta' or carta.subtipo == 'robardinero'):
-                din, total = DineroPorBilletes(self.jugador)
-                dinProp, totalProp = DineroPorPropiedades(self.jugador)
-                din[0].extend(dinProp[0])
-                din[1].extend(dinProp[1])
-                pagar = 0
-                cartasADar = []
-                indicesUsados = []
-                if(total + totalProp >= monto):
-                    while(pagar < monto):
-                        indice = rd.randint(0, len(din[0]) - 1)
-                        if(indice not in indicesUsados):
-                            cartasADar.append(din[1][indice])
-                            pagar += din[0][indice]
-                            indicesUsados.append(indice)
-                    self.DarCartas(jugadorActual, cartasADar)
-                else:
-                    self.DarCartas(jugadorActual)
-            elif(carta.subtipo == 'robarprop'):
-                if(carta.intercambio == True):
-                    propsADar = monto[0]
-                    for i in monto[1]:
-                        if(i.tipo == 'propiedad'):
-                            self.jugador.tablero[i.color].append(i)
-                            jugadorActual.tablero[i.color].remove(i)
-                        elif(i.tipo == 'comodin'):
-                            self.jugador.tablero['comodines'].append(i)
-                            if(i.enUso != None):
-                                jugadorActual.tablero[i.enUso].remove(i)
-                            else:
-                                jugadorActual.tablero['comodines'].remove(i)
-                            i.enUso = None
-                        juegoMD.JuegoMD.notificaciones.append(f'{jugadorActual.nombre} le da la {i.tipo} {i.nombre} a {self.jugador.nombre}')
-                else:
-                    propsADar = monto
-                if(carta.cuantas != None):
-                    for i in propsADar:
-                        if(i.tipo == 'propiedad'):
-                            self.jugador.AnadirPropiedad(jugadorActual, i)
-                        else:
-                            self.jugador.AnadirComodin(jugadorActual, i)
-                        juegoMD.JuegoMD.notificaciones.append(f'{self.jugador.nombre} le da la {i.tipo} {i.nombre} a {jugadorActual.nombre}')
-                else:
-                    jugadorActual.tablero[propsADar[0].color].extend(propsADar)
-                    self.jugador.tablero[propsADar[0].color].clear()
-            else:
-                pass 
     
+    def CartasResponder(self, jugadorActual, carta, monto):
+        band, diqno = self.UsarDiQNo(carta)
+        if(band):
+            return [diqno, band]
+        elif(carta.subtipo == 'renta' or carta.subtipo == 'robardinero'):
+            din, total = DineroPorBilletes(self.jugador)
+            dinProp, totalProp = DineroPorPropiedades(self.jugador)
+            din[0].extend(dinProp[0])
+            din[1].extend(dinProp[1])
+            pagar = 0
+            cartasADar = []
+            indicesUsados = []
+            if(total + totalProp >= monto):
+                while(pagar < monto):
+                    indice = rd.randint(0, len(din[0]) - 1)
+                    if(indice not in indicesUsados):
+                        cartasADar.append(din[1][indice])
+                        pagar += din[0][indice]
+                        indicesUsados.append(indice)
+                return [carta, jugadorActual, cartasADar]
+            else:
+                return [carta, jugadorActual]
+        elif(carta.subtipo == 'robarprop'):
+            if(carta.intercambio == True):
+                return [carta, jugadorActual, monto[0], monto[1]]
+            else:
+                propsADar = monto
+                if(carta.cuantas != None):               
+                    return [carta, jugadorActual,propsADar]
+                else:
+                    return [carta, jugadorActual,propsADar[0].color]
+
     def ComoUsarCarta(self, carta, paraDoblaRenta):
         jugadorActual = self.jugador
         if(carta.tipo == 'propiedad' or carta.tipo == 'dinero'):
@@ -445,11 +476,11 @@ class JugadaRandom(Jugada):
                     return [carta, 'dinero']
             elif(carta.subtipo == 'robardinero'):
                 if(carta.todos):
-                    return [carta, self.jugadores]
+                    return [carta, jugadorActual, self.jugadores]
                 else:
                     jug = self.jugadores[0]
                     while(jug == jugadorActual):
                         jug = rd.sample(self.jugadores, 1)[0]
-                    return [carta, jug]
-            else:
+                    return [carta, jugadorActual, jug]
+            else: #ACCION ROBAR 2 CARTAS
                 return [carta]
