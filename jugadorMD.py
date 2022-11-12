@@ -37,7 +37,10 @@ class JugadorAleatorio(Jugador):
     def DescartarCartasJ(self,mazo, descarte):
         j = JugadaRandom(self, mazo, descarte)
         cart = j.CartasADescartar()
-        j.DescartarCartas(cart)        
+        #if(type(cart) == list):
+        j.DescartarCartas(cart)   
+        #else:
+        #    raise Exception(f'{cart.nombre} tiene mas de 7 propiedades en la mano por lo que se anula el juego')     
         
     def SeleccionarJugada(self, mazo, descarte,jugadores):
         j = JugadaRandom(self, mazo, descarte,jugadores)
@@ -59,7 +62,8 @@ class JugadorAleatorio(Jugador):
             
     def Responder(self, jugadorActual, mazo, descarte, carta, monto):
         j = JugadaRandom(self, mazo, descarte)
-        j.ResponderAJugada(jugadorActual, carta, monto)
+        resp = j.CartasResponder(jugadorActual, carta, monto)
+        j.ResponderAJugada(resp)
         
         
 class JugadorInteligente(Jugador):
@@ -97,40 +101,164 @@ class JugadorInteligente(Jugador):
     def EvaluarJugada(jugadorActual, jugada):
         '''HEURISTICA DE PROPIEDADES'''
         valor = 0
+        ranking = RankingPropiedades(jugadorActual)
+
         for i in jugada:
-            if(type(i) != list):
-                if(i[0].tipo == 'propiedad'):
-                    ranking = RankingPropiedades(jugadorActual)
-                    for k in ranking:
-                        if(i[0].color in ranking[k] and k != 0):
+            if (i == jugada[len(jugada) - 1]):
+                break
+            if(i[0].tipo == 'propiedad'):
+                for k in ranking:
+                    if(i[0].color in ranking[k] and k != 0):
+                        valor += 1 / k
+                        ranking[k - 1].append(i[0].color)
+                        ranking[k].remove(i[0].color)
+                        if(len(ranking[0]) == 3):
+                            valor += 1000
+                        break
+            elif(i[0].tipo == 'comodin'):
+                for k in ranking:
+                    if(i[1] in ranking[k] and k != 0):
+                        if(len(jugadorActual.tablero[i[1]]) > 0 and len(jugadorActual.tablero[i[1]]) < jugadorActual.tablero[i[1]][0].cantGrupo):
                             valor += 1 / k
-                            ranking[k - 1].append(i[0].color)
-                            ranking[k].remove(i[0].color)
+                            ranking[k - 1].append(i[1])
+                            ranking[k].remove(i[1])
+                            if(len(ranking[0]) == 3):
+                                valor += 1000
                             break
-                elif(i[0].tipo == 'comodin'):
-                    pass
-                #poner aki las cosas!!!!!!!!!!!!
+            elif(i[0].tipo == 'dinero'):
+                _, dinprop = DineroPorPropiedades(jugadorActual)
+                _, dindin = DineroPorBilletes(jugadorActual)
+                if(dinprop > dindin):
+                    valor += 1/12
+            elif(i[0].tipo == 'accion'):
+                if(i[0].nombre == 'diqno'):
+                    break
+                elif(i[0].tipo == 'robarcarta'):
+                    valor += 1/2
+                elif(i[0].subtipo == 'robarprop'):
+                    if(i[1] == 'mano' or i[1] == 'dinero'):
+                        break
+                    elif(i[0].intercambio):
+                        if(len(i[2]) == 0 or (type[i[1]] == list and len(i[1]) == 0)):
+                            break
+                        count = 0
+                        for j in i[1]:
+                            for k in ranking:
+                                if(j.color == ranking[k] and k == 0):
+                                    break
+                                if(j.color == ranking[k] and k != 0):
+                                    count += 1 - 1/k
+                        for j in i[2]:
+                            for k in ranking:
+                                if(j.color == ranking[k] and k != 0):
+                                    count += 1/k
+                        valor += count
+                    else:
+                        if(i[0].cuantas != None):
+                            count = 0
+                            for j in i[1]:
+                                for k in ranking:
+                                    if(j.color == ranking[k] and k != 0):
+                                        count += 1/k
+                            valor += count
+                        else: #FACTOR DECISIVO
+                            valor += 1
+                            
+                            
+                elif(i[0].subtipo == 'construccion'):
+                    if(i[0].nombre == 'casa'):
+                        if(len(jugadorActual.tablero[i[1]]) > 0 and len(jugadorActual.tablero[i[1]]) == jugadorActual.tablero[i[1]][0].cantGrupo):
+                            valor += 1/3
+                        else:
+                            break
+                    elif(i[0].nombre == 'hotel'):
+                        if(len(jugadorActual.tablero[i[1]]) > 0 and len(jugadorActual.tablero[i[1]]) == jugadorActual.tablero[i[1]][0].cantGrupo + 1):
+                            valor += 1/2
+                        else:
+                            break
+                elif(i[0].subtipo == 'renta'):
+                    if(i[1] == 'dinero'):
+                        if(len(i[0].propiedades) == 0):
+                            for j in jugadorActual.tablero:
+                                if(len(jugadorActual.tablero[j]) > 0):
+                                    break
+                            _, dinprop = DineroPorPropiedades(jugadorActual)
+                            _, dindin = DineroPorBilletes(jugadorActual)
+                            if(dinprop > dindin):
+                                valor += 1/15
+                            else:
+                                break
+                        else:
+                            for k in i[0].propiedades:
+                                if(len(jugadorActual.tablero[k]) > 0):
+                                    break
+                            _, dinprop = DineroPorPropiedades(jugadorActual)
+                            _, dindin = DineroPorBilletes(jugadorActual)
+                            if(dinprop > dindin):
+                                valor += 1/15
+                            else:
+                                break                                   
+                    elif(i[1] == 'mano'):
+                        break
+                    #AKI viene un elif
+                elif(i[0].subtipo == 'robardinero'):
+                    if(not i[0].todos):
+                        jugadorObjetivo = i[2]
+                        _, din = DineroPorBilletes(jugadorObjetivo)
+                        tieneProp = TieneProp(jugadorObjetivo)
+                        if(i[0].monto > din):
+                            if(tieneProp):
+                                valor += 1/4 #arreglar
+                            else:
+                                break
+                        else:
+                            valor += 1/10
+                    else:
+                        jugadorActual = i[1]
+                        count = 0
+                        for j in i[2]:
+                            if(j != jugadorActual):
+                                _, din = DineroPorBilletes(j)
+                                tieneProp = TieneProp(j)
+                                if(i[0].monto > din):
+                                    if(tieneProp):
+                                        count += 1
+                                else:
+                                    valor += 1/10
+                        valor += 1/4 * count
+           
+            #poner aki las cosas!!!!!!!!!!!!
+        return valor
+    
+    def EvaluarJugadaD(self, jugada):
+        return 0
+    
+    def EvaluarJugadaR(self, jugada):
         return 0
     
     def PosiblesJugadas(self, mazo, descarte, jugadores):
         listaJugadas = []
-        for i in range(5): #Poner otro numero!!!!!!!!!!!
+        jugadasPosibles = []
+        for i in range(100): #Poner otro numero!!!!!!!!!!!
             j = JugadaRandom(self, mazo, descarte,jugadores)
             jugada = j.CrearJugada()
-            cartasConUso = []
-            for i in jugada:
-                cartasConUso.append(j.ComoUsarCarta(i, jugada))
-            cartasConUso.append(j.ComodinesAReponer())
-            listaJugadas.append([self, cartasConUso])
+            if(jugada not in jugadasPosibles):
+                cartasConUso = []
+                for i in jugada:
+                    cartasConUso.append(j.ComoUsarCarta(i, jugada))
+                cartasConUso.append(j.ComodinesAReponer())
+                listaJugadas.append([self, cartasConUso])
+                jugadasPosibles.append(jugada)
         max = -1000 #poner el min value
         result = {}
-        for i in listaJugadas:
-            ev = i[0].EvaluarJugada(i[1])
-            result[ev] = i
+        for i in range(len(listaJugadas)):
+            if(i == len(listaJugadas) - 1):
+                break
+            ev = listaJugadas[i][0].EvaluarJugada(listaJugadas[i][1])
+            result[ev] = listaJugadas[i]
             if(ev > max):
                 max = ev
         return result[max][1]  
-    pass
     
     def SeleccionarJugada(self, mazo, descarte, jugadores):
         jugada = self.PosiblesJugadas(mazo, descarte, jugadores)
@@ -143,6 +271,7 @@ class JugadorInteligente(Jugador):
                 break
             if(i != None):
                 j.UsarCarta(i[0], i, jugada)
+        j.ReponerComodin(jugada[len(jugada) - 1])
                 
     def DescartarCartasJ(self,mazo, descarte):
         j = JugadaRandom(self, mazo, descarte)
@@ -152,13 +281,22 @@ class JugadorInteligente(Jugador):
         max = -1000 #poner el min value
         result = {}
         for i in cartasADescartar:
-            ev = i[0].EvaluarJugada(i[1])
+            ev = j.jugador.EvaluarJugadaD(i)
             result[ev] = i
             if(ev > max):
                 max = ev
-        return result[max][1] 
-            
-            
+        j.DescartarCartas(result[max])             
     
-    def Responder():
-        pass
+    def Responder(self, jugadorActual, mazo, descarte, carta, monto):
+        j = JugadaRandom(self, mazo, descarte)
+        respuestas = []
+        result = {}
+        max = -1000
+        for i in range(5):
+            respuestas.append(j.CartasResponder(jugadorActual, carta, monto))
+        for i in respuestas:    
+            ev = j.jugador.EvaluarJugadaR(i)
+            result[ev] = i
+            if(ev > max):
+                max = ev
+        j.ResponderAJugada(result[max])
