@@ -42,6 +42,8 @@ class JuegoMD:
             jugadorActual.EjecutarJugada(jugada, JuegoMD._mazo, JuegoMD.descarte, JuegoMD._jugadores)
 
             Crupier.VerificarMano(jugadorActual, JuegoMD._mazo, JuegoMD.descarte)
+            if(JuegoMD.final):
+                return
             JuegoMD.final, JuegoMD.ganador = Crupier.FinDeJuegoMD(jugadorActual)
             JuegoMD._indiceJugadorActual += 1
                 
@@ -62,7 +64,6 @@ class JuegoMD:
         while(not JuegoMD.final):
             JuegoMD.EjecutarTurnoMD()
             JuegoMD.count += 1
-        self.notificaciones.append(f'Gano: {self.ganador} en {self.count} turnos')
         
     def Reestablecer(self):
         self.count = -1
