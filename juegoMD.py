@@ -41,7 +41,7 @@ class JuegoMD:
             
             jugadorActual.EjecutarJugada(jugada, JuegoMD._mazo, JuegoMD.descarte, JuegoMD._jugadores)
 
-            Crupier.VerificarMano(jugadorActual, JuegoMD._mazo, JuegoMD.descarte)
+            Crupier.VerificarMano(jugadorActual, JuegoMD._mazo, JuegoMD.descarte, JuegoMD._jugadores)
             if(JuegoMD.final):
                 return
             JuegoMD.final, JuegoMD.ganador = Crupier.FinDeJuegoMD(jugadorActual)

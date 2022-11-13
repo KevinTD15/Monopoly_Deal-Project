@@ -34,8 +34,8 @@ class JugadorAleatorio(Jugador):
         }
         self.mano = []
 
-    def DescartarCartasJ(self,mazo, descarte):
-        j = JugadaRandom(self, mazo, descarte)
+    def DescartarCartasJ(self,mazo, descarte, jugadores):
+        j = JugadaRandom(self, mazo, descarte, jugadores)
         cart = j.CartasADescartar()
         #if(type(cart) == list):
         j.DescartarCartas(cart)   
@@ -162,9 +162,7 @@ class JugadorInteligente(Jugador):
                                         count += 1/k
                             valor += count
                         else: #FACTOR DECISIVO
-                            valor += 1
-                            
-                            
+                            valor += 1                           
                 elif(i[0].subtipo == 'construccion'):
                     if(i[0].nombre == 'casa'):
                         if(len(jugadorActual.tablero[i[1]]) > 0 and len(jugadorActual.tablero[i[1]]) == jugadorActual.tablero[i[1]][0].cantGrupo):
@@ -230,8 +228,54 @@ class JugadorInteligente(Jugador):
             #poner aki las cosas!!!!!!!!!!!!
         return valor
     
-    def EvaluarJugadaD(self, jugada):
-        return 0
+    def EvaluarJugadaD(self, jugada, jugadores):
+        valor = 0
+        jugadorActual = self
+        ranking = RankingPropiedades(jugadorActual)
+        for i in jugada:
+            if(i.tipo == 'accion'):
+                if(i.subtipo == 'construccion'):
+                    for c in self.tablero:
+                        if(c != 'dinero' and c != 'comodines'):
+                            if(i.nombre == 'casa'):
+                                if(len(jugadorActual.tablero[c]) > 0 and len(jugadorActual.tablero[c]) == jugadorActual.tablero[c][0].cantGrupo):
+                                    valor += 1/7
+                            elif(i.nombre == 'hotel'):
+                                if(len(jugadorActual.tablero[c]) > 0 and len(jugadorActual.tablero[c]) == jugadorActual.tablero[c][0].cantGrupo + 1):
+                                    valor += 1/9
+                elif(i.subtipo == 'robarprop'):
+                    if(i.cuantas != None):
+                        for j in jugadores:
+                            if(j != jugadorActual):
+                                for c in j.tablero:
+                                    if(c != 'dinero' and c != 'comodines'):
+                                        if(len(j.tablero[c]) > 0):
+                                            for k in ranking:
+                                                if(c in ranking[k]):
+                                                    valor += 1/((len(ranking) - k + 1) * 2)
+                    else:
+                        for j in jugadores:
+                            if(j != jugadorActual):
+                                for c in j.tablero:
+                                    if(c != 'dinero' and c != 'comodines'):
+                                        if(len(j.tablero[c]) > 0 and len(j.tablero[c]) >= j.tablero[c][0].cantGrupo):
+                                            valor += 1/1000
+                        valor += 1/9
+                elif(i.subtipo == 'robardinero'):
+                    valor += 1/5
+                elif(i.subtipo == 'robarcarta'):
+                    valor += 1/10
+                elif(i.subtipo == 'renta'):
+                    valor += 1/7
+                elif(i.subtipo == 'rapida'):
+                    if(i.nombre == 'diqno'):
+                        valor += 1/11
+                    else:
+                        valor += 1/7
+            else: #DINERO
+                valor += 1/4
+        return valor
+                    
     
     def EvaluarJugadaR(self, jugada):
         return 0
@@ -273,15 +317,15 @@ class JugadorInteligente(Jugador):
                 j.UsarCarta(i[0], i, jugada)
         j.ReponerComodin(jugada[len(jugada) - 1])
                 
-    def DescartarCartasJ(self,mazo, descarte):
-        j = JugadaRandom(self, mazo, descarte)
+    def DescartarCartasJ(self, mazo, descarte, jugadores):
+        j = JugadaRandom(self, mazo, descarte, jugadores)
         cartasADescartar = []
-        for i in range(5):
+        for i in range(100):
             cartasADescartar.append(j.CartasADescartar())
         max = -1000 #poner el min value
         result = {}
         for i in cartasADescartar:
-            ev = j.jugador.EvaluarJugadaD(i)
+            ev = j.jugador.EvaluarJugadaD(i, jugadores)
             result[ev] = i
             if(ev > max):
                 max = ev

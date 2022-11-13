@@ -39,8 +39,8 @@ class Crupier:
                 #jugadores.mano.append(mazo.pop(0)) OJOOO
                 jugadores.mano.append(h)
         
-    def VerificarMano(jugadorActual, mazo, descarte):
+    def VerificarMano(jugadorActual, mazo, descarte, jugadores):
         cantCartasEnMano = jugadorActual.mano
         if(len(cantCartasEnMano) > 7):
-            jugadorActual.DescartarCartasJ(mazo, descarte)
+            jugadorActual.DescartarCartasJ(mazo, descarte, jugadores)
             
