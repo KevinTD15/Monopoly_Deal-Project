@@ -197,7 +197,7 @@ class Jugada(ABC):
                             i.AcomodarTablero()
                             jugadorActual.AcomodarTablero()
                 else:
-                    jug = jugada[1]
+                    jug = jugada[2] #jug = jugada[1]
                     juegoMD.JuegoMD.notificaciones.append(f'{jugadorActual.nombre} usa la carta {carta.tipo} {carta.nombre} contra {jug.nombre}')
                     jug.Responder(jugadorActual, self.mazo, self.descarte, carta, carta.monto)
                     jug.AcomodarTablero()
@@ -215,6 +215,8 @@ class Jugada(ABC):
             self.descarte.append(respuesta[0])
             jugadorObjetivo.mano.remove(respuesta[0])
         elif(len(respuesta) == 3):
+            if type(respuesta[2])==str:
+                a = 5
             self.DarCartas(respuesta[1], respuesta[2])
         elif(len(respuesta) == 2):
             self.DarCartas(respuesta[1])
@@ -373,10 +375,7 @@ class JugadaRandom(Jugada):
                 return [carta, jugadorActual, monto[0], monto[1]]
             else:
                 propsADar = monto
-                if(carta.cuantas != None):               
-                    return [carta, jugadorActual,propsADar]
-                else:
-                    return [carta, jugadorActual,propsADar[0].color]
+                return [carta, jugadorActual,propsADar]
 
     def ComoUsarCarta(self, carta, paraDoblaRenta):
         jugadorActual = self.jugador

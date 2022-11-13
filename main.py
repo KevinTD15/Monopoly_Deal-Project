@@ -32,7 +32,7 @@ def main():
         dic[i.nombre] = 0
     dic['Nadie'] = 0
     
-    for i in range(5):
+    for i in range(100):
         j.notificaciones.append('COMIENZO DEL JUEGO')
         j.EjecutarJuego()       
         dic[j.ganador] += 1
