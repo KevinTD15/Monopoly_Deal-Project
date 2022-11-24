@@ -78,7 +78,3 @@ class JuegoMD:
             i.mano.clear()
             for k in i.tablero:
                 i.tablero[k].clear()
-        
-    
-
-    

@@ -95,5 +95,3 @@ def RankingPropiedades(jugadorActual):
         if(i not in rank):
             rank[i] = []
     return rank
-    
-        
