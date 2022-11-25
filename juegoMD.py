@@ -21,7 +21,11 @@ class JuegoMD:
         if(JuegoMD._iniciarJuegoMD):
             JuegoMD._iniciarJuegoMD = False
             Crupier.BarajarMazo(JuegoMD._mazo)
-            Crupier.RepartirCartas(True, JuegoMD._jugadores, JuegoMD._mazo, 5, JuegoMD.descarte)
+            a = Crupier.RepartirCartas(True, JuegoMD._jugadores, JuegoMD._mazo, 5, JuegoMD.descarte)
+            if(a):
+                juegoMD.JuegoMD.final = True
+                juegoMD.JuegoMD.ganador = 'Nadie'        
+                juegoMD.JuegoMD.notificaciones.append('Se acabaron las cartas del mazo')
         else:
             if(JuegoMD._indiceJugadorActual >= len(JuegoMD._jugadores)):
                 JuegoMD._indiceJugadorActual = 0

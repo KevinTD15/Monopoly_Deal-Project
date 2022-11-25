@@ -461,34 +461,49 @@ class JugadaRandom(Jugada):
                 propEnT, jugAsociado = PropiedadesEnTablero(jugadorActual, self.jugadores)
                 if(len(propEnT) > 0):
                     if(carta.intercambio):
-                        jug = rd.randint(0, len(jugAsociado) - 1)
+                        flag = False
+                        jugList = []
+                        while(not flag):
+                            if(len(jugList) == len(jugAsociado)):
+                                return
+                            jug = rd.randint(0, len(jugAsociado) - 1)
+                            if(jugAsociado[jug] != jugadorActual):
+                                flag = True
+                            else:
+                                jugList.append(jug)
                         propsADar = []
                         #indices = []
                         propsInter = []
                         misProps, _ = DineroPorPropiedades(jugadorActual)
+                        jugProps, _ = DineroPorPropiedades(jugAsociado[jug])
                         misIndices = []
                         misIndicesJug = []
-                        if(len(misProps[1]) > carta.cuantas):
-                            while(len(propsInter) < carta.cuantas):
-                                ind = rd.randint(0, len(misProps[1]) - 1)
-                                if(ind not in misIndices and type(misProps[1][ind]) != list):
-                                    propsInter.append(misProps[1][ind])
-                                    misIndices.append(ind)
-                            while(len(propsADar) < carta.cuantas):
-                                indice = rd.randint(0, len(jugAsociado) - 1)
-                                if(indice not in misIndicesJug and jugAsociado[jug] == jugAsociado[indice] and type(propEnT[indice]) != list):
-                                    propsADar.append(propEnT[indice]) 
-                                    misIndicesJug.append(indice)
+                        if(len(misProps[1]) >= carta.cuantas and len(jugProps[1]) >= carta.cuantas):
+                            if(not((len(misProps[1]) == 1 and type(misProps[1][0]) == list) or (len(jugProps[1]) == 1 and type(jugProps[1][0]) == list))):
+                                while(len(propsInter) < carta.cuantas):
+                                    ind = rd.randint(0, len(misProps[1]) - 1)
+                                    if(ind not in misIndices and type(misProps[1][ind]) != list):
+                                        propsInter.append(misProps[1][ind])
+                                        misIndices.append(ind)
+                                while(len(propsADar) < carta.cuantas):
+                                    indice = rd.randint(0, len(jugAsociado) - 1)
+                                    if(indice not in misIndicesJug and jugAsociado[jug] == jugAsociado[indice] and type(propEnT[indice]) != list):
+                                        propsADar.append(propEnT[indice]) 
+                                        misIndicesJug.append(indice)
                         return [carta, propsInter, propsADar, jugAsociado[jug]]
                     else:
                         jug = rd.randint(0, len(jugAsociado) - 1)
                         propsADar = []
                         if(carta.cuantas != None):
                             indices = []
-                            while(len(propsADar) < carta.cuantas):
-                                indice = rd.randint(0, len(jugAsociado) - 1)
-                                if(indice not in indices and jugAsociado[jug] == jugAsociado[indice] and type(propEnT[indice]) != list):
-                                    propsADar.append(propEnT[indice])
+                            jugProps, _ = DineroPorPropiedades(jugAsociado[jug])
+                            if(len(jugProps[1]) >= carta.cuantas ):
+                                if(not(len(jugProps[1]) == 1 and type(jugProps[1][0]) == list)):
+                                    while(len(propsADar) < carta.cuantas):
+                                        indice = rd.randint(0, len(jugAsociado) - 1)
+                                        if(indice not in indices and jugAsociado[jug] == jugAsociado[indice] and type(propEnT[indice]) != list):
+                                            propsADar.append(propEnT[indice])
+                                            indices.append(indice)
                             return [carta, propsADar, jugAsociado[jug]]
                         else:
                             grupCompl = []
