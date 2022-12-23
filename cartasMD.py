@@ -1,6 +1,3 @@
-import enum
-from abc import ABC, abstractclassmethod
-
 class Cartas:
     def __init__(self, nombre, tipo):
         self.nombre = nombre
