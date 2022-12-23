@@ -17,7 +17,7 @@ groucho_grammar = nltk.CFG.fromstring( '''
 S -> 'crear' 'carta' Carta | Carta
 Carta -> Accion | Propiedad | Dinero | Comodin
 Accion -> Renta | Construccion | Rapida | RobarCarta | RobarPropiedad | RobarDinero
-Renta -> Nombre ValorC ColorCo Todos
+Renta -> Nombre ValorC ColorCo Todos | Nombre Todos ColorCo ValorC
 Construccion -> Nombre ValorC TipoConstruccion Monto
 Rapida -> Nombre ValorC Turno
 RobarCarta -> Nombre ValorC CartasATomar
@@ -81,7 +81,8 @@ def CleanToken(text):
 #card = 'crear carta Propi de color cian para un grupo de tamaño 3 donde las rentas son 2, 3, 5 con valor 2'.split()
 #card = 'quiero crear una carta que se llame PEPR que sea propiedad de color verde de cuyo grupo es de tamaño 3 cuya renta tenga los valores 2, 3, 5 el valor es de 10 '.split()
 #card = 'crear carta CHUCHA de color cian grupo de 3 y la renta sea 2, 4, 5 de valor 100'.split()
-card = 'Rentaaaaa con un valor de 2 y me tengan que pagar por los colores azul purpura todos'.split()
+#card = 'Rentaaaaa con un valor de 2 y me tengan que pagar por los colores azul purpura todos'.split() #Renta
+card = 'quiero crear carta que se llame Rentaaaaa contra todos que me tengan que pagar por los colores azul purpura y que tenga una valor de 3'.split()
 
 #a = CleanToken(card)
 
