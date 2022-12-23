@@ -4,43 +4,45 @@ import nltk
 from nltk.corpus import stopwords
 from nltk.stem.wordnet import WordNetLemmatizer
 
-res = ['propiedad', 'accion', 'dinero','construccion' , 'renta' , 'robar' ,'carta' , 'rapida',
+res = [
     'todos', 'casa' , 'hotel', 'cian' , 'magenta', 'mio' , 'otro', 'intercambio', 'cartas',
-    'M', 'grupo', 'tomar', 'asd', 'dsa', 'valor', 'crear','#Valor#', '#Nombre#', '#ColorCo#','jugadores', 'jugador']
-colores = ['cian', 'magenta']
+    'M', 'dsa', 'valor', 'crear','#Valor#', '#Nombre#', '#ColorCo#','jugadores', 'jugador',
+    'participante', 'participantes', 'totalidad', ',', 'negro', 'azul', 'marron', 'gris', 'verde', 'naranja',
+    'rosa', 'purpura', 'rojo', 'blanco', 'amarillo', 'carta', 'grupo']
+
+colores = ['cian', 'magenta', 'negro', 'azul', 'marron', 'gris', 'verde', 'naranja',
+           'rosa', 'purpura', 'rojo', 'blanco', 'amarillo']
 
 groucho_grammar = nltk.CFG.fromstring( '''
 S -> 'crear' 'carta' Carta | Carta
 Carta -> Accion | Propiedad | Dinero | Comodin
 Accion -> Renta | Construccion | Rapida | RobarCarta | RobarPropiedad | RobarDinero
-Renta -> Nombre Tipo Subtipo ValorC ColorCo Todos | Nombre Subtipo ValorC ColorCo Todos
-Construccion -> Nombre Tipo Subtipo ValorC TipoConstruccion Monto | Nombre Subtipo ValorC TipoConstruccion Monto
-Rapida -> Nombre Tipo Subtipo ValorC Turno | Nombre Subtipo ValorC Turno
-RobarCarta -> Nombre Tipo Subtipo ValorC CartasATomar | Nombre Subtipo ValorC CartasATomar
-RobarPropiedad -> Nombre Tipo Subtipo ValorC Intercambio Cuantas | Nombre Subtipo ValorC Intercambio Cuantas
-RobarDinero -> Nombre Tipo Subtipo Monto Todos ValorC | Nombre Subtipo Monto Todos ValorC
-Propiedad -> Nombre Tipo ColorC CantGrupo RentaGrupo Valor
-Comodin -> Nombre Tipo ColorCo Valor
-Dinero -> NombreD Tipo | Tipo NombreD
+Renta -> Nombre ValorC ColorCo Todos
+Construccion -> Nombre ValorC TipoConstruccion Monto
+Rapida -> Nombre ValorC Turno
+RobarCarta -> Nombre ValorC CartasATomar
+RobarPropiedad -> Nombre ValorC Intercambio CartasATomar
+RobarDinero -> Nombre Monto Todos ValorC
+Propiedad -> Nombre ColorCo CantGrupo RentaGrupo ValorC
+Comodin -> Nombre ColorCo ValorC
+Dinero -> NombreD
 Nombre -> '#Nombre#'
-Tipo -> 'propiedad' | 'accion' | 'dinero'
-Subtipo -> 'construccion' | 'renta' | 'robar' 'carta' | 'rapida' | 'robar' 'propiedad' | 'robar'
 ValorC -> 'valor' Valor
 Valor -> '#Valor#'
-Todos -> 'todos' | Valor 'jugadores' | Valor 'jugador'
+Todos -> 'todos' | Valor 'jugadores' | Valor 'jugador' | Valor 'participates' | Valor 'participante'
 TipoConstruccion -> 'casa' | 'hotel'
-ColorC -> 'cian' | 'magenta'
 Turno -> 'mio' | 'otro'
 Intercambio -> 'intercambio'
-Cuantas -> Valor 'cartas'
 Monto -> Valor 'M' | 'M' Valor
-CantGrupo -> 'grupo' Valor | 'grupo' Valor
+CantGrupo -> 'grupo' Valor
 ColorCo -> '#ColorCo#' | '#ColorCo#' '#ColorCo#' |
-NombreD -> Valor
-CartasATomar -> 'tomar' Valor 'cartas'
-Props -> 'asd'
-RentaGrupo -> 'dsa'
+NombreD -> Monto
+CartasATomar -> Valor 'cartas' | Valor 'carta'
+Coma -> ','
+RentaGrupo -> '#Valor#' | '#Valor#' Coma '#Valor#' | '#Valor#' Coma '#Valor#' Coma '#Valor#'
 ''')
+
+#|'#Valor#' Coma '#Valor#' Coma '#Valor#' Coma '#Valor#' | '#Valor#' Coma '#Valor#' Coma '#Valor#' Coma '#Valor#' Coma '#Valor#'
 
 def NormalizeDoc(s):
     '''Funcion que normaliza cada documento. Ej: si el doc tiene -á- sera sustituida por -a-'''
@@ -66,19 +68,44 @@ def CleanToken(text):
                 cleanToken.append(i.lower())
     return cleanToken
 
-#card = 'Faster accion rapida con valor 5 mio'.split()# Rapida
-#card = 'quiero crear carta Robaraaa de tipo robar carta con valor 5 tomar 3 cartas'.split() #Robar Carta
+#card = 'Faster con valor 5 el turno mio'.split()# Rapida
+#card = 'quiero crear carta Robaraaa con valor 5 para poder robar del mazo 3 cartas'.split() #Robar Carta
 #card = 'necesito crear carta Facho para robar propiedad con valor 10 de intercambio de 3 cartas'.split() #Robar Propiedad
-#card = 'Fachodinero de tipo accion para robar 10 M a 2 jugadores con valor 6'.split() #Robar dinero
-#card = 'crear carta RRentass de tipo renta con valor 2 con colores cian magenta contra todos'.split() #Renta ver estooo la pila de #Color#
-card = 'Casosona de tipo construccion con valor 2 la cual es una casa y me tienen q dar 3 M mas'.split()
-
+#card = 'necesito crear carta Facho con valor 10 de intercambio de 3 cartas'.split() #Robar Propiedad
+#card = 'Fachodinero para robar 10 M a 2 jugadores con valor 6'.split() #Robar dinero
+#card = 'crear carta RRentass con valor 2 con colores cian rojo contra 1 jugador'.split() #Renta ver estooo la pila de #Color#
+#card = 'Casosona con valor 2 la cual es una casa y me tienen q dar 3 M mas'.split()
+#card = 'crear carta de 10 M'.split()
+#card = 'Comdindin cian magenta con valor 3'.split() #Comodin
+#card = 'Comdindin maestro con valor 3'.split() #Comodin
+#card = 'crear carta Propi de color cian para un grupo de tamaño 3 donde las rentas son 2, 3, 5 con valor 2'.split()
+#card = 'quiero crear una carta que se llame PEPR que sea propiedad de color verde de cuyo grupo es de tamaño 3 cuya renta tenga los valores 2, 3, 5 el valor es de 10 '.split()
+#card = 'crear carta CHUCHA de color cian grupo de 3 y la renta sea 2, 4, 5 de valor 100'.split()
+card = 'Rentaaaaa con un valor de 2 y me tengan que pagar por los colores azul purpura todos'.split()
 
 #a = CleanToken(card)
-sent = ['#Valor#' if i.isdigit() else i for i in card]
+
+sent = []
+for i in card:
+    if i.isdigit():
+        sent.append('#Valor#')
+    elif i[:len(i)-1].isdigit():
+        sent.append('#Valor#')
+        sent.append(',')
+    else:
+        sent.append(i)
+        
+#sent = ['#Valor#' if i.isdigit() else i for i in card]
 sent = ['#Nombre#' if i[0].isupper() and i != 'M' else i for i in sent]
 sent = ['#ColorCo#' if i in colores else i for i in sent]
-numbers = [i for i in card if i.isdigit()]
+
+numbers = []
+for i in card:
+    if i.isdigit():
+        numbers.append(i)
+    elif i[:len(i)-1].isdigit():
+        numbers.append(i[:len(i)-1])
+        
 alpha = [i for i in card if i[0].isupper()]
 cols = [i for i in card if i in colores]
 
