@@ -14,12 +14,16 @@ def main():
     j5 = JugadorAleatorio('popo', True)
     j6 = JugadorInteligente('kevin', True)
     j7 = JugadorInteligente('mapa', True)
-    j._jugadores.append(j1)
+    j8 = JugadorInteligente('mama', True)
+    j9 = JugadorInteligente('aya', True)
+    j0 = JugadorInteligente('tala', True)
     j._jugadores.append(j6)
-    #j._jugadores.append(j6)
-    #j._jugadores.append(j3)
-    #j._jugadores.append(j4)
+    j._jugadores.append(j7)
+    j._jugadores.append(j8)
+    j._jugadores.append(j9)
+    j._jugadores.append(j0)
     #j._jugadores.append(j5)
+    j._jugadores.append(j2)
     #j.notificaciones.append('COMIENZO DEL JUEGO')
     
     init() #para dar color a los cambios de turno
@@ -32,7 +36,7 @@ def main():
         dic[i.nombre] = 0
     dic['Nadie'] = 0
     
-    for i in range(100):
+    for i in range(400):
         j.notificaciones.append('COMIENZO DEL JUEGO')
         j.EjecutarJuego()       
         dic[j.ganador] += 1
