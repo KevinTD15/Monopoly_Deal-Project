@@ -6,9 +6,9 @@ class Crupier:
         count = 0
         tableroJugadorActual = jugadorActual.tablero
         for i in tableroJugadorActual:
-            if(i == 'dinero'):
+            if(i == 'dinero' or i == 'comodines'):
                 break
-            if(len(tableroJugadorActual[i]) >= 1 and len(tableroJugadorActual[i]) >= tableroJugadorActual[i][0].cantGrupo):
+            if(len(tableroJugadorActual[i]) >= 1 and len(tableroJugadorActual[i]) >= jugadorActual.colorCantGrupo[i]):
                 count += 1
         fin = count >= 3
         return fin, jugadorActual.nombre
@@ -18,7 +18,7 @@ class Crupier:
     
     def RepartirCartas(aTodos : bool, jugadores, mazo, cantCartas, descarte,indice = None): 
         if(len(mazo) + len(descarte) < cantCartas):
-            raise Exception('Se acabaron todas las cartas del juego')
+            return True
         if(len(mazo) <= cantCartas):
             mazo.extend(descarte)
             descarte.clear()
@@ -27,16 +27,10 @@ class Crupier:
             for j in jugadores:
                 for i in range(cantCartas):
                     h = mazo.pop(0)
-                    if(h in j.mano):
-                        a = 5
-                    #j.mano.append(mazo.pop(0)) OJOOO
                     j.mano.append(h)
         else:
             for i in range(cantCartas):
                 h = mazo.pop(0)
-                if(h in jugadores.mano):
-                    a = 5
-                #jugadores.mano.append(mazo.pop(0)) OJOOO
                 jugadores.mano.append(h)
         
     def VerificarMano(jugadorActual, mazo, descarte, jugadores):
