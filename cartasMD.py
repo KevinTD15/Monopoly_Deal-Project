@@ -50,10 +50,11 @@ class AccionRenta(Accion):
         return f'tipo: {self.tipo}, subt: {self.subtipo}, nom: {self.nombre}, val: {self.valor}, props: {self.propiedades}, todos: {self.todos}'
     
 class AccionConstruccion(Accion):
-    def __init__(self, nombre, tipo, subtipo, valor, construccion, monto): #monto es cuanto da la casa
+    def __init__(self, nombre, tipo, subtipo, valor, construccion, monto, colorC = None): #monto es cuanto da la casa
         super().__init__(nombre, tipo, subtipo, valor)
         self.construccion = construccion
         self.monto = monto
+        self.colorC = colorC
     
     def __str__(self):
         return f'tipo: {self.tipo}, subt: {self.subtipo}, nom: {self.nombre}, val: {self.valor}, const: {self.construccion}, monto: {self.monto}'
@@ -91,5 +92,3 @@ class AccionRobarDinero(Accion):
         
     def __str__(self):
         return f'tipo: {self.tipo}, subt: {self.subtipo}, nom: {self.nombre}, val: {self.valor}, cant: {self.todos}, monto: {self.monto}'
-        
-        
