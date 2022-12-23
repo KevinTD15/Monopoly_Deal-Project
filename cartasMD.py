@@ -92,5 +92,3 @@ class AccionRobarDinero(Accion):
         
     def __str__(self):
         return f'tipo: {self.tipo}, subt: {self.subtipo}, nom: {self.nombre}, val: {self.valor}, cant: {self.todos}, monto: {self.monto}'
-        
-        
