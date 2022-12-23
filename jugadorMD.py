@@ -52,13 +52,15 @@ class JugadorAleatorio(Jugador):
         return cartasConUso
     
     def EjecutarJugada(self, jugada, mazo, descarte, jugadores):
+        jugadsav=jugadores
         j = JugadaRandom(self, mazo, descarte, jugadores)
         for i in jugada:
             if(i == jugada[len(jugada) - 1]):
                 break
             if(i != None):
+                jugadasav=jugada
                 j.UsarCarta(i[0], i, jugada)
-        j.ReponerComodin(jugada[len(jugada) - 1])
+                j.ReponerComodin(jugada[len(jugada) - 1])
             
     def Responder(self, jugadorActual, mazo, descarte, carta, monto):
         j = JugadaRandom(self, mazo, descarte)
@@ -275,10 +277,27 @@ class JugadorInteligente(Jugador):
             else: #DINERO
                 valor += 1/4
         return valor
-                    
-    
+                  
     def EvaluarJugadaR(self, jugada):
-        return 0
+        valor = 0
+        #jugadorActual = self
+        #ranking = RankingPropiedades(jugadorActual)
+        #if(jugada[0].tipo == 'accion'):
+        #    if(jugada[0].subtipo == 'robardinero' or jugada[0].subtipo == 'renta'):
+        #        if(len(jugada) != 3):
+        #            _, dinero = DineroPorBilletes(self)
+        #            if(dinero >= jugada[3]):
+        #                for i in jugada[2]:
+        #                    if(i.tipo == 'propiedad'):
+        #                        break
+        #                valor += 2
+        #            else:
+        #                for i in jugada[2]:
+        #                    if(i.tipo == 'propiedad'):
+        #                        for k in ranking:
+        #                            if(i.color in ranking[k]):
+        #                                valor += 1/((len(ranking) - k + 1) * 2)
+        return valor
     
     def PosiblesJugadas(self, mazo, descarte, jugadores):
         listaJugadas = []
@@ -314,8 +333,9 @@ class JugadorInteligente(Jugador):
             if(i == jugada[len(jugada) - 1]):
                 break
             if(i != None):
+                jugadasav = jugada
                 j.UsarCarta(i[0], i, jugada)
-        j.ReponerComodin(jugada[len(jugada) - 1])
+                j.ReponerComodin(jugada[len(jugada) - 1])
                 
     def DescartarCartasJ(self, mazo, descarte, jugadores):
         j = JugadaRandom(self, mazo, descarte, jugadores)
