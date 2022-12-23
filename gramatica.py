@@ -5,10 +5,12 @@ from nltk.corpus import stopwords
 from nltk.stem.wordnet import WordNetLemmatizer
 
 res = [
-    'todos', 'casa' , 'hotel', 'cian' , 'magenta', 'mio' , 'otro', 'intercambio', 'cartas',
+    'todos', 'casa' , 'hotel', 'cian' , 'magenta', 'mi' , 'otro', 'intercambio', 'cartas',
     'M', 'dsa', 'valor', 'crear','#Valor#', '#Nombre#', '#ColorCo#','jugadores', 'jugador',
     'participante', 'participantes', 'totalidad', ',', 'negro', 'azul', 'marron', 'gris', 'verde', 'naranja',
-    'rosa', 'purpura', 'rojo', 'blanco', 'amarillo', 'carta', 'grupo']
+    'rosa', 'purpura', 'rojo', 'blanco', 'amarillo', 'carta', 'grupo', 'valga', 'intercambiar',
+    'conjunto', 'naipe', 'naipes', 'tarjeta', 'tarjetas', 'cada']
+
 
 colores = ['cian', 'magenta', 'negro', 'azul', 'marron', 'gris', 'verde', 'naranja',
            'rosa', 'purpura', 'rojo', 'blanco', 'amarillo']
@@ -17,29 +19,29 @@ groucho_grammar = nltk.CFG.fromstring( '''
 S -> 'crear' 'carta' Carta | Carta
 Carta -> Accion | Propiedad | Dinero | Comodin
 Accion -> Renta | Construccion | Rapida | RobarCarta | RobarPropiedad | RobarDinero
-Renta -> Nombre ValorC ColorCo Todos | Nombre Todos ColorCo ValorC
-Construccion -> Nombre ValorC TipoConstruccion Monto
-Rapida -> Nombre ValorC Turno
-RobarCarta -> Nombre ValorC CartasATomar
-RobarPropiedad -> Nombre ValorC Intercambio CartasATomar
-RobarDinero -> Nombre Monto Todos ValorC
-Propiedad -> Nombre ColorCo CantGrupo RentaGrupo ValorC
-Comodin -> Nombre ColorCo ValorC
+Renta -> Nombre ValorC ColorCo Todos | Nombre Todos ColorCo ValorC | Nombre ColorCo Todos ValorC | Nombre Todos ColorCo ValorC
+Construccion -> Nombre ValorC TipoConstruccion Monto | TipoConstruccion Monto Nombre ValorC | TipoConstruccion Nombre Monto ValorC
+Rapida -> Nombre ValorC Turno | Turno ValorC Nombre | ValorC Turno Nombre | Nombre Turno ValorC
+RobarCarta -> Nombre ValorC CartasATomar | Nombre CartasATomar ValorC | CartasATomar Nombre ValorC
+RobarPropiedad -> Nombre ValorC Intercambio CartasATomar | CartasATomar Intercambio ValorC Nombre | CartasATomar Intercambio Nombre ValorC | Nombre Intercambio CartasATomar ValorC
+RobarDinero -> Nombre Monto Todos ValorC | Nombre Todos Monto ValorC | Todos Monto Nombre ValorC | Monto Todos Nombre ValorC
+Propiedad -> Nombre ColorCo CantGrupo RentaGrupo ValorC | Nombre ColorCo ValorC CantGrupo RentaGrupo | ColorCo Nombre ValorC CantGrupo RentaGrupo | ColorCo Nombre CantGrupo RentaGrupo ValorC
+Comodin -> Nombre ColorCo ValorC | Nombre ValorC ColorCo
 Dinero -> NombreD
 Nombre -> '#Nombre#'
-ValorC -> 'valor' Valor
-Valor -> '#Valor#'
-Todos -> 'todos' | Valor 'jugadores' | Valor 'jugador' | Valor 'participates' | Valor 'participante'
-TipoConstruccion -> 'casa' | 'hotel'
-Turno -> 'mio' | 'otro'
-Intercambio -> 'intercambio'
-Monto -> Valor 'M' | 'M' Valor
-CantGrupo -> 'grupo' Valor
-ColorCo -> '#ColorCo#' | '#ColorCo#' '#ColorCo#' |
 NombreD -> Monto
-CartasATomar -> Valor 'cartas' | Valor 'carta'
+ValorC -> 'valor' Monto | 'valga' Monto
+Monto -> Valor 'M' | 'M' Valor
+Valor -> '#Valor#'
+Todos -> 'todos' | 'cada' | Valor 'jugadores' | Valor 'jugador' | Valor 'participates' | Valor 'participante'
+TipoConstruccion -> 'casa' | 'hotel'
+Turno -> 'mi' | 'otro'
+Intercambio -> 'intercambio' | 'intercambiar'
+CantGrupo -> 'grupo' Valor | 'conjunto' Valor
+ColorCo -> '#ColorCo#' | '#ColorCo#' '#ColorCo#' | '#ColorCo#' '#ColorCo#' '#ColorCo#' | '#ColorCo#' '#ColorCo#' '#ColorCo#' '#ColorCo#' |
+CartasATomar -> Valor 'cartas' | Valor 'carta' | Valor 'naipe' | Valor 'naipes' | Valor 'tarjeta' | Valor 'tarjetas'
 Coma -> ','
-RentaGrupo -> '#Valor#' | '#Valor#' Coma '#Valor#' | '#Valor#' Coma '#Valor#' Coma '#Valor#'
+RentaGrupo -> '#Valor#' | '#Valor#' Coma '#Valor#' | '#Valor#' Coma '#Valor#' Coma '#Valor#' | '#Valor#' Coma '#Valor#' Coma '#Valor#' Coma '#Valor#'
 ''')
 
 #|'#Valor#' Coma '#Valor#' Coma '#Valor#' Coma '#Valor#' | '#Valor#' Coma '#Valor#' Coma '#Valor#' Coma '#Valor#' Coma '#Valor#'
@@ -80,9 +82,9 @@ def CleanToken(text):
 #card = 'Comdindin maestro con valor 3'.split() #Comodin
 #card = 'crear carta Propi de color cian para un grupo de tamaño 3 donde las rentas son 2, 3, 5 con valor 2'.split()
 #card = 'quiero crear una carta que se llame PEPR que sea propiedad de color verde de cuyo grupo es de tamaño 3 cuya renta tenga los valores 2, 3, 5 el valor es de 10 '.split()
-#card = 'crear carta CHUCHA de color cian grupo de 3 y la renta sea 2, 4, 5 de valor 100'.split()
+card = 'crear carta CHUCHA de color cian grupo de 3 y la renta sea 2, 4, 5 con un valor de 100 M'.split()
 #card = 'Rentaaaaa con un valor de 2 y me tengan que pagar por los colores azul purpura todos'.split() #Renta
-card = 'quiero crear carta que se llame Rentaaaaa contra todos que me tengan que pagar por los colores azul purpura y que tenga una valor de 3'.split()
+#card = 'quiero crear carta que se llame Rentaaaaa contra todos que me tengan que pagar por los colores azul purpura y que valga 3 M'.split()
 
 #a = CleanToken(card)
 
