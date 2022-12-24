@@ -11,9 +11,17 @@ res = [
     'rosa', 'purpura', 'rojo', 'blanco', 'amarillo', 'carta', 'grupo', 'valga', 'intercambiar',
     'conjunto', 'naipe', 'naipes', 'tarjeta', 'tarjetas', 'cada']
 
+coloresEnUso = ['azulClaro', 'carmelita', 'morado', 'anaranjado', 'rojo', 'amarillo', 'verde', 'azul', 'blanco', 'negro']
 
 colores = ['cian', 'magenta', 'negro', 'azul', 'marron', 'gris', 'verde', 'naranja',
-           'rosa', 'purpura', 'rojo', 'blanco', 'amarillo']
+           'rosa', 'purpura', 'rojo', 'blanco', 'amarillo','azulClaro', 'carmelita', 'morado', 'anaranjado'
+           ]
+
+noTerminales = ['Nombre', 'ColorCo', 'CantGrupo', 'RentaGrupo', 'ValorC', 'M']
+
+terminales = ['#Valor#', '#Nombre#']
+
+tipo = ['Propiedad']
 
 groucho_grammar = nltk.CFG.fromstring( '''
 S -> 'crear' 'carta' Carta | Carta
@@ -38,37 +46,12 @@ TipoConstruccion -> 'casa' | 'hotel'
 Turno -> 'mi' | 'otro'
 Intercambio -> 'intercambio' | 'intercambiar'
 CantGrupo -> 'grupo' Valor | 'conjunto' Valor
-ColorCo -> '#ColorCo#' | '#ColorCo#' '#ColorCo#' | '#ColorCo#' '#ColorCo#' '#ColorCo#' | '#ColorCo#' '#ColorCo#' '#ColorCo#' '#ColorCo#' |
+Color -> '#ColorCo#'
+ColorCo -> Color | Color Color | Color Color Color | Color Color Color Color |
 CartasATomar -> Valor 'cartas' | Valor 'carta' | Valor 'naipe' | Valor 'naipes' | Valor 'tarjeta' | Valor 'tarjetas'
 Coma -> ','
-RentaGrupo -> '#Valor#' | '#Valor#' Coma '#Valor#' | '#Valor#' Coma '#Valor#' Coma '#Valor#' | '#Valor#' Coma '#Valor#' Coma '#Valor#' Coma '#Valor#'
+RentaGrupo -> Valor | Valor Coma Valor | Valor Coma Valor Coma Valor | Valor Coma Valor Coma Valor Coma Valor
 ''')
-
-#|'#Valor#' Coma '#Valor#' Coma '#Valor#' Coma '#Valor#' | '#Valor#' Coma '#Valor#' Coma '#Valor#' Coma '#Valor#' Coma '#Valor#'
-
-def NormalizeDoc(s):
-    '''Funcion que normaliza cada documento. Ej: si el doc tiene -á- sera sustituida por -a-'''
-    replacements = (
-        ("á","a"), ("é","e"), ("í","i"), ("ó","o"), ("ú","u"), ("-", " "), (".", " "), ("_", " "), ("/", " ")
-    )
-    for a,b in replacements:
-        s = s.replace(a,b)
-    return s
-
-def CleanToken(text):
-    '''Funcion que elimina las palabras que -no aportan significado-, preposiciones, articulos, etc'''
-    tokenize = nltk.word_tokenize(NormalizeDoc(text))
-    cleanToken = []
-    stop = set(stopwords.words('english'))
-    stop1 = set(stopwords.words('spanish'))
-    stop = stop.union(stop1)
-    lemmatizer  = WordNetLemmatizer()
-    for i in tokenize:
-        i = lemmatizer.lemmatize(i)
-        if not i.lower() in stop and "'" not in i:
-            if (len(i) > 1):
-                cleanToken.append(i.lower())
-    return cleanToken
 
 #card = 'Faster con valor 5 el turno mio'.split()# Rapida
 #card = 'quiero crear carta Robaraaa con valor 5 para poder robar del mazo 3 cartas'.split() #Robar Carta
@@ -86,44 +69,94 @@ card = 'crear carta CHUCHA de color cian grupo de 3 y la renta sea 2, 4, 5 con u
 #card = 'Rentaaaaa con un valor de 2 y me tengan que pagar por los colores azul purpura todos'.split() #Renta
 #card = 'quiero crear carta que se llame Rentaaaaa contra todos que me tengan que pagar por los colores azul purpura y que valga 3 M'.split()
 
-#a = CleanToken(card)
+def Convertir(card):
+    sent = []
+    for i in card:
+        if i.isdigit():
+            sent.append('#Valor#')
+        elif i[:len(i)-1].isdigit():
+            sent.append('#Valor#')
+            sent.append(',')
+        else:
+            sent.append(i)
+            
+    sent = ['#Nombre#' if i[0].isupper() and i != 'M' else i for i in sent]
+    sent = ['#ColorCo#' if i in colores else i for i in sent]
 
-sent = []
-for i in card:
-    if i.isdigit():
-        sent.append('#Valor#')
-    elif i[:len(i)-1].isdigit():
-        sent.append('#Valor#')
-        sent.append(',')
-    else:
-        sent.append(i)
-        
-#sent = ['#Valor#' if i.isdigit() else i for i in card]
-sent = ['#Nombre#' if i[0].isupper() and i != 'M' else i for i in sent]
-sent = ['#ColorCo#' if i in colores else i for i in sent]
+    numbers = []
+    for i in card:
+        if i.isdigit():
+            numbers.append(i)
+        elif i[:len(i)-1].isdigit():
+            numbers.append(i[:len(i)-1])
+            
+    alpha = [i for i in card if i[0].isupper()]
+    cols = [i for i in card if i in colores]
 
-numbers = []
-for i in card:
-    if i.isdigit():
-        numbers.append(i)
-    elif i[:len(i)-1].isdigit():
-        numbers.append(i[:len(i)-1])
-        
-alpha = [i for i in card if i[0].isupper()]
-cols = [i for i in card if i in colores]
+    original_sent = []
+    for i in sent:
+        if(i in res):
+            original_sent.append(i)
+            
+    return original_sent, numbers, alpha, cols
 
-original_sent = []
-for i in sent:
-  if(i in res):
-      original_sent.append(i)
+def RecibirValores(original_sent, numbers, alpha, cols):
+    parser = nltk.ChartParser(groucho_grammar)
+    lista = []
+    paramDic = {}
+    for tree in parser.parse(original_sent):       
+        RecibirValoresRec(tree, paramDic)
+        lista.append(paramDic)
+        paramDic={}
+        #if(type(a) == 'nltk.tree.tree.Tree'):
+            #print(type(a) == nltk.Tree)
+        #treestr = str(tree)
+        #for n in numbers:
+        #   treestr = treestr.replace('#Valor#', n, 1)
+        #for n in alpha:
+        #   treestr = treestr.replace('#Nombre#', n, 1)
+        #for n in cols:
+        #   treestr = treestr.replace('#ColorCo#', n, 1)
+        #print(treestr)
+    return lista
 
-parser = nltk.ChartParser(groucho_grammar)
-for tree in parser.parse(original_sent):
-    treestr = str(tree)
-    for n in numbers:
-        treestr = treestr.replace('#Valor#', n, 1)
-    for n in alpha:
-        treestr = treestr.replace('#Nombre#', n, 1)
-    for n in cols:
-        treestr = treestr.replace('#ColorCo#', n, 1)
-    print(treestr)
+def RecibirValoresRec(tree, paramDic, label=None):
+    for i in tree:
+        # if(i[0] in terminales):
+        #     if(label is not None and label in noTerminales):
+        #         paramDic[label] = i[0]
+        #     else:
+        #         paramDic[i._label] = i[0]
+        if((type(i) == nltk.Tree and i._label != 'Coma')):
+            if(i._label in tipo):
+                paramDic['tipo'] = i._label
+            elif(len(i)>1):
+                RecibirValoresRec(i, paramDic, i._label)  
+            elif(i._label in noTerminales):
+                if (type(i[0]) == nltk.Tree):
+                    RecibirValoresRec(i, paramDic, i._label)
+                    #label = i._label
+                else:    
+                    paramDic[i._label] = i[0]
+            elif(label is not None and label in noTerminales):
+                if(label in paramDic):
+                    paramDic[label].append(i[0])
+                else:
+                    paramDic[label] = [i[0]]
+            RecibirValoresRec(i, paramDic, label)
+
+#def VerfificarCarta(cartasACrear):
+#    for i in cartasACrear:
+#        if(i['Color'] in coloresEnUso)
+
+def CrearCartas(cartasACrear):
+    for i in cartasACrear:
+        return
+
+def Ejecutar(card):
+    a, b, c, d = Convertir(card)
+    cartasACrear = RecibirValores(a,b,c,d)
+    #VerfificarCarta(cartasACrear)
+    cartasCreadas = CrearCartas(cartasACrear) 
+    
+Ejecutar(card)
