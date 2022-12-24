@@ -1,8 +1,4 @@
 import nltk
-import re
-import nltk
-from nltk.corpus import stopwords
-from nltk.stem.wordnet import WordNetLemmatizer
 
 res = [
     'todos', 'casa' , 'hotel', 'cian' , 'magenta', 'mi' , 'otro', 'intercambio', 'cartas',
@@ -17,11 +13,16 @@ colores = ['cian', 'magenta', 'negro', 'azul', 'marron', 'gris', 'verde', 'naran
            'rosa', 'purpura', 'rojo', 'blanco', 'amarillo','azulClaro', 'carmelita', 'morado', 'anaranjado'
            ]
 
-noTerminales = ['Nombre', 'ColorCo', 'CantGrupo', 'RentaGrupo', 'ValorC', 'M']
+noTerminales = ['Nombre', 'ColorCo', 'CantGrupo', 'RentaGrupo', 'ValorC', 'M',
+                'NombreD', 'Todos', 'Intercambio', 'CartasATomar', 'Turno', 'TipoConstruccion'
+                ] #Ver Monto
 
-terminales = ['#Valor#', '#Nombre#']
+terminales = ['#Valor#', '#Nombre#', 'todos', 'cada', 'mi', 'otro', 'intercambio', 'intercambiar', 'casa',
+              'hotel']
 
-tipo = ['Propiedad']
+subtipo = ['Renta', 'Construccion', 'Rapida', 'RobarCarta', 'RobarPropiedad', 'RobarDinero']
+
+tipo = ['Propiedad', 'Accion', 'Comodin', 'Dinero']
 
 groucho_grammar = nltk.CFG.fromstring( '''
 S -> 'crear' 'carta' Carta | Carta
@@ -53,21 +54,21 @@ Coma -> ','
 RentaGrupo -> Valor | Valor Coma Valor | Valor Coma Valor Coma Valor | Valor Coma Valor Coma Valor Coma Valor
 ''')
 
-#card = 'Faster con valor 5 el turno mio'.split()# Rapida
-#card = 'quiero crear carta Robaraaa con valor 5 para poder robar del mazo 3 cartas'.split() #Robar Carta
-#card = 'necesito crear carta Facho para robar propiedad con valor 10 de intercambio de 3 cartas'.split() #Robar Propiedad
-#card = 'necesito crear carta Facho con valor 10 de intercambio de 3 cartas'.split() #Robar Propiedad
-#card = 'Fachodinero para robar 10 M a 2 jugadores con valor 6'.split() #Robar dinero
-#card = 'crear carta RRentass con valor 2 con colores cian rojo contra 1 jugador'.split() #Renta ver estooo la pila de #Color#
-#card = 'Casosona con valor 2 la cual es una casa y me tienen q dar 3 M mas'.split()
+card = 'Faster con valor 5 M el turno mio'.split()# Rapida
+#card = 'quiero crear carta Robaraaa con valor 5 M para poder robar del mazo 3 cartas'.split() #Robar Carta
+#card = 'necesito crear carta Facho para robar propiedad con valor 10 M de intercambio de 3 cartas'.split() #Robar Propiedad
+#card = 'necesito crear carta Facho con valor 10 M de intercambio de 3 cartas'.split() #Robar Propiedad
+#card = 'Fachodinero para robar 10 M a 2 jugadores con valor 6 M'.split() #Robar dinero
+#card = 'crear carta RRentass con valor 2 M con colores cian rojo contra 1 jugador'.split() #Renta ver estooo la pila de #Color#
+#card = 'Casosona con valor 2 M la cual es una casa y me tienen q dar 3 M mas'.split()
 #card = 'crear carta de 10 M'.split()
-#card = 'Comdindin cian magenta con valor 3'.split() #Comodin
-#card = 'Comdindin maestro con valor 3'.split() #Comodin
-#card = 'crear carta Propi de color cian para un grupo de tamaño 3 donde las rentas son 2, 3, 5 con valor 2'.split()
-#card = 'quiero crear una carta que se llame PEPR que sea propiedad de color verde de cuyo grupo es de tamaño 3 cuya renta tenga los valores 2, 3, 5 el valor es de 10 '.split()
-card = 'crear carta CHUCHA de color cian grupo de 3 y la renta sea 2, 4, 5 con un valor de 100 M'.split()
-#card = 'Rentaaaaa con un valor de 2 y me tengan que pagar por los colores azul purpura todos'.split() #Renta
-#card = 'quiero crear carta que se llame Rentaaaaa contra todos que me tengan que pagar por los colores azul purpura y que valga 3 M'.split()
+#card = 'Comdindin cian magenta con valor 3 M'.split() #Comodin
+#card = 'Comdindin maestro con valor 3 M'.split() #Comodin
+#card = 'crear carta Propi de color cian para un grupo de tamaño 3 donde las rentas son 2, 3, 5 con valor 2 M'.split()
+#card = 'quiero crear una carta que se llame PEPR que sea propiedad de color verde de cuyo grupo es de tamaño 3 cuya renta tenga los valores 2, 3, 5 el valor es de 10 M'.split()
+#card = 'crear carta CHUCHA de color cian grupo de 3 y la renta sea 2, 4, 5 con un valor de 100 M'.split() #Propiedad
+#card = 'Rentaaaaa con un valor de 2 M y me tengan que pagar por los colores azul purpura todos'.split() #Renta
+#card = 'quiero crear carta que se llame Rentaaaaa contra todos que me tengan que pagar por los colores azul purpura y que valga 3 M'.split() #Renta
 
 def Convertir(card):
     sent = []
@@ -130,14 +131,17 @@ def RecibirValoresRec(tree, paramDic, label=None):
         if((type(i) == nltk.Tree and i._label != 'Coma')):
             if(i._label in tipo):
                 paramDic['tipo'] = i._label
+            elif(i._label in subtipo):
+                paramDic['subtipo'] = i._label
             elif(len(i)>1):
                 RecibirValoresRec(i, paramDic, i._label)  
             elif(i._label in noTerminales):
-                if (type(i[0]) == nltk.Tree):
-                    RecibirValoresRec(i, paramDic, i._label)
-                    #label = i._label
-                else:    
-                    paramDic[i._label] = i[0]
+                if(len(i) > 0):
+                    if (type(i[0]) == nltk.Tree):
+                        RecibirValoresRec(i, paramDic, i._label)
+                        #label = i._label
+                    else:    
+                        paramDic[i._label] = i[0]
             elif(label is not None and label in noTerminales):
                 if(label in paramDic):
                     paramDic[label].append(i[0])
