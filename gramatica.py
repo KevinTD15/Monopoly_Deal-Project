@@ -54,7 +54,7 @@ Coma -> ','
 RentaGrupo -> Valor | Valor Coma Valor | Valor Coma Valor Coma Valor | Valor Coma Valor Coma Valor Coma Valor
 ''')
 
-card = 'Faster con valor 5 M el turno mio'.split()# Rapida
+#card = 'Faster con valor 5 M el turno mio'.split()# Rapida
 #card = 'quiero crear carta Robaraaa con valor 5 M para poder robar del mazo 3 cartas'.split() #Robar Carta
 #card = 'necesito crear carta Facho para robar propiedad con valor 10 M de intercambio de 3 cartas'.split() #Robar Propiedad
 #card = 'necesito crear carta Facho con valor 10 M de intercambio de 3 cartas'.split() #Robar Propiedad
@@ -66,7 +66,7 @@ card = 'Faster con valor 5 M el turno mio'.split()# Rapida
 #card = 'Comdindin maestro con valor 3 M'.split() #Comodin
 #card = 'crear carta Propi de color cian para un grupo de tamaño 3 donde las rentas son 2, 3, 5 con valor 2 M'.split()
 #card = 'quiero crear una carta que se llame PEPR que sea propiedad de color verde de cuyo grupo es de tamaño 3 cuya renta tenga los valores 2, 3, 5 el valor es de 10 M'.split()
-#card = 'crear carta CHUCHA de color cian grupo de 3 y la renta sea 2, 4, 5 con un valor de 100 M'.split() #Propiedad
+card = 'crear carta CHUCHA de color cian grupo de 3 y la renta sea 2, 4, 5 con un valor de 100 M'.split() #Propiedad
 #card = 'Rentaaaaa con un valor de 2 M y me tengan que pagar por los colores azul purpura todos'.split() #Renta
 #card = 'quiero crear carta que se llame Rentaaaaa contra todos que me tengan que pagar por los colores azul purpura y que valga 3 M'.split() #Renta
 
@@ -91,7 +91,7 @@ def Convertir(card):
         elif i[:len(i)-1].isdigit():
             numbers.append(i[:len(i)-1])
             
-    alpha = [i for i in card if i[0].isupper()]
+    alpha = [i for i in card if i[0].isupper() and i != 'M']
     cols = [i for i in card if i in colores]
 
     original_sent = []
@@ -101,14 +101,13 @@ def Convertir(card):
             
     return original_sent, numbers, alpha, cols
 
-def RecibirValores(original_sent, numbers, alpha, cols):
+def RecibirValores(original_sent):
     parser = nltk.ChartParser(groucho_grammar)
     lista = []
     paramDic = {}
     for tree in parser.parse(original_sent):       
         RecibirValoresRec(tree, paramDic)
-        lista.append(paramDic)
-        paramDic={}
+        return paramDic
         #if(type(a) == 'nltk.tree.tree.Tree'):
             #print(type(a) == nltk.Tree)
         #treestr = str(tree)
@@ -119,7 +118,7 @@ def RecibirValores(original_sent, numbers, alpha, cols):
         #for n in cols:
         #   treestr = treestr.replace('#ColorCo#', n, 1)
         #print(treestr)
-    return lista
+    #return lista
 
 def RecibirValoresRec(tree, paramDic, label=None):
     for i in tree:
@@ -149,6 +148,24 @@ def RecibirValoresRec(tree, paramDic, label=None):
                     paramDic[label] = [i[0]]
             RecibirValoresRec(i, paramDic, label)
 
+def RellenarValores(cartasACrearsinValores, num, abc, cols):
+    for i in cartasACrearsinValores:
+        if(type(cartasACrearsinValores[i]) == list):
+            for j in range(len(cartasACrearsinValores[i])):
+                cartasACrearsinValores[i][j], num, abc, cols = ComprobarTipo(cartasACrearsinValores[i][j], num, abc, cols)
+        else:
+            cartasACrearsinValores[i], num, abc, cols = ComprobarTipo(cartasACrearsinValores[i], num, abc, cols)
+    return cartasACrearsinValores
+
+def ComprobarTipo(val, num, abc, cols):
+    if(val == '#Valor#'):
+        return num.pop(0), num, abc, cols
+    elif(val == '#Nombre#'):
+        return abc.pop(0), num, abc, cols
+    elif(val == '#ColorCo#'):
+        return cols.pop(0), num, abc, cols
+    else:
+        return val, num, abc, cols
 #def VerfificarCarta(cartasACrear):
 #    for i in cartasACrear:
 #        if(i['Color'] in coloresEnUso)
@@ -158,8 +175,9 @@ def CrearCartas(cartasACrear):
         return
 
 def Ejecutar(card):
-    a, b, c, d = Convertir(card)
-    cartasACrear = RecibirValores(a,b,c,d)
+    arbol, num, abc, cols = Convertir(card)
+    cartasACrearsinValores = RecibirValores(arbol)
+    cartasACrear = RellenarValores(cartasACrearsinValores, num, abc, cols)
     #VerfificarCarta(cartasACrear)
     cartasCreadas = CrearCartas(cartasACrear) 
     
