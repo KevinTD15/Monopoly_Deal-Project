@@ -1,9 +1,9 @@
 import nltk
 
 res = [
-    'todos', 'casa' , 'hotel', 'cian' , 'magenta', 'mi' , 'otro', 'intercambio', 'cartas',
-    'M', 'dsa', 'valor', 'crear','#Valor#', '#Nombre#', '#ColorCo#','jugadores', 'jugador',
-    'participante', 'participantes', 'totalidad', ',', 'negro', 'azul', 'marron', 'gris', 'verde', 'naranja',
+    'todos', 'casa' , 'hotel', 'cian' , 'magenta', 'mi' , 'mio', 'otro', 'intercambio', 'cartas',
+    'M', 'dsa', 'valor', 'crear','#Valor#', '#Nombre#', '#ColorCo#', 'jugador',
+    'participante', 'totalidad', ',', 'negro', 'azul', 'marron', 'gris', 'verde', 'naranja',
     'rosa', 'purpura', 'rojo', 'blanco', 'amarillo', 'carta', 'grupo', 'valga', 'intercambiar',
     'conjunto', 'naipe', 'naipes', 'tarjeta', 'tarjetas', 'cada']
 
@@ -14,11 +14,11 @@ colores = ['cian', 'magenta', 'negro', 'azul', 'marron', 'gris', 'verde', 'naran
            ]
 
 noTerminales = ['Nombre', 'ColorCo', 'CantGrupo', 'RentaGrupo', 'ValorC', 'M',
-                'NombreD', 'Todos', 'Intercambio', 'CartasATomar', 'Turno', 'TipoConstruccion'
-                ] #Ver Monto
+                'NombreD', 'Todos', 'Intercambio', 'CartasATomar', 'Turno', 'TipoConstruccion', 'MontoC',
+                'MontoD'] #Ver Monto
 
 terminales = ['#Valor#', '#Nombre#', 'todos', 'cada', 'mi', 'otro', 'intercambio', 'intercambiar', 'casa',
-              'hotel']
+              'hotel', 'mio']
 
 subtipo = ['Renta', 'Construccion', 'Rapida', 'RobarCarta', 'RobarPropiedad', 'RobarDinero']
 
@@ -29,23 +29,25 @@ S -> 'crear' 'carta' Carta | Carta
 Carta -> Accion | Propiedad | Dinero | Comodin
 Accion -> Renta | Construccion | Rapida | RobarCarta | RobarPropiedad | RobarDinero
 Renta -> Nombre ValorC ColorCo Todos | Nombre Todos ColorCo ValorC | Nombre ColorCo Todos ValorC | Nombre Todos ColorCo ValorC
-Construccion -> Nombre ValorC TipoConstruccion Monto | TipoConstruccion Monto Nombre ValorC | TipoConstruccion Nombre Monto ValorC
+Construccion -> Nombre ValorC TipoConstruccion MontoC | TipoConstruccion MontoC Nombre ValorC | TipoConstruccion Nombre MontoC ValorC
 Rapida -> Nombre ValorC Turno | Turno ValorC Nombre | ValorC Turno Nombre | Nombre Turno ValorC
 RobarCarta -> Nombre ValorC CartasATomar | Nombre CartasATomar ValorC | CartasATomar Nombre ValorC
 RobarPropiedad -> Nombre ValorC Intercambio CartasATomar | CartasATomar Intercambio ValorC Nombre | CartasATomar Intercambio Nombre ValorC | Nombre Intercambio CartasATomar ValorC
-RobarDinero -> Nombre Monto Todos ValorC | Nombre Todos Monto ValorC | Todos Monto Nombre ValorC | Monto Todos Nombre ValorC
+RobarDinero -> Nombre MontoD Todos ValorC | Nombre Todos MontoD ValorC | Todos MontoD Nombre ValorC | MontoD Todos Nombre ValorC
 Propiedad -> Nombre ColorCo CantGrupo RentaGrupo ValorC | Nombre ColorCo ValorC CantGrupo RentaGrupo | ColorCo Nombre ValorC CantGrupo RentaGrupo | ColorCo Nombre CantGrupo RentaGrupo ValorC
 Comodin -> Nombre ColorCo ValorC | Nombre ValorC ColorCo
 Dinero -> NombreD
 Nombre -> '#Nombre#'
 NombreD -> Monto
 ValorC -> 'valor' Monto | 'valga' Monto
+MontoD -> Valor 'M' | 'M' Valor
+MontoC -> Valor 'M' | 'M' Valor
 Monto -> Valor 'M' | 'M' Valor
 Valor -> '#Valor#'
-Todos -> 'todos' | 'cada' | Valor 'jugadores' | Valor 'jugador' | Valor 'participates' | Valor 'participante'
+Todos -> 'todos' | 'cada' | Valor 'jugador' | Valor 'participante'
 TipoConstruccion -> 'casa' | 'hotel'
-Turno -> 'mi' | 'otro'
-Intercambio -> 'intercambio' | 'intercambiar'
+Turno -> 'mi' | 'otro' | 'mio'
+Intercambio -> 'intercambio' | 'intercambiar' |
 CantGrupo -> 'grupo' Valor | 'conjunto' Valor
 Color -> '#ColorCo#'
 ColorCo -> Color | Color Color | Color Color Color | Color Color Color Color |
@@ -54,23 +56,7 @@ Coma -> ','
 RentaGrupo -> Valor | Valor Coma Valor | Valor Coma Valor Coma Valor | Valor Coma Valor Coma Valor Coma Valor
 ''')
 
-#card = 'Faster con valor 5 M el turno mio'.split()# Rapida
-#card = 'quiero crear carta Robaraaa con valor 5 M para poder robar del mazo 3 cartas'.split() #Robar Carta
-#card = 'necesito crear carta Facho para robar propiedad con valor 10 M de intercambio de 3 cartas'.split() #Robar Propiedad
-#card = 'necesito crear carta Facho con valor 10 M de intercambio de 3 cartas'.split() #Robar Propiedad
-#card = 'Fachodinero para robar 10 M a 2 jugadores con valor 6 M'.split() #Robar dinero
-#card = 'crear carta RRentass con valor 2 M con colores cian rojo contra 1 jugador'.split() #Renta ver estooo la pila de #Color#
-#card = 'Casosona con valor 2 M la cual es una casa y me tienen q dar 3 M mas'.split()
-#card = 'crear carta de 10 M'.split()
-#card = 'Comdindin cian magenta con valor 3 M'.split() #Comodin
-#card = 'Comdindin maestro con valor 3 M'.split() #Comodin
-#card = 'crear carta Propi de color cian para un grupo de tamaño 3 donde las rentas son 2, 3, 5 con valor 2 M'.split()
-#card = 'quiero crear una carta que se llame PEPR que sea propiedad de color verde de cuyo grupo es de tamaño 3 cuya renta tenga los valores 2, 3, 5 el valor es de 10 M'.split()
-#card = 'crear carta CHUCHA de color cian grupo de 3 y la renta sea 2, 4, 5 con un valor de 100 M'.split() #Propiedad
-card = 'Rentaaaaa con un valor de 2 M y me tengan que pagar por los colores azul purpura todos'.split() #Renta
-#card = 'quiero crear carta que se llame Rentaaaaa contra todos que me tengan que pagar por los colores azul purpura y que valga 3 M'.split() #Renta
-
-def Convertir(card):
+def ConvertirV(card):
     sent = []
     for i in card:
         if i.isdigit():
@@ -108,17 +94,6 @@ def RecibirValores(original_sent, dic):
     for tree in parser.parse(original_sent):       
         RecibirValoresRec(tree, paramDic, dic)
         return paramDic
-        #if(type(a) == 'nltk.tree.tree.Tree'):
-            #print(type(a) == nltk.Tree)
-        #treestr = str(tree)
-        #for n in numbers:
-        #   treestr = treestr.replace('#Valor#', n, 1)
-        #for n in alpha:
-        #   treestr = treestr.replace('#Nombre#', n, 1)
-        #for n in cols:
-        #   treestr = treestr.replace('#ColorCo#', n, 1)
-        #print(treestr)
-    #return lista
 
 def RecibirValoresRec(tree, paramDic, dic, label=None):
     for i in tree:
@@ -159,11 +134,9 @@ def CrearCartas(cartasACrear):
     for i in cartasACrear:
         return
 
-def Ejecutar(card):
-    arbol, dic = Convertir(card)
-    cartasACrearsinValores = RecibirValores(arbol, dic)
-    print(cartasACrearsinValores)
+def Convertir(card):
+    arbol, dic = ConvertirV(card)
+    return RecibirValores(arbol, dic)
+    #print(cartasACrearsinValores)
     #VerfificarCarta(cartasACrear)
     #cartasCreadas = CrearCartas(cartasACrear) 
-    
-Ejecutar(card)
