@@ -66,8 +66,8 @@ RentaGrupo -> Valor | Valor Coma Valor | Valor Coma Valor Coma Valor | Valor Com
 #card = 'Comdindin maestro con valor 3 M'.split() #Comodin
 #card = 'crear carta Propi de color cian para un grupo de tamaño 3 donde las rentas son 2, 3, 5 con valor 2 M'.split()
 #card = 'quiero crear una carta que se llame PEPR que sea propiedad de color verde de cuyo grupo es de tamaño 3 cuya renta tenga los valores 2, 3, 5 el valor es de 10 M'.split()
-card = 'crear carta CHUCHA de color cian grupo de 3 y la renta sea 2, 4, 5 con un valor de 100 M'.split() #Propiedad
-#card = 'Rentaaaaa con un valor de 2 M y me tengan que pagar por los colores azul purpura todos'.split() #Renta
+#card = 'crear carta CHUCHA de color cian grupo de 3 y la renta sea 2, 4, 5 con un valor de 100 M'.split() #Propiedad
+card = 'Rentaaaaa con un valor de 2 M y me tengan que pagar por los colores azul purpura todos'.split() #Renta
 #card = 'quiero crear carta que se llame Rentaaaaa contra todos que me tengan que pagar por los colores azul purpura y que valga 3 M'.split() #Renta
 
 def Convertir(card):
@@ -84,29 +84,29 @@ def Convertir(card):
     sent = ['#Nombre#' if i[0].isupper() and i != 'M' else i for i in sent]
     sent = ['#ColorCo#' if i in colores else i for i in sent]
 
-    numbers = []
+    dicVals = {'#Valor#':[], '#Nombre#': [], '#ColorCo#': []}
     for i in card:
         if i.isdigit():
-            numbers.append(i)
+            dicVals['#Valor#'].append(i)
         elif i[:len(i)-1].isdigit():
-            numbers.append(i[:len(i)-1])
+            dicVals['#Valor#'].append(i[:len(i)-1])
             
-    alpha = [i for i in card if i[0].isupper() and i != 'M']
-    cols = [i for i in card if i in colores]
+    dicVals['#Nombre#'] = [i for i in card if i[0].isupper() and i != 'M']
+    dicVals['#ColorCo#'] = [i for i in card if i in colores]
 
     original_sent = []
     for i in sent:
         if(i in res):
             original_sent.append(i)
             
-    return original_sent, numbers, alpha, cols
+    return original_sent, dicVals
 
-def RecibirValores(original_sent):
+def RecibirValores(original_sent, dic):
     parser = nltk.ChartParser(groucho_grammar)
     lista = []
     paramDic = {}
     for tree in parser.parse(original_sent):       
-        RecibirValoresRec(tree, paramDic)
+        RecibirValoresRec(tree, paramDic, dic)
         return paramDic
         #if(type(a) == 'nltk.tree.tree.Tree'):
             #print(type(a) == nltk.Tree)
@@ -120,52 +120,37 @@ def RecibirValores(original_sent):
         #print(treestr)
     #return lista
 
-def RecibirValoresRec(tree, paramDic, label=None):
+def RecibirValoresRec(tree, paramDic, dic, label=None):
     for i in tree:
-        # if(i[0] in terminales):
-        #     if(label is not None and label in noTerminales):
-        #         paramDic[label] = i[0]
-        #     else:
-        #         paramDic[i._label] = i[0]
         if((type(i) == nltk.Tree and i._label != 'Coma')):
             if(i._label in tipo):
                 paramDic['tipo'] = i._label
             elif(i._label in subtipo):
                 paramDic['subtipo'] = i._label
             elif(len(i)>1):
-                RecibirValoresRec(i, paramDic, i._label)  
+                RecibirValoresRec(i, paramDic, dic, i._label)  
             elif(i._label in noTerminales):
                 if(len(i) > 0):
                     if (type(i[0]) == nltk.Tree):
-                        RecibirValoresRec(i, paramDic, i._label)
-                        #label = i._label
+                        RecibirValoresRec(i, paramDic, dic, i._label)
                     else:    
-                        paramDic[i._label] = i[0]
+                        if(i[0] in dic):
+                            paramDic[i._label] = dic[i[0]].pop(0)
+                        else:
+                            paramDic[i._label] = i[0]
             elif(label is not None and label in noTerminales):
                 if(label in paramDic):
-                    paramDic[label].append(i[0])
+                    if(i[0] in dic):
+                        paramDic[label].append(dic[i[0]].pop(0))
+                    else:
+                        paramDic[label].append(i[0])
                 else:
-                    paramDic[label] = [i[0]]
-            RecibirValoresRec(i, paramDic, label)
+                    if(i[0] in dic):
+                        paramDic[label] = [dic[i[0]].pop(0)]
+                    else:
+                        paramDic[label] = [i[0]]
+            RecibirValoresRec(i, paramDic, dic, label)
 
-def RellenarValores(cartasACrearsinValores, num, abc, cols):
-    for i in cartasACrearsinValores:
-        if(type(cartasACrearsinValores[i]) == list):
-            for j in range(len(cartasACrearsinValores[i])):
-                cartasACrearsinValores[i][j], num, abc, cols = ComprobarTipo(cartasACrearsinValores[i][j], num, abc, cols)
-        else:
-            cartasACrearsinValores[i], num, abc, cols = ComprobarTipo(cartasACrearsinValores[i], num, abc, cols)
-    return cartasACrearsinValores
-
-def ComprobarTipo(val, num, abc, cols):
-    if(val == '#Valor#'):
-        return num.pop(0), num, abc, cols
-    elif(val == '#Nombre#'):
-        return abc.pop(0), num, abc, cols
-    elif(val == '#ColorCo#'):
-        return cols.pop(0), num, abc, cols
-    else:
-        return val, num, abc, cols
 #def VerfificarCarta(cartasACrear):
 #    for i in cartasACrear:
 #        if(i['Color'] in coloresEnUso)
@@ -175,10 +160,10 @@ def CrearCartas(cartasACrear):
         return
 
 def Ejecutar(card):
-    arbol, num, abc, cols = Convertir(card)
-    cartasACrearsinValores = RecibirValores(arbol)
-    cartasACrear = RellenarValores(cartasACrearsinValores, num, abc, cols)
+    arbol, dic = Convertir(card)
+    cartasACrearsinValores = RecibirValores(arbol, dic)
+    print(cartasACrearsinValores)
     #VerfificarCarta(cartasACrear)
-    cartasCreadas = CrearCartas(cartasACrear) 
+    #cartasCreadas = CrearCartas(cartasACrear) 
     
 Ejecutar(card)
