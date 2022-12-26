@@ -9,6 +9,8 @@ res = [
 
 coloresEnUso = ['azulClaro', 'carmelita', 'morado', 'anaranjado', 'rojo', 'amarillo', 'verde', 'azul', 'blanco', 'negro']
 
+cantGrupo = [3,2,3,3,3,3,3,2,2,4]
+
 colores = ['cian', 'magenta', 'negro', 'azul', 'marron', 'gris', 'verde', 'naranja',
            'rosa', 'purpura', 'rojo', 'blanco', 'amarillo','azulClaro', 'carmelita', 'morado', 'anaranjado'
            ]
@@ -34,7 +36,7 @@ Rapida -> Nombre ValorC Turno | Turno ValorC Nombre | ValorC Turno Nombre | Nomb
 RobarCarta -> Nombre ValorC CartasATomar | Nombre CartasATomar ValorC | CartasATomar Nombre ValorC
 RobarPropiedad -> Nombre ValorC Intercambio CartasATomar | CartasATomar Intercambio ValorC Nombre | CartasATomar Intercambio Nombre ValorC | Nombre Intercambio CartasATomar ValorC
 RobarDinero -> Nombre MontoD Todos ValorC | Nombre Todos MontoD ValorC | Todos MontoD Nombre ValorC | MontoD Todos Nombre ValorC
-Propiedad -> Nombre ColorCo CantGrupo RentaGrupo ValorC | Nombre ColorCo ValorC CantGrupo RentaGrupo | ColorCo Nombre ValorC CantGrupo RentaGrupo | ColorCo Nombre CantGrupo RentaGrupo ValorC
+Propiedad -> Nombre ColorCo CantGrupo RentaGrupo ValorC | Nombre ColorCo ValorC CantGrupo RentaGrupo | ColorCo Nombre ValorC CantGrupo RentaGrupo | ColorCo Nombre CantGrupo RentaGrupo ValorC | Nombre ColorCo RentaGrupo ValorC CantGrupo 
 Comodin -> Nombre ColorCo ValorC | Nombre ValorC ColorCo
 Dinero -> NombreD
 Nombre -> '#Nombre#'
@@ -126,10 +128,6 @@ def RecibirValoresRec(tree, paramDic, dic, label=None):
                         paramDic[label] = [i[0]]
             RecibirValoresRec(i, paramDic, dic, label)
 
-#def VerfificarCarta(cartasACrear):
-#    for i in cartasACrear:
-#        if(i['Color'] in coloresEnUso)
-
 def CrearCartas(cartasACrear):
     for i in cartasACrear:
         return
@@ -137,6 +135,3 @@ def CrearCartas(cartasACrear):
 def Convertir(card):
     arbol, dic = ConvertirV(card)
     return RecibirValores(arbol, dic)
-    #print(cartasACrearsinValores)
-    #VerfificarCarta(cartasACrear)
-    #cartasCreadas = CrearCartas(cartasACrear) 
