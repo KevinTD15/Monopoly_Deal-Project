@@ -1,11 +1,11 @@
-from gramatica import Convertir
+from gramatica import *
 from cartasMD import *
 from mazoCartas import *
 
 #card = 'Faster con valor 5 M el turno mio'.split()# Rapida
 #card = 'quiero crear carta Robaraaa con valor 5 M para poder robar del mazo 3 cartas'.split() #Robar Carta
 #card = 'necesito crear carta Facho para robar propiedad con valor 10 M de intercambio de 3 cartas'.split() #Robar Propiedad
-card = 'necesito crear carta Facho con valor 10 M para robar de 3 cartas'.split() #Robar Propiedad
+#card = 'necesito crear carta Facho con valor 10 M para robar de 3 cartas'.split() #Robar Propiedad
 #card = 'Fachodinero para robar 10 M a 1 jugador con valor 6 M'.split() #Robar dinero
 #card = 'crear carta RRentass con valor 2 M con colores cian rojo contra 1 jugador'.split() #Renta ver estooo la pila de #Color#
 #card = 'Casosona con valor 2 M la cual es una casa y me tienen q dar 3 M mas'.split()
@@ -45,10 +45,45 @@ def Crear(carta):
             if(carta['Todos'] != 'todos'):
                 return AccionRobarDinero(carta['Nombre'], 'accion', 'robardinero', int(carta['ValorC'][0]), False, int(carta['MontoD'][0]))
             return AccionRobarDinero(carta['Nombre'], 'accion', 'robardinero', int(carta['ValorC'][0]), True, int(carta['MontoD'][0]))
+
+def EsCartaValida(carta):
+    if(carta is None):
+        return False, 'carta inválida o faltan parámetros'
+    if(carta['tipo'] == 'Propiedad'):
+        if('ColorCo' not in carta):
+            return False, 'color invalido'
+        if(carta['ColorCo'][0] in coloresEnUso):
+            a =carta['ColorCo'][0]
+            return False, f'El grupo de color {a} ya esta completo'
+        count = 0
+        for i in Mazo.cartas:
+            # if(i.tipo == 'propiedad' and i.color == carta['ColorCo'] and carta['RentaGrupo'] != i.renta):
+            #     return False, f'Las rentas son diferentes '
+            if(i.tipo == 'propiedad' and i.color == carta['ColorCo']):
+                count += 1
+        if(count == carta['CantGrupo'][0]):
+            coloresEnUso.append(carta['ColorCo'][0])
+    if(carta['tipo'] == 'Comodin'):
+       for i in carta['ColorCo']:
+           if(i not in coloresEnUso):
+               return False, f'el color {i} no esta en uso'
+    elif(carta['tipo'] == 'Accion'):
+        if(carta['subtipo'] == 'Renta'):
+            for i in carta['ColorCo']:
+                if(i not in coloresEnUso):
+                    return False, f'el color {i} no esta en uso'
+    return True, 'ok'
+                
+
 def CrearCarta(card):
     carta = Convertir(card)
-    cartaCreada = Crear(carta)
-    Mazo.cartas.append(cartaCreada)
+    flag, sms = EsCartaValida(carta)
+    if(flag):
+        cartaCreada = Crear(carta)
+        Mazo.cartas.append(cartaCreada)
+        return sms
+    else:
+        return sms
     
-CrearCarta(card)
+#CrearCarta(card)
     
