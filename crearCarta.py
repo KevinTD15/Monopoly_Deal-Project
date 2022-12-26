@@ -63,6 +63,7 @@ def EsCartaValida(carta):
                 count += 1
         if(count == carta['CantGrupo'][0]):
             coloresEnUso.append(carta['ColorCo'][0])
+            cantGrupo.append(int(carta['CantGrupo'][0]))
     if(carta['tipo'] == 'Comodin'):
        for i in carta['ColorCo']:
            if(i not in coloresEnUso):
