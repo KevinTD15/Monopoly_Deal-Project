@@ -1,37 +1,21 @@
 from jugador import Jugador
 from jugada import *
 from utiles import *
+from gramatica import *
 
 class JugadorAleatorio(Jugador):
     
     def __init__(self, nombre, esBot):
         super().__init__(nombre, esBot)
-        self.tablero = {
-            'carmelita' : [],
-            'azulClaro' : [],
-            'morado' : [],
-            'anaranjado' : [],
-            'rojo' : [],
-            'amarillo' : [],
-            'verde' : [],
-            'azul' : [],
-            'negro' : [],
-            'blanco' : [],
-            'dinero' : [],
-            'comodines': [],
-        }
-        self.colorCantGrupo = {
-            'carmelita' : 2,
-            'azulClaro' : 3,
-            'morado' : 3,
-            'anaranjado' : 3,
-            'rojo' : 3,
-            'amarillo' : 3,
-            'verde' : 3,
-            'azul' : 2,
-            'negro' : 4,
-            'blanco' : 2,
-        }
+        self.tablero = {}
+        self.colorCantGrupo = {}
+        
+        for i in range(len(coloresEnUso)):
+            self.tablero[coloresEnUso[i]] = []
+            self.colorCantGrupo[coloresEnUso[i]] = cantGrupo[i]
+        self.tablero['dinero'] = []
+        self.tablero['comodines'] = []
+
         self.mano = []
 
     def DescartarCartasJ(self,mazo, descarte, jugadores):
@@ -71,32 +55,15 @@ class JugadorAleatorio(Jugador):
 class JugadorInteligente(Jugador):
     def __init__(self, nombre, esBot):
         super().__init__(nombre, esBot)
-        self.tablero = {
-            'carmelita' : [],
-            'azulClaro' : [],
-            'morado' : [],
-            'anaranjado' : [],
-            'rojo' : [],
-            'amarillo' : [],
-            'verde' : [],
-            'azul' : [],
-            'negro' : [],
-            'blanco' : [],
-            'dinero' : [],
-            'comodines': []
-        }
-        self.colorCantGrupo = {
-            'carmelita' : 2,
-            'azulClaro' : 3,
-            'morado' : 3,
-            'anaranjado' : 3,
-            'rojo' : 3,
-            'amarillo' : 3,
-            'verde' : 3,
-            'azul' : 2,
-            'negro' : 4,
-            'blanco' : 2,
-        }
+        self.tablero = {}
+        self.colorCantGrupo = {}
+        
+        for i in range(len(coloresEnUso)):
+            self.tablero[coloresEnUso[i]] = []
+            self.colorCantGrupo[coloresEnUso[i]] = cantGrupo[i]
+        self.tablero['dinero'] = []
+        self.tablero['comodines'] = []
+
         self.mano = []
         
         
