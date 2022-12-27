@@ -9,6 +9,8 @@ idnotificacion = 0
 def CrearJugador(nombre, tipo):
     if(tipo == 'Inteligente'):
         return JugadorInteligente(nombre, True)
+    # elif(tipo == 'Inteligente1'):
+    #     return JugadorInteligente1(nombre, True)
     elif(tipo == 'Aleatorio'):
         return JugadorAleatorio(nombre, True)
 
@@ -81,7 +83,7 @@ def main():
             while t != 'Aleatorio' or t != 'Inteligente':
                 print(f'Teclee el nombre y tipo del jugador {i}')
                 n = input().split(' ')
-                if(len(n)>1):
+                if(len(n)>1 and (n[1] == 'Aleatorio' or n[1] == 'Inteligente')):
                     t = n[1]
                     j._jugadores.append(CrearJugador(n[0], t)) 
                     break
