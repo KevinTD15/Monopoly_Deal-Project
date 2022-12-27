@@ -245,31 +245,49 @@ class JugadorInteligente(Jugador):
                 valor += 1/4
         return valor
                   
-    def EvaluarJugadaR(self, jugada):
+    def EvaluarJugadaR(self, jugada, monto):
         valor = 0
-        #jugadorActual = self
-        #ranking = RankingPropiedades(jugadorActual)
-        #if(jugada[0].tipo == 'accion'):
-        #    if(jugada[0].subtipo == 'robardinero' or jugada[0].subtipo == 'renta'):
-        #        if(len(jugada) != 3):
-        #            _, dinero = DineroPorBilletes(self)
-        #            if(dinero >= jugada[3]):
-        #                for i in jugada[2]:
-        #                    if(i.tipo == 'propiedad'):
-        #                        break
-        #                valor += 2
-        #            else:
-        #                for i in jugada[2]:
-        #                    if(i.tipo == 'propiedad'):
-        #                        for k in ranking:
-        #                            if(i.color in ranking[k]):
-        #                                valor += 1/((len(ranking) - k + 1) * 2)
+        jugadorActual = self
+        ranking = RankingPropiedades(jugadorActual)
+        if(jugada[0].tipo == 'accion'):
+            if(jugada[0].subtipo == 'rapida'):
+                valor += 10     
+            if(jugada[0].subtipo == 'robardinero' or jugada[0].subtipo == 'renta'):
+                if(len(jugada) >= 3):
+                    _, dinero = DineroPorBilletes(self)
+                    if(dinero >= monto):
+                        for i in jugada[2]:
+                            if(type(i) == list):
+                                break
+                            if(i.tipo == 'propiedad' or (i.tipo == 'comodin' and i.enUso in coloresEnUso)):
+                                break
+                            else:
+                                valor +=1
+                        valor += 2
+                    else:
+                        a, dinprop = DineroPorPropiedades(self)
+                        #_, dinGrupComp = DineroPorGrupoCompleto(self)
+                        for i in jugada[2]:
+                            if(type(i) == list):
+                                dinGrupComp = a[0][a[1].index(i)]
+                                if(dinprop - dinGrupComp >= monto):
+                                    break
+                                else:
+                                    valor += 0.01
+                            elif(i.tipo == 'propiedad' or (i.tipo == 'comodin' and i.enUso in coloresEnUso)):
+                                for k in ranking:
+                                    if(i.color in ranking[k]):
+                                        valor += 1/((len(ranking) - k + 1) * 2)
+                            else:
+                                valor += 1
+                else:
+                    valor += 100
         return valor
     
     def PosiblesJugadas(self, mazo, descarte, jugadores):
         listaJugadas = []
         jugadasPosibles = []
-        for i in range(100): #Poner otro numero!!!!!!!!!!!
+        for i in range(1000): #Poner otro numero!!!!!!!!!!!
             j = JugadaRandom(self, mazo, descarte,jugadores)
             jugada = j.CrearJugada()
             if(jugada not in jugadasPosibles):
@@ -307,7 +325,7 @@ class JugadorInteligente(Jugador):
     def DescartarCartasJ(self, mazo, descarte, jugadores):
         j = JugadaRandom(self, mazo, descarte, jugadores)
         cartasADescartar = []
-        for i in range(100):
+        for i in range(1000):
             cartasADescartar.append(j.CartasADescartar())
         max = -1000 #poner el min value
         result = {}
@@ -323,10 +341,10 @@ class JugadorInteligente(Jugador):
         respuestas = []
         result = {}
         max = -1000
-        for i in range(5):
+        for i in range(1000):
             respuestas.append(j.CartasResponder(jugadorActual, carta, monto))
         for i in respuestas:    
-            ev = j.jugador.EvaluarJugadaR(i)
+            ev = j.jugador.EvaluarJugadaR(i, monto)
             result[ev] = i
             if(ev > max):
                 max = ev
