@@ -1,3 +1,5 @@
+from math import factorial
+
 def TieneProp(jugador):
     for i in jugador.tablero:
         if(len(jugador.tablero[i]) > 0):
@@ -5,7 +7,12 @@ def TieneProp(jugador):
     return False
 
 def CalcularMonto(jugador, color):
-    if(len(jugador.tablero[color]) <= jugador.tablero[color][0].cantGrupo):
+    if(color == 'comodines'):
+        acum = 0
+        for i in jugador.tablero[color]:
+            acum += i.valor
+        return acum
+    elif(len(jugador.tablero[color]) <= jugador.tablero[color][0].cantGrupo):
         return jugador.tablero[color][0].renta[len(jugador.tablero[color]) - 1]
     else:
         i = 0
@@ -95,3 +102,106 @@ def RankingPropiedades(jugadorActual):
         if(i not in rank):
             rank[i] = []
     return rank
+
+def CalcularProbabilidad(flag, jugadores, jugadorActual, descarte, mazo):
+    prob = 0
+    total = 0
+    cartasDesconocidas = 0
+    cartasDesconocidasEnMano = 0
+    cond = None
+    if(flag): #si es carta que roba grupo completo
+        for i in descarte:
+            if(i.tipo == 'accion' and i.subtipo == 'robarprop' and i.cuantas == None):
+                    prob += 1
+                    total += 1
+        for i in jugadores:
+            if(i == jugadorActual):
+                for h in jugadorActual.mano:
+                    if(h.tipo == 'accion' and h.subtipo == 'robarprop' and h.cuantas == None):
+                        prob += 1
+                        total += 1
+            else:
+                cartasDesconocidasEnMano += len(i.mano)
+                cartasDesconocidas += len(i.mano)
+                for h in i.mano:
+                    if(h.tipo == 'accion' and h.subtipo == 'robarprop' and h.cuantas == None):
+                        total += 1
+            for j in i.tablero['dinero']:
+                    if(j.tipo == 'accion' and j.subtipo == 'robarprop' and j.cuantas == None):
+                        prob += 1
+                        total += 1
+        cartasDesconocidas += len(mazo)
+        for z in mazo:
+            if(z.tipo == 'accion' and z.subtipo == 'robarprop' and z.cuantas == None):
+                total += 1
+    else:
+        for i in descarte:
+            if(i.tipo == 'accion' and i.subtipo == 'robarprop' and i.cuantas != None):
+                prob += 1
+                total += 1
+        for i in jugadores:
+            if(i == jugadorActual):
+                for h in jugadorActual.mano:
+                    if(h.tipo == 'accion' and h.subtipo == 'robarprop' and h.cuantas != None):
+                        prob += 1
+                        total += 1
+            else:
+                cartasDesconocidasEnMano += len(i.mano)
+                cartasDesconocidas += len(i.mano)
+                for h in i.mano:
+                    if(h.tipo == 'accion' and h.subtipo == 'robarprop' and h.cuantas != None):
+                        total += 1
+            for j in i.tablero['dinero']:
+                if(j.tipo == 'accion' and j.subtipo == 'robarprop' and j.cuantas != None):
+                    prob += 1
+                    total += 1
+        cartasDesconocidas += len(mazo)
+        for z in mazo:
+            if(z.tipo == 'accion' and z.subtipo == 'robarprop' and z.cuantas != None):
+                total += 1
+                
+    x = cartasDesconocidas - (total - prob) - cartasDesconocidasEnMano
+    if(x <= 0):
+        return 0
+    numer = (factorial(cartasDesconocidas - (total - prob)) / (factorial(cartasDesconocidasEnMano) * factorial(x)))
+    den = factorial(cartasDesconocidas) / (factorial(cartasDesconocidasEnMano) * factorial(cartasDesconocidas - cartasDesconocidasEnMano)) #combinatoria
+    a= 1 - (numer / den)
+    return a
+
+def CalcularProbabilidadDin (jugadores, jugadorActual, descarte, mazo):
+    prob = 0
+    total = 0
+    cartasDesconocidas = 0
+    cartasDesconocidasEnMano = 0
+    for i in descarte:
+        if(i.tipo == 'accion' and (i.subtipo == 'robardinero' or i.subtipo == 'renta')):
+            prob += 1
+            total += 1
+    for i in jugadores:
+        if(i == jugadorActual):
+            for h in jugadorActual.mano:
+                if(h.tipo == 'accion' and (h.subtipo == 'robardinero' or h.subtipo == 'renta')):
+                    prob += 1
+                    total += 1
+        else:
+            cartasDesconocidasEnMano += len(i.mano)
+            cartasDesconocidas += len(i.mano)
+            for h in i.mano:
+                if(h.tipo == 'accion' and (h.subtipo == 'robardinero' or h.subtipo == 'renta')):
+                    total += 1
+        for j in i.tablero['dinero']:
+            if(j.tipo == 'accion' and (j.subtipo == 'robardinero' or j.subtipo == 'renta')):
+                prob += 1
+                total += 1
+    cartasDesconocidas += len(mazo)
+    for z in mazo:
+        if(z.tipo == 'accion' and (z.subtipo == 'robardinero' or z.subtipo == 'renta')):
+            total += 1
+                
+    x = cartasDesconocidas - (total - prob) - cartasDesconocidasEnMano
+    if(x <= 0):
+        return 0
+    numer = (factorial(cartasDesconocidas - (total - prob)) / (factorial(cartasDesconocidasEnMano) * factorial(x)))
+    den = factorial(cartasDesconocidas) / (factorial(cartasDesconocidasEnMano) * factorial(cartasDesconocidas - cartasDesconocidasEnMano)) #combinatoria
+    a= 1 - (numer / den)
+    return a
