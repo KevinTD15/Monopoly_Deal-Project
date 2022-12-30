@@ -1,6 +1,6 @@
-from juegoMD import *
-from jugador import *
-from crearCarta import CrearCarta
+from Juego.juegoMD import *
+from Jugador.jugadorMD import *
+from PLN.crearCarta import CrearCarta
 import threading
 import time
 from colorama import init, Fore
