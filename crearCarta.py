@@ -50,6 +50,9 @@ def EsCartaValida(carta):
     if(carta is None):
         return False, 'carta inválida o faltan parámetros'
     if(carta['tipo'] == 'Propiedad'):
+        if(int(carta['CantGrupo'][0]) != len(carta['RentaGrupo'])):
+            nombr = carta['Nombre']
+            return False, f'En la carta {nombr} CantGrupo es diferente de la cantidad de elementos en RentaGrupo'
         if('ColorCo' not in carta):
             return False, 'color invalido'
         if(carta['ColorCo'][0] in coloresEnUso):
@@ -57,11 +60,9 @@ def EsCartaValida(carta):
             return False, f'El grupo de color {a} ya esta completo'
         count = 0
         for i in Mazo.cartas:
-            # if(i.tipo == 'propiedad' and i.color == carta['ColorCo'] and carta['RentaGrupo'] != i.renta):
-            #     return False, f'Las rentas son diferentes '
-            if(i.tipo == 'propiedad' and i.color == carta['ColorCo']):
+            if(i.tipo == 'propiedad' and i.color == carta['ColorCo'][0]):
                 count += 1
-        if(count == carta['CantGrupo'][0]):
+        if(count == int(carta['CantGrupo'][0])):
             coloresEnUso.append(carta['ColorCo'][0])
             cantGrupo.append(int(carta['CantGrupo'][0]))
     if(carta['tipo'] == 'Comodin'):
