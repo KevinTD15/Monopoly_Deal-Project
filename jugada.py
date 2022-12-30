@@ -333,24 +333,20 @@ class JugadaRandom(Jugada):
         usado = []
         manoJugador = self.jugador.mano
         i = 0
-        while i < cantCartasADescartar:
-            a = rd.randint(0, len(manoJugador) - 1)
-            if(a not in usado):
-                usado.append(a)
-            if(manoJugador[a] in cartasADescartar or manoJugador[a].tipo == 'propiedad'):
-                pass
-            else:
-                cartasADescartar.append(manoJugador[a])
-                i += 1
-            if(len(usado) == len(manoJugador)):
-                return self.jugador
-        return cartasADescartar
+        cartasPosiblesADescartar = []
+        for k in manoJugador:
+            if(k.tipo != 'propiedad'):
+                cartasPosiblesADescartar.append(k)
+        if(len(cartasPosiblesADescartar) < cantCartasADescartar):
+            return self.jugador
+        a = rd.sample(cartasPosiblesADescartar, cantCartasADescartar)
+        return a
                
     def ComodinesAReponer(self):
         jugadorActual = self.jugador
         result = []
         for i in jugadorActual.tablero['comodines']:
-            i.enUso = None #PARCHEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
+            i.enUso = None
             if(len(i.color) > 0):
                 col = rd.sample(i.color, 1)[0]
                 result.append([i, col])
@@ -487,6 +483,8 @@ class JugadaRandom(Jugada):
                                         misIndices.append(ind)
                                 while(len(propsADar) < carta.cuantas):
                                     indice = rd.randint(0, len(jugAsociado) - 1)
+                                    if(len(misIndicesJug) == len(jugAsociado)):
+                                        return
                                     if(indice not in misIndicesJug and jugAsociado[jug] == jugAsociado[indice] and type(propEnT[indice]) != list):
                                         propsADar.append(propEnT[indice]) 
                                         misIndicesJug.append(indice)
