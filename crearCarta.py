@@ -1,4 +1,4 @@
-from gramatica import *
+from gramaticaCartas import *
 from cartasMD import *
 from mazoCartas import *
 
