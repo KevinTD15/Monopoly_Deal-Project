@@ -1,7 +1,7 @@
 from jugador import Jugador
 from jugada import *
 from utiles import *
-from gramatica import *
+from gramaticaCartas import *
 
 class JugadorAleatorio(Jugador):
     
