@@ -23,7 +23,7 @@ def Crear(carta):
         carta['RentaGrupo'] = [int(i) for i in carta['RentaGrupo']]
         return Propiedades(carta['Nombre'], 'propiedad', carta['ColorCo'][0], int(carta['CantGrupo'][0]), carta['RentaGrupo'], int(carta['ValorC'][0]))
     elif(carta['tipo'] == 'Dinero'):
-        return Dinero(carta['NombreD'], 'dinero')
+        return Dinero(carta['NombreD'][0], 'dinero')
     elif(carta['tipo'] == 'Comodin'):
         return Comodin(carta['Nombre'], 'comodin', carta['ColorCo'], int(carta['ValorC'][0]))
     elif(carta['tipo'] == 'Accion'):
@@ -78,7 +78,7 @@ def EsCartaValida(carta):
                 
 
 def CrearCarta(card):
-    carta = Convertir(card)
+    carta = Convertir(card.split())
     flag, sms = EsCartaValida(carta)
     if(flag):
         cartaCreada = Crear(carta)
