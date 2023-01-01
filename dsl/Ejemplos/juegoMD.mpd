@@ -1,0 +1,85 @@
+crear juego
+crear jugador inteligenteProbabilistico luis
+crear jugador aleatorio pepe
+cantidad_juegos = 3
+
+crear carta "quiero crear carta de 9 M" 
+crear carta "quiero crear carta de 10 M" 
+
+agregar luis jugadores
+agregar pepe jugadores
+
+
+func CrearTablero(jmpd)
+{
+    tabs = []
+    i = 0
+    mientras (i < len(jugadores))
+    {
+        agregar 0 tabs
+        i = i + 1
+    }
+    agregar 0 tabs
+    retorno tabs
+}
+
+func ImprimirResumen(jmpd,resumen)
+{
+    i = 0
+    imprimir ("")
+    imprimir ("RESUMEN DE PARTIDAS")
+    mientras (i < len(jugadores))
+    {
+        si (i != len(jugadores) )
+        {
+            imprimir (jugadores[i].nombre & " tiene " & resumen[i] & " victorias ")
+        }
+        i = i + 1
+    }
+}
+
+
+func EjecutarJuego(jmpd, tab)
+{
+    Reestablecer()
+    turnos =0
+    mientras (finalJuego==0)
+    {
+        EjecutarTurno()
+        turnos = turnos + 1
+    }
+    h = 0
+    mientras(h < len(jugadores))
+    {
+        si (jugadores[h].nombre == ganador)
+        {
+            tab[h] = tab[h] + 1
+        }
+        h = h + 1
+    }
+    agregar "Gano " & ganador  & " en " & turnos & " turnos" notificaciones
+    agregar "Fin del juego" notificaciones
+    retorno tab
+}
+
+func EjecutarSimulacion(jmpd, cantidad_juegos, tab)
+{
+    i=0
+    mientras (i< cantidad_juegos)
+    {
+        agregar "Comienzo de juego" notificaciones
+        tab = EjecutarJuego(jmpd, tab)
+        k = 0
+        mientras (k < len(notificaciones))
+        {
+            imprimir (notificaciones[k])
+            k = k + 1
+        }
+        i = i+1
+    }
+    retorno tab
+}
+
+tab = CrearTablero(jmpd)
+resumen = EjecutarSimulacion(jmpd, cantidad_juegos, tab)
+ImprimirResumen(jmpd,resumen)
