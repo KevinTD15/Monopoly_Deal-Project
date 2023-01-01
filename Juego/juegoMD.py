@@ -16,7 +16,7 @@ class JuegoMD:
     notificaciones = []
     count = -1
                     
-    def EjecutarTurnoMD():
+    def EjecutarTurnoMD(self):
         '''aqui es donde se lleva a cabo la ejecucion de un turno del juego'''
         if(JuegoMD._iniciarJuegoMD):
             JuegoMD._iniciarJuegoMD = False
@@ -37,7 +37,6 @@ class JuegoMD:
                 Crupier.RepartirCartas(False, jugadorActual, JuegoMD._mazo, 5, JuegoMD.descarte, JuegoMD._indiceJugadorActual)
                 JuegoMD.notificaciones.append(f'Se le repartieron 5 cartas a: {jugadorActual.nombre}')
             else:
-                #OJOO si pasas jugadoractual para q pasas el indiceactual y pq aqui se pasa descarte
                 Crupier.RepartirCartas(False, jugadorActual, JuegoMD._mazo, 2, JuegoMD.descarte, JuegoMD._indiceJugadorActual)
                 JuegoMD.notificaciones.append(f'{jugadorActual.nombre} toma 2 cartas del mazo')
             
@@ -53,6 +52,12 @@ class JuegoMD:
                 
     def EjecutarJuego(self):
         '''aqui es donde se lleva a cabo la ejecucion del juego'''
+        self.Reestablecer()
+        while(not self.final):
+            self.EjecutarTurnoMD()
+            self.count += 1
+        
+    def Reestablecer(self):
         JuegoMD.count = -1
         JuegoMD._indiceJugadorActual = 0
         JuegoMD.descarte = []
@@ -61,23 +66,6 @@ class JuegoMD:
         JuegoMD._iniciarJuegoMD = True
         JuegoMD.ganador = ''
         JuegoMD._mazo = Mazo.cartas.copy()
-        for i in self._jugadores:
-            i.mano.clear()
-            for k in i.tablero:
-                i.tablero[k].clear()
-        while(not JuegoMD.final):
-            JuegoMD.EjecutarTurnoMD()
-            JuegoMD.count += 1
-        
-    def Reestablecer(self):
-        self.count = -1
-        self._indiceJugadorActual = 0
-        self.descarte = []
-        self.notificaciones = []
-        self.final = False
-        self._iniciarJuegoMD = True
-        self.ganador = ''
-        self._mazo = Mazo.cartas.copy()
         for i in self._jugadores:
             i.mano.clear()
             for k in i.tablero:
