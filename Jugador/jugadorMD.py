@@ -21,10 +21,7 @@ class JugadorAleatorio(Jugador):
     def DescartarCartasJ(self,mazo, descarte, jugadores):
         j = JugadaRandom(self, mazo, descarte, jugadores)
         cart = j.CartasADescartar()
-        #if(type(cart) == list):
         j.DescartarCartas(cart)   
-        #else:
-        #    raise Exception(f'{cart.nombre} tiene mas de 7 propiedades en la mano por lo que se anula el juego')     
         
     def SeleccionarJugada(self, mazo, descarte,jugadores):
         j = JugadaRandom(self, mazo, descarte,jugadores)
