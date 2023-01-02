@@ -8,69 +8,72 @@ class Simbolo() :
         self.valor = valor
 
 class TablaDeSimbolos() :
-    'Esta clase representa la tabla de simbolos'
+    'Esta clase representa la tabla de simbolos (TS)'
+    
+    filaError = -1
 
     def __init__(self, simbolos = {}) :
         self.simbolos = simbolos
 
-    def siIDenTS(self,id):
+    def chequeaIDenTS(self,id, filaError):
+        'chequea si id existe en la TS, en ese caso muestra error e interrumpe la ejecucion'
         if not id in self.simbolos :
-            print('mpd> Error: variable ', id, ' no definida')
-            exit() 
-        return True
+            self.error(f'Variable \'{id}\' no definida', filaError)
 
-    def obtener(self, id) :
-        if self.siIDenTS(id):
-            return self.simbolos[id]
-        return
+    def obtener(self, id, filaError) :
+        self.chequeaIDenTS(id, filaError)
+        return self.simbolos[id]
 
-    def asignar(self, simbolo) :
+    def asignar(self, simbolo, filaError) :
         if id in self.simbolos :
             if type(self.simbolos.valor)!=type(simbolo.valor):
-                print('mpd> Error: variable ', id, ' inconsistente' )
-                exit()     
+                self.error(f'Variable \'{id}\' inconsistente' , filaError)   
         self.simbolos[simbolo.id] = simbolo
 
-    def eliminar(self, id):
-        if self.siIDenTS(id):
-            del self.simbolos[id]
+    def eliminar(self, id, filaError): 
+        'Solo se utiliza para eliminar entrada en la TS de id=\'retorno\' una vez terminada ejecucion de la funcion (simulando pop de pila)'
+        self.chequeaIDenTS(id, filaError)
+        del self.simbolos[id]
 
-    def agregarElem(self, id, val) :
-        if self.siIDenTS(id):
-            self.simbolos[id].valor.append(val)
+    #region Tratamiento de listas
+    def agregarElem(self, id, val, filaError) :
+        self.chequeaIDenTS(id, filaError)
+        self.simbolos[id].valor.append(val)
 
-    def eliminarElem(self, id, indice) :
-        if self.siIDenTS(id):
-            self.simbolos[id].valor[indice]
+    def eliminarElem(self, id, indice, filaError) :
+        self.chequeaIDenTS(id, filaError)
+        self.simbolos[id].valor[indice]
 
-    def asignarElemList(self, id, indice,val) :
-        if self.siIDenTS(id): 
-            if indice>= len(self.simbolos[id].valor):
-                print('mpd> Error: lista ', id, ' indice ',indice, 'fuera de rango')  
-                exit() 
-            else:
-                self.simbolos[id].valor[indice]=val
+    def asignarElemList(self, id, indice,val, filaError) :
+        self.chequeaIDenTS(id, filaError) 
+        if indice>= len(self.simbolos[id].valor):
+            self.error(f'Lista \'{id}\' indice \'{indice}\' fuera de rango', filaError)                 
+        self.simbolos[id].valor[indice]=val
 
-    def obtenerElemList(self, id, indice) :
-        if self.siIDenTS(id): 
-            if indice>= len(self.simbolos[id].valor):
-                print('mpd> Error: lista ', id, ' indice ',indice, 'fuera de rango')  
-                exit() 
-            else:
-                return self.simbolos[id].valor[indice]
-
+    def obtenerElemList(self, id, indice, filaError) :
+        self.chequeaIDenTS(id, filaError) 
+        if indice>= len(self.simbolos[id].valor):
+            self.error(f'Lista \'{id}\' indice \'{indice}\' fuera de rango', filaError)                  
+        return self.simbolos[id].valor[indice]
+    #endregion
+    #region Tratamiento de las listas que estan definidas en el juego, no en el DSL
     def agregarElemJuego(self, id, val) :
-            id.append(val)
+        'Agregar elemento a una lista definida en el juego'
+        id.append(val)
 
-    def obtenerElemListJuego(self, id, indice) :
+    def obtenerElemListJuego(self, id, indice, filaError) :
+        'Obtener elemento de una lista definida en el juego'
         if indice>= len(id):
-            print('mpd> Error: lista ', id, ' indice ',indice, 'fuera de rango')  
-            exit() 
+            self.error(f'Lista \'{id}\' indice \'{indice}\' fuera de rango', filaError)          
         return id[indice]
 
-    def asignarElemListJuego(self, id, indice,val) :
+    def asignarElemListJuego(self, id, indice,val, filaError) :
+        'Asignar un valor a una posicion de una lista definida en el juego'
         if indice>= len(id):
-                print('mpd> Error: lista ', id, ' indice ',indice, 'fuera de rango')  
-                exit() 
-        else:
-            id[indice]=val
+            self.error(f'Lista \'{id}\' indice \'{indice}\' fuera de rango', filaError)  
+        id[indice]=val
+    #endregion            
+    def error(self, cad, fila):
+        print(f'Error en línea {fila}: {cad}')  
+        exit()
+        
