@@ -6,12 +6,11 @@ reservadas = {
     'imprimir' : 'IMPRIMIR',
     'mientras' : 'WHILE',
     'si' : 'IF',
-    'else' : 'ELSE',
+    'sino' : 'ELSE',
     'func' : 'FUNC',
     'retorno' : 'RETURN',
     'len' : 'LEN',
     'crear' : 'CREAR',
-    'comenzar' : 'COMENZAR',
     'juego' : 'JUEGO',
     'agregar' :'AGREGAR',
     'jugador' : 'JUGADOR',
@@ -168,8 +167,7 @@ def p_instruccion(t) :
                         | instrRetorno
                         | instrAgregar
                         | instrLen
-                        | instrCrear
-                        | instrComenzar'''
+                        | instrCrear'''
     t[0] = t[1]
 
 def p_variable(t):
@@ -191,7 +189,7 @@ def p_id_juego(t):
                 | GANADOR
                 | FINALJUEGO
     '''
-    t[0]=ExpresionIdentificadorJuego(t[1])
+    t[0]=IdJuego(t[1])
 
 def p_id_juego_atrib(t): 
     ''' atributo : PUNTO ID
@@ -204,7 +202,7 @@ def p_id_juego_atrib(t):
 
 def p_decl_funcion(t) :
     'declFuncion  : FUNC ID PARIZQ argument_list_decl PARDER LLAVIZQ instrucciones LLAVDER' 
-    t[0] = FuncionDecl(t[2],t[4],t[7])
+    t[0] = FuncionDecl(t.slice[1].lineno,t[2],t[4],t[7])
 
 def p_argument_list_decl(t):
     '''argument_list_decl : argument_list_decl COMA argument_decl 
@@ -239,7 +237,7 @@ def p_argument(t):
 def p_llama_funcion(t):
     ''' llamaFuncion : ID PARIZQ argument_list PARDER
                     | idfuncjuego PARIZQ argument_list PARDER'''
-    t[0] = Funcion(t[1],t[3])
+    t[0] = Funcion(t.slice[2].lineno,t[1],t[3])
 
 def p_idfuncjuego(t):
     ''' idfuncjuego : REESTABLECER
@@ -250,11 +248,11 @@ def p_idfuncjuego(t):
 
 def p_return(t):
     'instrRetorno : RETURN expresion_cadena'
-    t[0]=Retorno(t[2])
+    t[0]=Retorno(t.slice[1].lineno,t[2])
 
 def p_instruccion_imprimir(t) :
     'instrImprimir   : IMPRIMIR PARIZQ expresion_cadena PARDER'
-    t[0] =Imprimir(t[3])
+    t[0] =Imprimir(t.slice[1].lineno,t[3])
 
 def p_instruccion_len(t) :
     'instrLen   : LEN PARIZQ expresion_cadena PARDER'
@@ -263,28 +261,28 @@ def p_instruccion_len(t) :
 def p_asignacion_instr(t) :
     '''instrAsignacion   : variable IGUAL expresion_cadena
                         | variable IGUAL llamaFuncion'''
-    t[0] =Asignacion(t[1], t[3])
+    t[0] =Asignacion(t.slice[2].lineno, t[1], t[3])
 
 def p_asignacion_corchetes(t) :
     'instrAsignacion   : variable IGUAL CORCHEIZQ CORCHEDER'
-    t[0] =Asignacion(t[1], ExpresionListaVacia())
+    t[0] =Asignacion(t.slice[2].lineno,t[1], ExpresionListaVacia())
 
 def p_while_instr(t) :
     'instrWhile     : WHILE PARIZQ expresion_logica PARDER LLAVIZQ instrucciones LLAVDER'
-    t[0] =While(t[3], t[6])
+    t[0] =While(t.slice[1].lineno,t[3], t[6])
 
 def p_if_instr(t) :
     'instrIf           : IF PARIZQ expresion_logica PARDER LLAVIZQ instrucciones LLAVDER'
-    t[0] =If(t[3], t[6])
+    t[0] =If(t.slice[2].lineno,t[3], t[6])
 
 def p_if_else_instr(t) :
     'instrIfElse      : IF PARIZQ expresion_logica PARDER LLAVIZQ instrucciones LLAVDER ELSE LLAVIZQ instrucciones LLAVDER'
-    t[0] =IfElse(t[3], t[6], t[10])
+    t[0] =IfElse(t.slice[1].lineno,t[3], t[6], t[10])
 
 def p_agregar(t):
     ''' instrAgregar : AGREGAR  expresion_cadena ID
                     | AGREGAR  expresion_cadena idjuego'''
-    t[0]=AgregarElemLista(t[3],t[2])
+    t[0]=AgregarElemLista(t.slice[1].lineno,t[3],t[2])
 
 def p_crear(t):
     ''' instrCrear : CREAR JUEGO
@@ -293,9 +291,9 @@ def p_crear(t):
     if len(t)==3:
         t[0]=CrearJuego()
     elif len(t)==4:
-        t[0]=Funcion(IdFuncionJuego(t[2]),t[3])
+        t[0]=Funcion(t.slice[2].lineno,IdFuncionJuego(t[2]),t[3])
     elif len(t)==5:
-        t[0]=CrearJugador(t[3],t[4])
+        t[0]=CrearJugador(t.slice[1].lineno,t[3],t[4])
 
 def p_tipo_jugador(t):
     ''' tipo : ALEATORIO
@@ -303,10 +301,6 @@ def p_tipo_jugador(t):
             | INTELIGENTE1
             | INTELIGENTE2'''
     t[0] = t[1]
-
-def p_comenzar_juego(t):
-    ''' instrComenzar : COMENZAR JUEGO'''
-    t[0] = ComenzarJuego()
 
 def p_expresion_binaria(t):
     '''expresion_numerica : expresion_numerica MAS expresion_numerica
