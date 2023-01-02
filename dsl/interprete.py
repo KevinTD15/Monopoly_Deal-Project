@@ -36,9 +36,9 @@ def procesar_funcionLLam(instr, ts) :
             return val
     elif isinstance(instr.id,IdFuncionJuego): #esta instancia me dice que el id corresponde a una funcion definida en el juego
         juego=ts.obtener('jmpd', filaError).valor
-        if  instr.id.id=='Reestablecer':
+        if  instr.id.id=='reestablecer':
             juego.Reestablecer()         
-        elif instr.id.id=='EjecutarTurno' :
+        elif instr.id.id=='ejecutar' :
             juego.EjecutarTurnoMD()
         elif instr.id.id=='carta' :
             CrearCarta(instr.param)
