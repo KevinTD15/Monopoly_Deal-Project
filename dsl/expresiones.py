@@ -25,13 +25,6 @@ class ExpresionIdentificador() :
     def __init__(self, id = "") :
         self.id = id
 
-class ExpresionIdentificadorJuego() :
-    '''
-        Esta clase representa un identificador.
-    '''
-    def __init__(self, id = "") :
-        self.id = id
-
 class ExpresionConcatenar() :
     '''
         Esta clase representa una Expresión de tipo cadena.
