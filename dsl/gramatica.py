@@ -22,7 +22,8 @@ reservadas = {
     'notificaciones' : 'NOTIFICACIONES',
     'jugadores' : 'JUGADORES',
     'reestablecer' : 'REESTABLECER',
-    'ejecutarturno' : 'EJECUTARTURNO',
+    'ejecutar' : 'EJECUTAR',
+    'turno' : 'TURNO',
     'carta' : 'CARTA',
     'finaljuego' : 'FINALJUEGO'
 }
@@ -236,15 +237,22 @@ def p_argument(t):
 
 def p_llama_funcion(t):
     ''' llamaFuncion : ID PARIZQ argument_list PARDER
-                    | idfuncjuego PARIZQ argument_list PARDER'''
-    t[0] = Funcion(t.slice[2].lineno,t[1],t[3])
+                    | REESTABLECER JUEGO
+                    | EJECUTAR TURNO
+                    '''
+    if(len(t) == 5):
+        t[0] = Funcion(t.slice[2].lineno,t[1],t[3])
+    elif(len(t) == 3):
+        t[0] = Funcion(t.slice[1].lineno,IdFuncionJuego(t[1]))
+    # elif(len(t) == 2):
+    #     t[0] = Funcion(t.slice[1].lineno,IdFuncionJuego(t[1]))
 
-def p_idfuncjuego(t):
-    ''' idfuncjuego : REESTABLECER
-            | EJECUTARTURNO
-            | CARTA
-            '''
-    t[0] = IdFuncionJuego(t[1])
+# def p_idfuncjuego(t):
+#     ''' idfuncjuego : REESTABLECER
+#             | EJECUTAR TURNO
+#             | CARTA
+#             '''
+#     t[0] = IdFuncionJuego(t[1])
 
 def p_return(t):
     'instrRetorno : RETURN expresion_cadena'
