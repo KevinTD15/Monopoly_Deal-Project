@@ -38,6 +38,8 @@ class TablaDeSimbolos() :
     #region Tratamiento de listas
     def agregarElem(self, id, val, filaError) :
         self.chequeaIDenTS(id, filaError)
+        if (type(self.simbolos[id].valor) != list):
+            self.error(f'Variable \'{id}\' no es una lista', filaError)
         self.simbolos[id].valor.append(val)
 
     def eliminarElem(self, id, indice, filaError) :
@@ -74,6 +76,6 @@ class TablaDeSimbolos() :
         id[indice]=val
     #endregion            
     def error(self, cad, fila):
-        print(f'Error en línea {fila}: {cad}')  
+        print(f'mpd> Error en línea {fila}: {cad}')  
         exit()
         
