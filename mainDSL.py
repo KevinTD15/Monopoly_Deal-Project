@@ -4,7 +4,7 @@ import os
 def main():
     print('Teclee direccion de archivo \'.mpd\'')
     pathInput = input()
-    if(pathInput != None):
+    if(pathInput != ''):
         path = pathInput
     else:
         path = "dsl/Ejemplos/juegoMD.mpd"
