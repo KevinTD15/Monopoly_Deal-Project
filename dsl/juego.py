@@ -9,14 +9,10 @@ class CrearJugador:
         La instrucción imprimir únicamente tiene como parámetro una cadena
     '''
 
-    def __init__(self, tipo,id) :
+    def __init__(self, fila, tipo,id) :
+        self.fila = fila
         self.tipo = tipo
         self.id=id
-
-class ComenzarJuego:
-    '''
-        clase que representa el comienzo del juego
-    '''
 
 class IdFuncionJuego() :
     '''
@@ -26,3 +22,10 @@ class IdFuncionJuego() :
     '''
     def __init__(self, id) :
         self.id=id
+
+class IdJuego() :
+    '''
+        Esta clase representa un identificador del juego
+    '''
+    def __init__(self, id = "") :
+        self.id = id
