@@ -40,11 +40,12 @@ func ImprimirResumen(jmpd,resumen)
 
 func EjecutarJuego(jmpd, tab)
 {
-    Reestablecer()
+    reestablecer juego
+
     turnos =0
     mientras (finalJuego==0)
     {
-        EjecutarTurno()
+        ejecutar turno
         turnos = turnos + 1
     }
     h = 0
