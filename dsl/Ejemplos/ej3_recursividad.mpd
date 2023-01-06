@@ -1,0 +1,24 @@
+func fibonacci(n)
+{
+	si n < 2
+	{
+		retorno 1
+	}
+	x = fibonacci(n-1) 
+	y = fibonacci(n-2)
+	retorno x+ y
+}
+
+func factorial(n)
+{
+	si n == 0
+	{
+		retorno 1
+	}
+	x=factorial(n-1)
+	retorno n * x
+}
+x = factorial(5)
+imprimir "Factorial de 5 es " & x
+x = fibonacci(5)
+imprimir "Fibonnaci de 5 es " & x
