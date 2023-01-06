@@ -1,0 +1,27 @@
+/*******ALGUNOS EJEMPLOS DE ERRORES*******/
+
+//Error en línea 2: Variable 'list' no definida
+//agregar 3 list
+
+//Error: 'pepe' en línea: 5 columna: 81
+//a = 5
+//b = a + "pepe"
+
+//Error en línea 9: Lista 'l' indice '1' fuera de rango
+//l = []
+//l[1] = 10
+
+//Error en línea 12:  Funcion 'f' no esta definida
+//a = f()
+
+//Error en línea 19:  Lista argumentos de la funcion 'f' no coincide con su declaracion
+//func f(a,b)
+//{
+//    retorno 1
+//}
+//c = f(5)
+
+//Error: 'a' en línea: 23 columna: 425
+//a = 5
+//lon a
+
