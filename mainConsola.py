@@ -1,9 +1,7 @@
 from Juego.juegoMD import *
 from Jugador.jugadorMD import *
 from PLN.crearCarta import CrearCarta
-import threading
-import time
-from colorama import init, Fore
+
 idnotificacion = 0
 
 def CrearJugador(nombre, tipo):
@@ -74,9 +72,6 @@ def main():
                     carta = input()
                     sms = CrearCarta(carta)
                     print(sms)
-            # elif(inp1 == 2):
-            #     print('Teclee ubicacion del .txt')
-            #     path = input()
         while(not (cj.isdigit() and int(cj) >= 2 and int(cj) <= 5)):       
             print('Teclee cantidad de jugadores entre 2 y 5')
             cj = input()
@@ -94,11 +89,6 @@ def main():
             print('Telcee cantidad de partidas a ejecutar')
             cp = input()    
 
-        init() #para dar color a los cambios de turno
-        #evento = threading.Event()
-        #hilo = threading.Thread(target=mytimer, args=(j,),)
-        #hilo.start()
-
         dic = CrearTabla(j)
         resumen = EjecutarSimulacion(j, dic, int(cp))
         ImprimirResumen(resumen)
@@ -108,41 +98,5 @@ def main():
               2- Volver a ejecutar''')
         fin = input()
 
-    #evento.clear()
-
-    #for i in j.notificaciones:
-    #    print(i)
-    
-# def mytimer(j):
-#     global idnotificacion
-#     while (j.notificaciones[idnotificacion] != 'FIN DEL JUEGO'):
-#         if idnotificacion < len(j.notificaciones):
-#             color = Fore.WHITE
-#             if j.notificaciones[idnotificacion][0:5] == 'Turno':
-#                 color = Fore.RED
-#             print( color + f'{idnotificacion} ' + j.notificaciones[idnotificacion])
-#             idnotificacion += 1
-#         else:
-#             time.sleep(3)
-#     print(Fore.BLUE + f'{idnotificacion} ' + j.notificaciones[idnotificacion])
- 
-# j1 = JugadorAleatorio('pepe', True)
-    # j2 = JugadorAleatorio('jose', True)
-    # j3 = JugadorAleatorio('cucu', True)
-    # j4 = JugadorAleatorio('fifi', True)
-    # j5 = JugadorAleatorio('popo', True)
-    # j6 = JugadorInteligente('kevin', True)
-    # j7 = JugadorInteligente('mapa', True)
-    # j8 = JugadorInteligente('mama', True)
-    # j9 = JugadorInteligente('aya', True)
-    # j0 = JugadorInteligente('tala', True)
-    # j._jugadores.append(j6)
-    # j._jugadores.append(j7)
-    # j._jugadores.append(j8)
-    # j._jugadores.append(j9)
-    # j._jugadores.append(j0)
-    # #j._jugadores.append(j5)
-    # j._jugadores.append(j2) 
-    
 if __name__ == '__main__':
     main()
