@@ -1,7 +1,7 @@
 from Juego.juegoMD import *
 from Jugador.jugador import *
 from PLN.crearCarta import CrearCarta
-import dsl.gramatica as g
+from dsl.gramatica import parse as Parse
 import dsl.ts as TS
 from dsl.expresiones import *
 from dsl.instrucciones import *
@@ -9,6 +9,7 @@ from dsl.juego import *
 
 TSFunciones =  TS.TablaDeSimbolos({})
 filaError = -1
+#pila = [] #tratamiento de retornos
 
 def procesar_funcionLLam(instr, ts) :
     global filaError
@@ -25,14 +26,12 @@ def procesar_funcionLLam(instr, ts) :
             for j in range(len(p)):
                 val  = resolver_cadena(instr.param[j], ts)
                 simbolo = TS.Simbolo(p[j] , val)
-                ts_local.asignar(simbolo, filaError)
+                ts_local.asignar(simbolo, TSFunciones, filaError)
         else:
             error(f'Lista argumentos de la funcion \'{instr.id}\' no coincide con su declaracion')
         instrucciones = TSFunciones.simbolos[instr.id].valor[1]
-        procesar_instrucciones(instrucciones, ts_local)
-        if 'retorno' in ts_local.simbolos:          
-            val = ts_local.obtener('retorno', filaError).valor
-            ts_local.eliminar('retorno', filaError)
+        val=procesar_instrucciones(instrucciones, ts_local, True)
+        if(val != None):
             return val
     elif isinstance(instr.id,IdFuncionJuego): #esta instancia me dice que el id corresponde a una funcion definida en el juego
         juego=ts.obtener('jmpd', filaError).valor
@@ -47,11 +46,10 @@ def procesar_funcionLLam(instr, ts) :
 
 def procesar_retorno(instr,ts):
     global filaError
+    #global pila
     filaError = instr.fila
-    val=resolver_cadena(instr.exp, ts)
-    simbolo = TS.Simbolo('retorno' , val )
-    ts.asignar(simbolo, filaError)
-
+    return resolver_cadena(instr.exp, ts)
+ 
 def procesar_agregarElem(instr,ts):
     global filaError
     filaError = instr.fila
@@ -59,17 +57,33 @@ def procesar_agregarElem(instr,ts):
     if isinstance(instr.id,IdJuego): #esta instancia me dice que el id corresponde a una lista definida en el juego
         juego=ts.obtener('jmpd', filaError).valor
         if instr.id.id == 'notificaciones':
-            ts.agregarElemJuego(juego.notificaciones,val)
+            ts.agregarElemJuego(instr.id.id, juego.notificaciones,val)
         elif instr.id.id == 'jugadores':
-            ts.agregarElemJuego(juego._jugadores,val)
+            ts.agregarElemJuego(instr.id.id, juego._jugadores,val)
     else:
         ts.agregarElem(instr.id,val, filaError)
   
-def procesar_funcionDecl(instr, ts) :
+def procesar_eliminarElem(instr,ts):
     global filaError
     filaError = instr.fila
+    val=resolver_cadena(instr.exp, ts)    
+    if isinstance(instr.id,IdJuego): #esta instancia me dice que el id corresponde a una lista definida en el juego
+        juego=ts.obtener('jmpd', filaError).valor
+        if instr.id.id == 'notificaciones':
+            ts.eliminarElemListJuego(instr.id.id,juego.notificaciones,val, filaError)
+        elif instr.id.id == 'jugadores':
+            ts.eliminarElemListJuego(instr.id.id,juego._jugadores,val, filaError)
+    else:
+        ts.eliminarElem(instr.id,val, filaError)
+  
+def procesar_funcionDecl(instr, ts, funcAnidada=False) :
+    global filaError
+    if(funcAnidada):
+        error('No se pueden crear metodos dentro de otros')
+    
+    filaError = instr.fila
     simbolo = TS.Simbolo(instr.id, (instr.param,instr.instrucciones))
-    TSFunciones.asignar(simbolo, filaError)
+    TSFunciones.asignar(simbolo, ts, filaError)
 
 def procesar_imprimir(instr, ts) :
     global filaError
@@ -86,33 +100,39 @@ def procesar_asignacion(instr, ts) :
         ts.asignarElemList(elemList.id, indice, val, filaError) #asignar valor a un elemento de la lista
     else:
         simbolo = TS.Simbolo(instr.id, val)
-        ts.asignar(simbolo, filaError)    
+        ts.asignar(simbolo, TSFunciones, filaError)    
 
 def procesar_while(instr, ts) :
     global filaError
     filaError = instr.fila
     while resolver_expresion_logica(instr.expLogica, ts) :
-        procesar_instrucciones(instr.instrucciones, ts)
+        val = procesar_instrucciones(instr.instrucciones, ts)
+        if val!= None:
+            return val
 
 def procesar_if(instr, ts) :
     global filaError
     filaError = instr.fila
     val = resolver_expresion_logica(instr.expLogica, ts)
     if val :
-        procesar_instrucciones(instr.instrucciones, ts)
-
+        val=procesar_instrucciones(instr.instrucciones, ts)
+        if val!=None:
+            return val
+        
 def procesar_if_else(instr, ts) :
     global filaError
     filaError = instr.fila
     val = resolver_expresion_logica(instr.expLogica, ts)
     if val :
-        procesar_instrucciones(instr.instrIfVerdadero, ts)
+        val = procesar_instrucciones(instr.instrIfVerdadero, ts)
     else :
-        procesar_instrucciones(instr.instrIfFalso, ts)
+         val = procesar_instrucciones(instr.instrIfFalso, ts)
+    if val!= None:
+        return val
 
 def procesar_crearjuego(instr, ts):
     simbolo = TS.Simbolo('jmpd' , JuegoMD())
-    ts.asignar(simbolo, filaError)
+    ts.asignar(simbolo, TSFunciones, filaError)
 
 def procesar_comenzarjuego(instr, ts):
     juego=ts.obtener('jmpd', filaError).valor
@@ -125,16 +145,16 @@ def procesar_crearjugador(instr, ts):
     id = instr.id
     if(tip == 'aleatorio'):
         simbolo = TS.Simbolo(id , JugadorAleatorio(id, True) )
-        ts.asignar(simbolo, filaError)
+        ts.asignar(simbolo, TSFunciones, filaError)
     elif(tip == 'inteligenteBasico'):
         simbolo = TS.Simbolo(id , JugadorInteligente1(id, True) )
-        ts.asignar(simbolo, filaError)
+        ts.asignar(simbolo, TSFunciones, filaError)
     elif(tip == 'inteligenteProbabilistico'):
         simbolo = TS.Simbolo(id , JugadorInteligente(id, True)  )
-        ts.asignar(simbolo, filaError)
+        ts.asignar(simbolo, TSFunciones, filaError)
     elif(tip == 'inteligenteMejorado'):
         simbolo = TS.Simbolo(id , JugadorInteligente2(id, True)  )
-        ts.asignar(simbolo, filaError)
+        ts.asignar(simbolo, TSFunciones, filaError)
 
 def resolver_cadena(expCad, ts) :
     if isinstance(expCad, ExpresionConcatenar) :
@@ -153,7 +173,7 @@ def resolver_cadena(expCad, ts) :
         return resolver_expresion_aritmetica(expCad, ts)
 
 def resolver_expresion_logica(expLog, ts) :
-    exp1 = resolver_expresion_aritmetica(expLog.exp1, ts)
+    exp1 = resolver_cadena(expLog.exp1, ts)
     exp2 = resolver_cadena(expLog.exp2, ts)
     if expLog.operador == OPERACION_LOGICA.MAYOR_QUE : return exp1 > exp2
     if expLog.operador == OPERACION_LOGICA.MENOR_QUE : return exp1 < exp2
@@ -181,14 +201,14 @@ def resolver_expresion_aritmetica(expNum, ts) :
                 if elemList.id.id == 'notificaciones':
                     if expNum.id.atributo!=None:
                         error('Nofiticaciones no tiene atributo')
-                    return juego.notificaciones[indice]
+                    return ts.obtenerElemListJuego(elemList.id.id, juego.notificaciones, indice, filaError)
                 elif elemList.id.id == 'jugadores':
                     if expNum.id.atributo==None:
-                        return juego._jugadores[indice]
+                        return ts.obtenerElemListJuego(elemList.id.id, juego._jugadores, indice, filaError)
                     elif expNum.id.atributo == 'nombre':
+                        ts.obtenerElemListJuego(elemList.id.id, juego._jugadores, indice, filaError)
                         return juego._jugadores[indice].nombre
             return ts.obtenerElemList(elemList.id,indice, filaError)
-
         elif  isinstance(expNum.id,IdJuego): #el identificador esta definido en el juego
             juego=ts.obtener('jmpd', filaError).valor
             if expNum.id.id == 'ganador':
@@ -216,27 +236,32 @@ def error(cad):
     print(f'mpd> Error en línea {filaError}:  {cad}')  
     exit()
     
-def procesar_instrucciones(instrucciones, ts) :
+def procesar_instrucciones(instrucciones, ts, funcAnidada=False) :
     if instrucciones==None: 
         error('No existen instrucciones definidas en el bloque')
     else:
+        val_retorno=None
         for instr in instrucciones :
             if isinstance(instr, Imprimir) : procesar_imprimir(instr, ts)
             elif isinstance(instr, Asignacion) : procesar_asignacion(instr, ts)
-            elif isinstance(instr, While) : procesar_while(instr, ts)
-            elif isinstance(instr, If) : procesar_if(instr, ts)
-            elif isinstance(instr, IfElse) : procesar_if_else(instr, ts)
+            elif isinstance(instr, While) : val_retorno= procesar_while(instr, ts)
+            elif isinstance(instr, If) :  val_retorno=procesar_if(instr, ts)
+            elif isinstance(instr, IfElse) : val_retorno= procesar_if_else(instr, ts)
             
-            elif isinstance(instr, FuncionDecl) : procesar_funcionDecl(instr, ts)
+            elif isinstance(instr, FuncionDecl) : procesar_funcionDecl(instr, ts, funcAnidada)
             elif isinstance(instr, Funcion) : procesar_funcionLLam(instr, ts)
-            elif isinstance(instr, Retorno) : procesar_retorno(instr, ts)
+            elif isinstance(instr, Retorno) : return procesar_retorno(instr, ts)
             elif isinstance(instr, AgregarElemLista) : procesar_agregarElem(instr, ts)
+            
+            elif isinstance(instr, EliminarElemLista) : procesar_eliminarElem(instr, ts)
             elif isinstance(instr, CrearJuego) : procesar_crearjuego(instr, ts) 
             elif isinstance(instr, CrearJugador) : procesar_crearjugador(instr, ts)       
             else :  
                 error('Instrucción no válida')
+            if val_retorno!=None:
+                return val_retorno
 
 def inicia(input):
-    instrucciones = g.parse(input)
+    instrucciones = Parse(input)
     ts_global = TS.TablaDeSimbolos()
     procesar_instrucciones(instrucciones, ts_global)
