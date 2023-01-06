@@ -1,0 +1,140 @@
+crear juego
+
+crear jugador inteligenteProbabilistico juan
+crear jugador aleatorio pepe
+crear jugador aleatorio luis
+crear jugador aleatorio jose
+crear jugador aleatorio alex
+crear jugador inteligenteProbabilistico juan
+crear jugador inteligenteProbabilistico carlos
+crear jugador inteligenteProbabilistico gisela
+crear jugador inteligenteProbabilistico arturo
+crear jugador inteligenteBasico junior
+crear jugador inteligenteBasico gisel
+crear jugador inteligenteBasico ernesto
+crear jugador inteligenteBasico blanco
+crear jugador inteligenteMejorado kevin
+crear jugador inteligenteMejorado mapa
+crear jugador inteligenteMejorado hector
+crear jugador inteligenteMejorado deykis
+
+
+cantidad_juegos = 3
+
+crear carta "quiero crear carta de 9 M" 
+crear carta "quiero crear carta de 10 M"
+
+lista_jug = []
+
+agregar luis lista_jug
+agregar pepe lista_jug
+agregar jose lista_jug
+agregar juan lista_jug
+agregar alex lista_jug
+agregar kevin lista_jug
+agregar mapa lista_jug
+agregar gisela lista_jug
+agregar carlos lista_jug
+agregar arturo lista_jug
+agregar hector lista_jug
+agregar deykis lista_jug
+agregar blanco lista_jug
+agregar ernesto lista_jug
+agregar gisel lista_jug
+agregar junior lista_jug
+
+func ImprimirNotificaciones(jmpd)
+{
+    k=0
+    mientras k < len(notificaciones)
+    {
+        imprimir notificaciones[k]
+        k = k + 1
+    }
+}
+
+func EjecutarJuego(jmpd, jue)
+{
+    reestablecer juego
+    agregar "Comienzo de juego grupo " & jue notificaciones
+    turnos =0
+    mientras finalJuego==0
+    {
+        ejecutar turno
+        turnos = turnos + 1
+    }
+    h = 0
+
+    resultado = ""
+    mientras h < len(jugadores)
+    {
+        si jugadores[h].nombre == ganador
+        {
+            resultado = jugadores[h]
+        }
+        h = h + 1
+    }
+
+    agregar "Gano " & ganador  & " en " & turnos & " turnos" notificaciones
+    agregar "Fin del juego" notificaciones
+
+    retorno resultado
+}
+
+func EjecutarSimulacion(jmpd, cantidad_juegos, lista_jug)
+{
+    i=0
+    jugadoresFinales = []
+    mientras i< 4
+    {
+        si len(jugadores) == 0
+        {
+            mientras len(jugadores) < 4
+            {
+                agregar lista_jug[0] jugadores
+                eliminar 0 lista_jug
+            } 
+        }
+        sino
+        {
+            reestablecer juego
+            h=0
+            mientras h < 4
+            {
+                eliminar 0 jugadores
+                agregar lista_jug[0] jugadores
+                eliminar 0 lista_jug
+                h = h + 1
+            }
+            
+        }
+        jue=i+1
+        mientras ganador == "Nadie"
+        {
+            jugGanador = EjecutarJuego(jmpd, jue)
+        }
+        agregar jugGanador jugadoresFinales
+        k = 0
+        imprimir "****************************JUEGO NUEVO*********************************"
+        ImprimirNotificaciones(jmpd)
+        i = i+1     
+    }
+    z=0
+    reestablecer juego
+    mientras z < 4
+    {
+        eliminar 0 jugadores
+        agregar jugadoresFinales[0] jugadores
+        eliminar 0 jugadoresFinales
+        z=z+1
+    }
+    imprimir "********************JUEGO FINAL********************"
+    mientras ganador == "Nadie"
+    {
+        jugGanador = EjecutarJuego(jmpd, jue)
+    }
+    ImprimirNotificaciones(jmpd)
+    imprimir "El ganador de la final es: " & ganador
+}
+
+EjecutarSimulacion(jmpd, cantidad_juegos, lista_jug)
