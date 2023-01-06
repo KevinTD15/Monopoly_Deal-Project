@@ -13,6 +13,7 @@ reservadas = {
     'crear' : 'CREAR',
     'juego' : 'JUEGO',
     'agregar' :'AGREGAR',
+    'eliminar' : 'ELIMINAR',
     'jugador' : 'JUGADOR',
     'aleatorio' : 'ALEATORIO',
     'inteligentebasico' : 'INTELIGENTE1',
@@ -119,7 +120,7 @@ def t_newline(t):
     t.lexer.lineno += t.value.count("\n")
     
 def t_error(t):
-    print("mpd> Carácter ilegal '%s'" % t.value[0])
+    print("mpd> Error: Carácter inválido '%s'" % t.value[0])
     t.lexer.skip(1)
 
 # Construyendo el analizador léxico
@@ -138,14 +139,21 @@ def test(data):
 # Asociación de operadores y precedencia
 precedence = (
     ('left','CONCAT'),
+    ('right','IGUAL'),
+    ('right','IGUALQUE'),
+    ('left','NIGUALQUE'),
+    ('left','MAYORQUE','MENORQUE'),
     ('left','MAS','MENOS'),
     ('left','POR','DIVIDIDO'),
+    ('left','PARIZQ','PARDER'),
+    ('left','LLAVIZQ','LLAVDER'),
     )
 
 # Definición de la gramática
 
 def p_inicio(t) :
-    'inicio           : instrucciones'
+    '''inicio           : instrucciones
+                        | vacio'''
     t[0] = t[1]
 
 def p_instrucciones_lista(t) :
@@ -167,20 +175,22 @@ def p_instruccion(t) :
                         | llamaFuncion
                         | instrRetorno
                         | instrAgregar
+                        | instrEliminar
                         | instrLen
-                        | instrCrear'''
+                        | instrCrear
+    '''
     t[0] = t[1]
 
 def p_variable(t):
     ''' variable : ID 
-                | ID CORCHEIZQ expresion_cadena CORCHEDER
+                | ID CORCHEIZQ expresion CORCHEDER
                 | idjuego  
-                | idjuego CORCHEIZQ expresion_cadena CORCHEDER atributo
+                | idjuego CORCHEIZQ expresion CORCHEDER atributo
     '''
     if len(t)==2:
         t[0]=t[1]
     elif len(t)==5:
-        t[0]=ExpresionLista(t[1],t[3],None)  
+        t[0]=ExpresionLista(t[1],t[3])  
     elif len(t)==6:
         t[0]=ExpresionLista(t[1],t[3],t[5])  
 
@@ -232,7 +242,7 @@ def p_argument_list(t):
         t[0] = t[1]
 
 def p_argument(t):
-    'argument :  expresion_cadena'
+    'argument :  expresion'
     t[0]= t[1]
 
 def p_llama_funcion(t):
@@ -243,31 +253,22 @@ def p_llama_funcion(t):
     if(len(t) == 5):
         t[0] = Funcion(t.slice[2].lineno,t[1],t[3])
     elif(len(t) == 3):
-        t[0] = Funcion(t.slice[1].lineno,IdFuncionJuego(t[1]))
-    # elif(len(t) == 2):
-    #     t[0] = Funcion(t.slice[1].lineno,IdFuncionJuego(t[1]))
-
-# def p_idfuncjuego(t):
-#     ''' idfuncjuego : REESTABLECER
-#             | EJECUTAR TURNO
-#             | CARTA
-#             '''
-#     t[0] = IdFuncionJuego(t[1])
+        t[0] = Funcion(t.slice[1].lineno,IdFuncionJuego(t[1]), t[2])
 
 def p_return(t):
-    'instrRetorno : RETURN expresion_cadena'
+    'instrRetorno : RETURN expresion'
     t[0]=Retorno(t.slice[1].lineno,t[2])
 
 def p_instruccion_imprimir(t) :
-    'instrImprimir   : IMPRIMIR PARIZQ expresion_cadena PARDER'
-    t[0] =Imprimir(t.slice[1].lineno,t[3])
+    'instrImprimir   : IMPRIMIR expresion'
+    t[0] =Imprimir(t.slice[1].lineno,t[2])
 
 def p_instruccion_len(t) :
-    'instrLen   : LEN PARIZQ expresion_cadena PARDER'
+    'instrLen   : LEN PARIZQ expresion PARDER'
     t[0] =Len(t[3])
 
 def p_asignacion_instr(t) :
-    '''instrAsignacion   : variable IGUAL expresion_cadena
+    '''instrAsignacion   : variable IGUAL expresion
                         | variable IGUAL llamaFuncion'''
     t[0] =Asignacion(t.slice[2].lineno, t[1], t[3])
 
@@ -276,22 +277,28 @@ def p_asignacion_corchetes(t) :
     t[0] =Asignacion(t.slice[2].lineno,t[1], ExpresionListaVacia())
 
 def p_while_instr(t) :
-    'instrWhile     : WHILE PARIZQ expresion_logica PARDER LLAVIZQ instrucciones LLAVDER'
-    t[0] =While(t.slice[1].lineno,t[3], t[6])
+    'instrWhile     : WHILE expresion_logica LLAVIZQ instrucciones LLAVDER'
+    t[0] =While(t.slice[1].lineno,t[2], t[4])
 
 def p_if_instr(t) :
-    'instrIf           : IF PARIZQ expresion_logica PARDER LLAVIZQ instrucciones LLAVDER'
-    t[0] =If(t.slice[2].lineno,t[3], t[6])
+    'instrIf           : IF expresion_logica LLAVIZQ instrucciones LLAVDER'
+    t[0] =If(t.slice[1].lineno,t[2], t[4])
 
 def p_if_else_instr(t) :
-    'instrIfElse      : IF PARIZQ expresion_logica PARDER LLAVIZQ instrucciones LLAVDER ELSE LLAVIZQ instrucciones LLAVDER'
-    t[0] =IfElse(t.slice[1].lineno,t[3], t[6], t[10])
+    'instrIfElse      : IF expresion_logica  LLAVIZQ instrucciones LLAVDER ELSE LLAVIZQ instrucciones LLAVDER'
+    t[0] =IfElse(t.slice[1].lineno,t[2], t[4], t[8])
 
 def p_agregar(t):
-    ''' instrAgregar : AGREGAR  expresion_cadena ID
-                    | AGREGAR  expresion_cadena idjuego'''
+    ''' instrAgregar : AGREGAR  expresion ID
+                    | AGREGAR  expresion idjuego
+                    '''
     t[0]=AgregarElemLista(t.slice[1].lineno,t[3],t[2])
-
+    
+def p_eliminar(t):
+    ''' instrEliminar : ELIMINAR  expresion ID
+                    | ELIMINAR  expresion idjuego'''
+    t[0]=EliminarElemLista(t.slice[1].lineno,t[3],t[2])
+    
 def p_crear(t):
     ''' instrCrear : CREAR JUEGO
                     | CREAR CARTA CADENA
@@ -340,22 +347,22 @@ def p_expresion_numerica_len(t):
     t[0]=t[1]
 
 def p_expresion_concatenacion(t) :
-    'expresion_cadena     : expresion_cadena CONCAT expresion_cadena'
+    'expresion     : expresion CONCAT expresion'
     t[0] = ExpresionConcatenar(t[1], t[3])
 
-def p_expresion_cadena(t) :
-    'expresion_cadena     : CADENA'
+def p_expresion(t) :
+    'expresion     : CADENA'
     t[0] = ExpresionDobleComilla(t[1])
 
-def p_expresion_cadena_numerico(t) :
-    'expresion_cadena     : expresion_numerica'
+def p_expresion_numerico(t) :
+    'expresion     : expresion_numerica'
     t[0] = ExpresionCadenaNumerica(t[1])
 
 def p_expresion_logica(t) :
-    '''expresion_logica : expresion_numerica MAYORQUE expresion_numerica
-                        | expresion_numerica MENORQUE expresion_numerica
-                        | expresion_numerica IGUALQUE expresion_numerica
-                        | expresion_numerica NIGUALQUE expresion_numerica'''
+    '''expresion_logica : expresion MAYORQUE expresion
+                        | expresion MENORQUE expresion
+                        | expresion IGUALQUE expresion
+                        | expresion NIGUALQUE expresion'''
     if t[2] == '>'    : t[0] = ExpresionLogica(t[1], t[3], OPERACION_LOGICA.MAYOR_QUE)
     elif t[2] == '<'  : t[0] = ExpresionLogica(t[1], t[3], OPERACION_LOGICA.MENOR_QUE)
     elif t[2] == '==' : t[0] = ExpresionLogica(t[1], t[3], OPERACION_LOGICA.IGUAL)
@@ -366,7 +373,7 @@ def p_vacio(t):
     pass
 
 def p_error(t):
-    print(f'Error sintáctico en: \'{t.value}\' en línea: {t.lineno} columna: {t.lexpos}')
+    print(f'mdp> Error: \'{t.value}\' en línea: {t.lineno} columna: {t.lexpos}')
     exit()
 
 import ply.yacc as yacc
