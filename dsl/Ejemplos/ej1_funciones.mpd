@@ -1,0 +1,20 @@
+func f1()
+{
+   imprimir "estoy dentro de la funcion declarada 'f1'"
+   retorno 1
+}
+func f2(x)
+{
+   imprimir "estoy dentro de la funcion declarada 'f2' y voy a ejecutar 'f1' y recibi parametro " & x
+   b=f1()
+   imprimir "retorne de 'f1' " & b 
+}
+func f3(x,y)
+{
+    imprimir "estoy en 'f3' Recibi como parametro x=" & x & " y=" & y 
+    f2(x)
+    retorno "termine de ejecutar 'f2' que no retorne nada y estoy retornando este mensaje para concluir"
+}
+
+a=f3(5,6)
+imprimir a
