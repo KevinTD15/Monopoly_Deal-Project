@@ -12,7 +12,7 @@ class JuegoMD:
     _mazo = Mazo.cartas
     descarte = []
     final = False
-    ganador : str
+    ganador = 'Nadie'
     notificaciones = []
     count = -1
                     
@@ -54,17 +54,18 @@ class JuegoMD:
         '''aqui es donde se lleva a cabo la ejecucion del juego'''
         self.Reestablecer()
         while(not self.final):
-            self.EjecutarTurnoMD()
-            self.count += 1
+            JuegoMD.EjecutarTurnoMD(self)
+            JuegoMD.count += 1
         
     def Reestablecer(self):
+        self = JuegoMD
         JuegoMD.count = -1
         JuegoMD._indiceJugadorActual = 0
         JuegoMD.descarte = []
         JuegoMD.notificaciones = []
         JuegoMD.final = False
         JuegoMD._iniciarJuegoMD = True
-        JuegoMD.ganador = ''
+        JuegoMD.ganador = 'Nadie'
         JuegoMD._mazo = Mazo.cartas.copy()
         for i in self._jugadores:
             i.mano.clear()
