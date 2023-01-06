@@ -101,6 +101,16 @@ class AgregarElemLista :
         self.exp = exp
         self.fila = fila
         
+class EliminarElemLista :
+    '''
+        Esta clase representa la instruccion de eliminar elementos a una lista.
+        Recibe como parámetro el identificador de la lista y indice del elemento a eliminar.
+    '''
+    def __init__(self, fila, id, exp) :
+        self.id=id
+        self.exp = exp
+        self.fila = fila
+        
 class Len :
     '''
         Esta clase representa la funcion len que calcula la longitud del parametro recibido
