@@ -86,7 +86,7 @@ class ExpresionLista() :
         Esta clase representa un identificador de tipo arreglo.
         Recibe el identificador y la expresion dentro del corchete
     '''
-    def __init__(self, id , exp, atributo) :
+    def __init__(self, id , exp, atributo=None) :
         self.id = id
         self.exp = exp
         self.atributo = atributo
