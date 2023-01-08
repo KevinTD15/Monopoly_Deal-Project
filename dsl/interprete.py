@@ -9,10 +9,11 @@ from dsl.juego import *
 
 TSFunciones =  TS.TablaDeSimbolos({})
 filaError = -1
-#pila = [] #tratamiento de retornos
+juego = None  #si se crea juego, almacena instancia del juego
 
 def procesar_funcionLLam(instr, ts) :
     global filaError
+    global juego
     filaError = instr.fila
     ts_local = TS.TablaDeSimbolos({}) 
     if instr.id in TSFunciones.simbolos :
@@ -34,7 +35,6 @@ def procesar_funcionLLam(instr, ts) :
         if(val != None):
             return val
     elif isinstance(instr.id,IdFuncionJuego): #esta instancia me dice que el id corresponde a una funcion definida en el juego
-        juego=ts.obtener('jmpd', filaError).valor
         if  instr.id.id=='reestablecer':
             juego.Reestablecer()         
         elif instr.id.id=='ejecutar' :
@@ -52,10 +52,11 @@ def procesar_retorno(instr,ts):
  
 def procesar_agregarElem(instr,ts):
     global filaError
+    global juego
     filaError = instr.fila
     val=resolver_cadena(instr.exp, ts)    
     if isinstance(instr.id,IdJuego): #esta instancia me dice que el id corresponde a una lista definida en el juego
-        juego=ts.obtener('jmpd', filaError).valor
+        if(juego == None): error('El juego no ha sido creado')
         if instr.id.id == 'notificaciones':
             ts.agregarElemJuego(instr.id.id, juego.notificaciones,val)
         elif instr.id.id == 'jugadores':
@@ -65,17 +66,18 @@ def procesar_agregarElem(instr,ts):
   
 def procesar_eliminarElem(instr,ts):
     global filaError
+    global juego
     filaError = instr.fila
     val=resolver_cadena(instr.exp, ts)    
     if isinstance(instr.id,IdJuego): #esta instancia me dice que el id corresponde a una lista definida en el juego
-        juego=ts.obtener('jmpd', filaError).valor
+        if(juego == None): error('El juego no ha sido creado')
         if instr.id.id == 'notificaciones':
             ts.eliminarElemListJuego(instr.id.id,juego.notificaciones,val, filaError)
         elif instr.id.id == 'jugadores':
             ts.eliminarElemListJuego(instr.id.id,juego._jugadores,val, filaError)
     else:
         ts.eliminarElem(instr.id,val, filaError)
-  
+
 def procesar_funcionDecl(instr, ts, funcAnidada=False) :
     global filaError
     if(funcAnidada):
@@ -126,17 +128,13 @@ def procesar_if_else(instr, ts) :
     if val :
         val = procesar_instrucciones(instr.instrIfVerdadero, ts)
     else :
-         val = procesar_instrucciones(instr.instrIfFalso, ts)
+        val = procesar_instrucciones(instr.instrIfFalso, ts)
     if val!= None:
         return val
 
-def procesar_crearjuego(instr, ts):
-    simbolo = TS.Simbolo('jmpd' , JuegoMD())
-    ts.asignar(simbolo, TSFunciones, filaError)
-
-def procesar_comenzarjuego(instr, ts):
-    juego=ts.obtener('jmpd', filaError).valor
-    juego.EjecutarJuego()
+def procesar_crearjuego():
+    global juego
+    juego=JuegoMD()
 
 def procesar_crearjugador(instr, ts):
     global filaError
@@ -181,6 +179,7 @@ def resolver_expresion_logica(expLog, ts) :
     if expLog.operador == OPERACION_LOGICA.DIFERENTE : return exp1 != exp2
 
 def resolver_expresion_aritmetica(expNum, ts) :
+    global juego
     if isinstance(expNum, ExpresionBinaria) :
         exp1 = resolver_expresion_aritmetica(expNum.exp1, ts)
         exp2 = resolver_expresion_aritmetica(expNum.exp2, ts)
@@ -197,7 +196,7 @@ def resolver_expresion_aritmetica(expNum, ts) :
             elemList= expNum.id
             indice = resolver_cadena(elemList.exp, ts)
             if  isinstance(elemList.id,IdJuego):
-                juego=ts.obtener('jmpd', filaError).valor
+                if(juego == None): error('El juego no ha sido creado')
                 if elemList.id.id == 'notificaciones':
                     if expNum.id.atributo!=None:
                         error('Nofiticaciones no tiene atributo')
@@ -210,7 +209,7 @@ def resolver_expresion_aritmetica(expNum, ts) :
                         return juego._jugadores[indice].nombre
             return ts.obtenerElemList(elemList.id,indice, filaError)
         elif  isinstance(expNum.id,IdJuego): #el identificador esta definido en el juego
-            juego=ts.obtener('jmpd', filaError).valor
+            if(juego == None): error('El juego no ha sido creado')
             if expNum.id.id == 'ganador':
                 return juego.ganador
             elif expNum.id.id == 'notificaciones':  #cuando el trabajo no es con lista es porque se le esta haciendo len()
@@ -254,7 +253,7 @@ def procesar_instrucciones(instrucciones, ts, funcAnidada=False) :
             elif isinstance(instr, AgregarElemLista) : procesar_agregarElem(instr, ts)
             
             elif isinstance(instr, EliminarElemLista) : procesar_eliminarElem(instr, ts)
-            elif isinstance(instr, CrearJuego) : procesar_crearjuego(instr, ts) 
+            elif isinstance(instr, CrearJuego) : procesar_crearjuego() 
             elif isinstance(instr, CrearJugador) : procesar_crearjugador(instr, ts)       
             else :  
                 error('Instrucción no válida')
