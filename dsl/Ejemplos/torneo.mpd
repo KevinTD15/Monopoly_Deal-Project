@@ -43,7 +43,7 @@ agregar ernesto lista_jug
 agregar gisel lista_jug
 agregar junior lista_jug
 
-func ImprimirNotificaciones(jmpd)
+func ImprimirNotificaciones()
 {
     k=0
     mientras k < len(notificaciones)
@@ -53,7 +53,7 @@ func ImprimirNotificaciones(jmpd)
     }
 }
 
-func EjecutarJuego(jmpd, jue)
+func EjecutarJuego( jue)
 {
     reestablecer juego
     agregar "Comienzo de juego grupo " & jue notificaciones
@@ -81,7 +81,7 @@ func EjecutarJuego(jmpd, jue)
     retorno resultado
 }
 
-func EjecutarSimulacion(jmpd, cantidad_juegos, lista_jug)
+func EjecutarSimulacion( cantidad_juegos, lista_jug)
 {
     i=0
     jugadoresFinales = []
@@ -111,12 +111,12 @@ func EjecutarSimulacion(jmpd, cantidad_juegos, lista_jug)
         jue=i+1
         mientras ganador == "Nadie"
         {
-            jugGanador = EjecutarJuego(jmpd, jue)
+            jugGanador = EjecutarJuego( jue)
         }
         agregar jugGanador jugadoresFinales
         k = 0
         imprimir "****************************JUEGO NUEVO*********************************"
-        ImprimirNotificaciones(jmpd)
+        ImprimirNotificaciones()
         i = i+1     
     }
     z=0
@@ -131,10 +131,10 @@ func EjecutarSimulacion(jmpd, cantidad_juegos, lista_jug)
     imprimir "********************JUEGO FINAL********************"
     mientras ganador == "Nadie"
     {
-        jugGanador = EjecutarJuego(jmpd, jue)
+        jugGanador = EjecutarJuego( jue)
     }
-    ImprimirNotificaciones(jmpd)
+    ImprimirNotificaciones()
     imprimir "El ganador de la final es: " & ganador
 }
 
-EjecutarSimulacion(jmpd, cantidad_juegos, lista_jug)
+EjecutarSimulacion( cantidad_juegos, lista_jug)
