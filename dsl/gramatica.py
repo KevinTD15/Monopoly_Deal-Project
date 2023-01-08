@@ -51,7 +51,8 @@ tokens  = [
     'DECIMAL',
     'ENTERO',
     'CADENA',
-    'ID'
+    'ID',
+    'JMPD'
 ] + list(reservadas.values())
 
 # Tokens
