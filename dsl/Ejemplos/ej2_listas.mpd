@@ -1,8 +1,8 @@
 i = 0
 notas = []
 agregar 2 notas
-mientras (i < len(notas))
- {
-    imprimir("notas[" & i & "]=" & notas[i] & "len(notas)=" & len(notas))
+mientras i < len(notas)
+{
+    imprimir "notas[" & i & "]=" & notas[i] & " len(notas)=" & len(notas)
     i = i + 1
- }
+}
