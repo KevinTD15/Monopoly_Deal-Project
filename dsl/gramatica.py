@@ -51,8 +51,7 @@ tokens  = [
     'DECIMAL',
     'ENTERO',
     'CADENA',
-    'ID',
-    'JMPD'
+    'ID'
 ] + list(reservadas.values())
 
 # Tokens
@@ -73,7 +72,7 @@ t_MAYORQUE    = r'>'
 t_IGUALQUE  = r'=='
 t_NIGUALQUE = r'!='
 t_COMA      = r','
-t_PUNTO      = r'.'
+t_PUNTO      = r'\.'
 
 def t_DECIMAL(t):
     r'\d+\.\d+'
@@ -121,7 +120,7 @@ def t_newline(t):
     t.lexer.lineno += t.value.count("\n")
     
 def t_error(t):
-    print("mpd> Error: Carácter inválido '%s'" % t.value[0])
+    print(f"mpd> Advertencia: Carácter inválido {t.value[0]} en linea: {t.lineno}")
     t.lexer.skip(1)
 
 # Construyendo el analizador léxico
