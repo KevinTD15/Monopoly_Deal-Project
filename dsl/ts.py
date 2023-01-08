@@ -17,10 +17,7 @@ class TablaDeSimbolos() :
     def chequeaIDenTS(self,id, filaError):
         'chequea si id existe en la TS, en ese caso muestra error e interrumpe la ejecucion'
         if not id in self.simbolos :
-            if id=='jmpd':
-                self.error('El juego no ha sido creado',filaError)
-            else:
-                self.error(f'Variable \'{id}\' no definida', filaError)
+            self.error(f'Variable \'{id}\' no definida', filaError)
 
     def obtener(self, id, filaError) :
         self.chequeaIDenTS(id, filaError)
