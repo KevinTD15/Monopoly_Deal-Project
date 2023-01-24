@@ -10,7 +10,7 @@ agregar luis jugadores
 agregar pepe jugadores
 
 
-func CrearTablero(jmpd)
+func CrearTablero()
 {
     tabs = []
     i = 0
@@ -23,7 +23,7 @@ func CrearTablero(jmpd)
     retorno tabs
 }
 
-func ImprimirResumen(jmpd,resumen)
+func ImprimirResumen(resumen)
 {
     i = 0
     imprimir ""
@@ -38,7 +38,7 @@ func ImprimirResumen(jmpd,resumen)
     }
 }
 
-func EjecutarJuego(jmpd, tab)
+func EjecutarJuego( tab)
 {
     reestablecer juego
 
@@ -62,13 +62,13 @@ func EjecutarJuego(jmpd, tab)
     retorno tab
 }
 
-func EjecutarSimulacion(jmpd, cantidad_juegos, tab)
+func EjecutarSimulacion( cantidad_juegos, tab)
 {
     i=0
     mientras i< cantidad_juegos
     {
         agregar "Comienzo de juego" notificaciones
-        tab = EjecutarJuego(jmpd, tab)
+        tab = EjecutarJuego( tab)
         k = 0
         mientras k < len(notificaciones)
         {
@@ -80,6 +80,6 @@ func EjecutarSimulacion(jmpd, cantidad_juegos, tab)
     retorno tab
 }
 
-tab = CrearTablero(jmpd)
-resumen = EjecutarSimulacion(jmpd, cantidad_juegos, tab)
-ImprimirResumen(jmpd,resumen)
+tab = CrearTablero()
+resumen = EjecutarSimulacion( cantidad_juegos, tab)
+ImprimirResumen(resumen)

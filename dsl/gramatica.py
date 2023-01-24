@@ -72,7 +72,7 @@ t_MAYORQUE    = r'>'
 t_IGUALQUE  = r'=='
 t_NIGUALQUE = r'!='
 t_COMA      = r','
-t_PUNTO      = r'.'
+t_PUNTO      = r'\.'
 
 def t_DECIMAL(t):
     r'\d+\.\d+'
@@ -120,7 +120,7 @@ def t_newline(t):
     t.lexer.lineno += t.value.count("\n")
     
 def t_error(t):
-    print("mpd> Error: Carácter inválido '%s'" % t.value[0])
+    print(f"mpd> Advertencia: Carácter inválido {t.value[0]} en linea: {t.lineno}")
     t.lexer.skip(1)
 
 # Construyendo el analizador léxico
@@ -135,19 +135,6 @@ def test(data):
         if not tok:
             break
         print (tok)
-
-# Asociación de operadores y precedencia
-precedence = (
-    ('left','CONCAT'),
-    ('right','IGUAL'),
-    ('right','IGUALQUE'),
-    ('left','NIGUALQUE'),
-    ('left','MAYORQUE','MENORQUE'),
-    ('left','MAS','MENOS'),
-    ('left','POR','DIVIDIDO'),
-    ('left','PARIZQ','PARDER'),
-    ('left','LLAVIZQ','LLAVDER'),
-    )
 
 # Definición de la gramática
 
@@ -318,44 +305,60 @@ def p_tipo_jugador(t):
     t[0] = t[1]
 
 def p_expresion_binaria(t):
-    '''expresion_numerica : expresion_numerica MAS expresion_numerica
-                        | expresion_numerica MENOS expresion_numerica
-                        | expresion_numerica POR expresion_numerica
-                        | expresion_numerica DIVIDIDO expresion_numerica'''
-    if t[2] == '+'  : t[0] = ExpresionBinaria(t[1], t[3], OPERACION_ARITMETICA.MAS)
-    elif t[2] == '-': t[0] = ExpresionBinaria(t[1], t[3], OPERACION_ARITMETICA.MENOS)
-    elif t[2] == '*': t[0] = ExpresionBinaria(t[1], t[3], OPERACION_ARITMETICA.POR)
-    elif t[2] == '/': t[0] = ExpresionBinaria(t[1], t[3], OPERACION_ARITMETICA.DIVIDIDO)
+    '''expresion_numerica : expresion_numerica MAS termino    
+                        | expresion_numerica MENOS termino
+                        | termino
+    '''
+    if(len(t)==4):
+        if t[2] == '+'  : t[0] = ExpresionBinaria(t[1], t[3], OPERACION_ARITMETICA.MAS)
+        elif t[2] == '-': t[0] = ExpresionBinaria(t[1], t[3], OPERACION_ARITMETICA.MENOS)
+    else:
+        t[0] = t[1]
+    
+def p_termino(t):
+    '''termino : termino POR factor
+                | termino DIVIDIDO factor
+                | factor'''
+    if(len(t)==4):
+        if t[2] == '*': t[0] = ExpresionBinaria(t[1], t[3], OPERACION_ARITMETICA.POR)
+        if t[2] == '/': t[0] = ExpresionBinaria(t[1], t[3], OPERACION_ARITMETICA.DIVIDIDO)
+    else:
+        t[0] = t[1]
 
-def p_expresion_agrupacion(t):
-    '''expresion_numerica : PARIZQ expresion_numerica PARDER '''
+def p_factor_agrupacion(t):
+    '''factor : PARIZQ expresion_numerica PARDER '''
     if len(t)==4:
         t[0] = t[2]
 
-def p_expresion_simple(t):
-    '''expresion_numerica : ENTERO
-                          | DECIMAL 
-                          '''
+def p_factor_simple(t):
+    '''factor : ENTERO
+                | DECIMAL 
+                '''
     t[0] = ExpresionNumero(t[1])
 
-def p_expresion_numerica_id(t):
-    'expresion_numerica   : variable'
+def p_factor_var(t):
+    'factor   : variable'
     t[0] = ExpresionIdentificador(t[1])
 
-def p_expresion_numerica_len(t):
-    'expresion_numerica   : instrLen'
+def p_factor_len(t):
+    'factor   : instrLen'
     t[0]=t[1]
 
 def p_expresion_concatenacion(t) :
-    'expresion     : expresion CONCAT expresion'
-    t[0] = ExpresionConcatenar(t[1], t[3])
+    '''expresion     : expresion CONCAT expresionSimple
+                    | expresionSimple
+    '''
+    if(len(t)==4):
+        t[0] = ExpresionConcatenar(t[1], t[3])
+    else:
+        t[0] = t[1]
 
 def p_expresion(t) :
-    'expresion     : CADENA'
+    'expresionSimple     : CADENA'
     t[0] = ExpresionDobleComilla(t[1])
 
 def p_expresion_numerico(t) :
-    'expresion     : expresion_numerica'
+    'expresionSimple     : expresion_numerica'
     t[0] = ExpresionCadenaNumerica(t[1])
 
 def p_expresion_logica(t) :
