@@ -19,7 +19,10 @@ def CalcularMonto(jugador, color):
         cantPorGrupoColorI = jugador.tablero[color][0].cantGrupo
         acum = jugador.tablero[color][0].renta[len(jugador.tablero[color][0].renta) - 1]
         while i + cantPorGrupoColorI < len(jugador.tablero[color]):
-            acum += jugador.tablero[color][len(jugador.tablero[color]) - 1 - i].monto
+            if jugador.tablero[color][len(jugador.tablero[color]) - 1 - i].tipo=='propiedad':
+                acum += jugador.tablero[color][len(jugador.tablero[color]) - 1 - i].valor
+            else:
+                acum += jugador.tablero[color][len(jugador.tablero[color]) - 1 - i].monto
             i += 1
         return acum
 
