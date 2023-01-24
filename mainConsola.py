@@ -1,6 +1,8 @@
 from Juego.juegoMD import *
 from Jugador.jugadorMD import *
 from PLN.crearCarta import CrearCarta
+import threading
+import time
 
 idnotificacion = 0
 
@@ -13,7 +15,9 @@ def CrearJugador(nombre, tipo):
         return JugadorInteligente2(nombre, True)
     elif(tipo == 'Aleatorio'):
         return JugadorAleatorio(nombre, True)
-
+    elif(tipo == 'Montecarlo'):
+        return JugadorMontecarlo(nombre, True)
+    
 def CrearTabla(j):
     dic = {}
     for i in j._jugadores:
@@ -26,19 +30,9 @@ def ImprimirResumen(resumen):
     for i in resumen:
         if(i != 'Nadie'):
             print(f'{i} tiene {resumen[i]} victorias')
-
-def EjecutarSimulacion(j, dic, cp):
-    total = 0
-    for i in range(cp):
-        j.notificaciones.append('COMIENZO DEL JUEGO')
-        j.EjecutarJuego()       
-        dic[j.ganador] += 1
-        total += 1
-        j.notificaciones.append(f'Gano: {j.ganador} en {j.count} turnos')
-        j.notificaciones.append('FIN DEL JUEGO')
-        for i in j.notificaciones:
-            print(i)
-    return dic
+    mc = juego.turnosJugadorMC * 3 * 30
+    print (f'Jugador Montecarlo jugo {juego.turnosJugadorMC} veces por tanto se ejecutaron {mc} juegos extra al aplicar algoritmo Montecarlo.')
+    
 
 def main():
     fin = '2'
@@ -75,28 +69,46 @@ def main():
         while(not (cj.isdigit() and int(cj) >= 2 and int(cj) <= 5)):       
             print('Teclee cantidad de jugadores entre 2 y 5')
             cj = input()
+
         for i in range(int(cj)):
             t=''
-            while t != 'Aleatorio' or t != 'Inteligente' or t != 'Inteligente1' or t!= 'Inteligente2':
+            while t != 'Aleatorio' and t != 'Inteligente' and t != 'Inteligente1' and t!= 'Inteligente2' and t!= 'Montecarlo':
                 print(f'Teclee el nombre y tipo del jugador {i}')
                 n = input().split(' ')
-                if(len(n)>1 and (n[1] == 'Aleatorio' or n[1] == 'Inteligente' or n[1] == 'Inteligente1' or n[1] == 'Inteligente2')):
+                if(len(n)>1 and (n[1] == 'Aleatorio' or n[1] == 'Inteligente' or n[1] == 'Inteligente1' or n[1] == 'Inteligente2' or n[1] == 'Montecarlo')):
                     t = n[1]
                     j._jugadores.append(CrearJugador(n[0], t)) 
                     break
                     
         while(not cp.isdigit()):        
-            print('Telcee cantidad de partidas a ejecutar')
-            cp = input()    
+            print('Teclee cantidad de partidas a ejecutar')
+            cp = input()   
+             
+        #evento = threading.Event()
+        #hilo = threading.Thread(target=mytimer, args=(j,),)
+        #hilo.start()
 
         dic = CrearTabla(j)
-        resumen = EjecutarSimulacion(j, dic, int(cp))
+        resumen = j.EjecutarSimulacion(dic, int(cp))
         ImprimirResumen(resumen)
         
         print('''Teclee
               1- Salir
               2- Volver a ejecutar''')
         fin = input()
+
+def mytimer(j):
+    global idnotificacion
+    if idnotificacion < len(j.notificaciones):
+        while (j.notificaciones[idnotificacion] != 'FIN DEL JUEGO'):
+            if idnotificacion < len(j.notificaciones):
+                if j.notificaciones[idnotificacion][0:5] == 'Turno':
+                    print( f'{idnotificacion} ' + j.notificaciones[idnotificacion])
+                idnotificacion += 1
+            else:
+                time.sleep(3)
+        print(f'{idnotificacion} ' + j.notificaciones[idnotificacion])
+    
 
 if __name__ == '__main__':
     main()
