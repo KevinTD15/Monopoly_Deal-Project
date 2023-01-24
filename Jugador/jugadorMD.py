@@ -1,7 +1,8 @@
 from Jugador.jugador import Jugador
-from Juego.jugada import JugadaRandom
+from Juego.jugada import *
 from utiles import *
 from PLN.gramaticaCartas import *
+import copy
 
 class JugadorAleatorio(Jugador):
     
@@ -47,8 +48,268 @@ class JugadorAleatorio(Jugador):
         j = JugadaRandom(self, mazo, descarte)
         resp = j.CartasResponder(jugadorActual, carta, monto)
         j.ResponderAJugada(resp)
+
+class JugadorMontecarlo(Jugador):
+    def __init__(self, nombre, esBot):
+        super().__init__(nombre, esBot)
+        self.tablero = {}
+        self.colorCantGrupo = {}
         
+        for i in range(len(coloresEnUso)):
+            self.tablero[coloresEnUso[i]] = []
+            self.colorCantGrupo[coloresEnUso[i]] = cantGrupo[i]
+        self.tablero['dinero'] = []
+        self.tablero['comodines'] = []
+        self.mano = []
+
+    def RestablecerOriginal(self,juegoActual):
+        juego.instanciaOriginal._indiceJugadorActual = juegoActual._indiceJugadorActual 
+        juego.instanciaOriginal.final = False
+        juego.instanciaOriginal.ganador = 'Nadie' 
+        self.Copiar(juegoActual._jugadores)
+        juego.instanciaOriginal._mazo =juegoActual._mazo.copy() 
+        juego.instanciaOriginal.descarte = juegoActual.descarte.copy() 
+
+    def Props(self, juegoActual, c=0):
+        mazo = 0 
+        descarte = 0
+        mano = 0
+        tab = 0
+        count = 0
         
+        cad : str
+        for i in juegoActual._mazo:
+            if(i.tipo == 'propiedad'):
+                mazo+=1
+                count+=1
+        for i in juegoActual.descarte:
+            if(i.tipo == 'propiedad'):
+                descarte+=1
+                count+=1
+        cad=str(mazo)+ '  ' +str(descarte)
+        for i in juegoActual._jugadores:
+            for j in i.tablero:
+                for k in i.tablero[j]:
+                    if(k.tipo == 'propiedad'):
+                        tab += 1
+                        count+=1
+            for j in i.mano:
+                if(j.tipo == 'propiedad'):
+                        mano += 1
+                        count+=1
+            cad = cad + ' tab=' + str(tab) + ' mano=' + str(mano)
+            mano=0
+            tab=0
+        cad = cad  + ' total=' + str(count)
+        
+        if c==1:
+            return count
+        return cad
+        
+    def PosiblesJugadas(self, mazo, descarte, jugadores):
+        listaJugadas = []
+        jugadasPosibles = []
+
+        if juego.instanciaActual is None:
+            juego.instanciaActual=juego.JuegoMD()
+            juego.instanciaActual._jugadores = self.InicializaJugadores(juego.instanciaOriginal._jugadores)
+
+        for i in range(10): 
+            j = JugadaRandom(self, mazo, descarte,jugadores)
+            jugada = j.CrearJugada()
+
+            if(jugada not in jugadasPosibles):
+                cartasConUso = []
+                for i in jugada:
+                    cartasConUso.append(j.ComoUsarCarta(i, jugada))
+                cartasConUso.append(j.ComodinesAReponer())
+                listaJugadas.append([self, cartasConUso])
+                jugadasPosibles.append(jugada)
+                
+        max = -1000 #poner el min value
+        resultGen = [0 for i in range(3)]
+        result = {}
+
+        tiposJug = listaJugadas[0][0].CopiarMonte(listaJugadas[0][0].nombre)
+        result = {}
+        max = -1000
+
+        for k in range(len(tiposJug)):
+            max1 = -1000 #poner el min value           
+            for i in range(len(listaJugadas)):
+                if(i == len(listaJugadas) - 1):
+                    break
+                ev = tiposJug[k].EvaluarJugada(listaJugadas[i][1], jugadores, descarte, mazo)
+                result[ev] = listaJugadas[i]
+                if(ev > max):
+                    max = ev
+                if(ev > max1):
+                    max1 = ev
+                    resultGen[k] = listaJugadas[i]
+
+        if( juego.monteCarloActivo==False): 
+            juego.notificaciones.append('preparada mejores jugadas (Montecarlo)')   
+            juego.monteCarloActivo = True
+            juegosResult = {}
+            juegoActual=juego.instanciaActual
+            juegoActual._indiceJugadorActual = juego.instanciaOriginal._indiceJugadorActual
+            juegoActual.final = juego.instanciaOriginal.final
+            juegoActual.ganador = juego.instanciaOriginal.ganador
+            self.GuardarJugadores(juegoActual._jugadores)
+            juegoActual._mazo =juego.instanciaOriginal._mazo.copy() 
+            juegoActual.descarte = juego.instanciaOriginal.descarte.copy() 
+            juego.instanciaOriginal.ganador = 'Nadie'
+            juego.instanciaOriginal.final = False
+            juego.turnosJugadorMC += 1
+            cantturnos=0
+            for j in range(len(resultGen)):
+                juego.notificaciones.append(f'para jugada {j+1}') 
+                for z in range(50):           
+                    juego.notificaciones.append(f'juego {z+1}')  
+                    juegoActual.ImprimirNotificaciones() 
+                    self.RestablecerOriginal(juegoActual)
+                    ja=juego.instanciaOriginal._jugadores[juegoActual._indiceJugadorActual]
+                    jugadaActual = ja.CopiarJugada(resultGen[j][1])
+                    ja.EjecutarJugada(jugadaActual, juego.instanciaOriginal._mazo, juego.instanciaOriginal.descarte, juego.instanciaOriginal._jugadores)
+
+                    Crupier.VerificarMano(ja, juegoActual._mazo, juegoActual.descarte, juegoActual._jugadores)
+                    if(juego.instanciaOriginal.final):
+
+                        self.RestablecerOriginal(juegoActual)
+                        juego.instanciaOriginal.final=True
+                        juego.instanciaOriginal.ganador=juego.instanciaOriginal._jugadores[juegoActual._indiceJugadorActual].nombre
+                        juego.monteCarloActivo = False
+                        return []
+                    juego.instanciaOriginal.final, juego.instanciaOriginal.ganador = Crupier.FinDeJuegoMD(juego.instanciaOriginal._jugadores[juego.instanciaOriginal._indiceJugadorActual])
+                    juego.instanciaOriginal._indiceJugadorActual += 1
+                    juego.instanciaOriginal._iniciarJuegoMD = False
+                    while(not juego.instanciaOriginal.final):             
+                        juego.instanciaOriginal.EjecutarTurnoMD()
+                        cantturnos+=1
+                    if(juego.instanciaOriginal.ganador == juegoActual._jugadores[juegoActual._indiceJugadorActual].nombre):
+                        if(j not in juegosResult):
+                            juegosResult[j] = 1
+                        else:
+                            juegosResult[j] += 1 
+            juego.notificaciones.append(f'obtenida jugada despues de {cantturnos} turnos')            
+            self.RestablecerOriginal(juegoActual)  #restablecer juego original
+            juego.monteCarloActivo = False
+            jugadaAEjecutar = dict(sorted(juegosResult.items(), key=lambda x: x[1], reverse=True))
+            if len(juegosResult)==0: 
+                return [] 
+            else:
+                ind=list(jugadaAEjecutar.keys())[0]
+                return resultGen[ind][1]
+                    
+        else:
+            if(len(result) == 0):
+                return []
+            return result[max][1]  
+    
+    def SeleccionarJugada(self, mazo, descarte, jugadores):
+        jugada = self.PosiblesJugadas(mazo, descarte, jugadores)
+        return jugada
+    
+    def EjecutarJugada(self, jugada, mazo, descarte, jugadores):
+        j = JugadaRandom(self, mazo, descarte, jugadores)
+        for i in jugada:
+            if(i == jugada[len(jugada) - 1]):
+                break
+            if(i != None):
+                jugadasav = jugada
+                j.UsarCarta(i[0], i, jugada)
+                j.ReponerComodin(jugada[len(jugada) - 1])
+
+                
+    def DescartarCartasJ(self, mazo, descarte, jugadores):
+        j = JugadaRandom(self, mazo, descarte, jugadores)
+        cartasADescartar = []
+        for i in range(100):
+            cartasADescartar.append(j.CartasADescartar())
+        max = -1000 #poner el min value
+        result = {}
+        tiposJug = j.jugador.CopiarMonte(j.jugador.nombre)
+        for i in cartasADescartar:
+            if(type(i) == list):
+                for k in tiposJug:
+                    ev = k.EvaluarJugadaD(i, jugadores)
+                    result[ev] = i
+                    if(ev > max):
+                        max = ev
+        if(len(result) == 0):
+            j.DescartarCartas(self)
+        else:
+            j.DescartarCartas(result[max])             
+    
+    def Responder(self, jugadorActual, mazo, descarte, carta, monto):
+        j = JugadaRandom(self, mazo, descarte)
+        respuestas = []
+        result = {}
+        tiposJug = j.jugador.CopiarMonte(j.jugador.nombre)
+        max = -1000
+        for i in range(100):
+            a = j.CartasResponder(jugadorActual, carta, monto)
+            if(a not in respuestas):
+                respuestas.append(a)
+        for i in respuestas:  
+            for k in tiposJug:  
+                ev = k.EvaluarJugadaR(i, monto)
+                result[ev] = i
+                if(ev > max):
+                    max = ev
+        j.ResponderAJugada(result[max])
+        
+    def CopiarMonte(self, nombre):
+        tiposJug = [JugadorInteligente(nombre, True),
+                    JugadorInteligente1(nombre, True),
+                    JugadorInteligente2(nombre, True),]
+        for i in tiposJug:
+            i.mano = self.mano.copy()
+            for k in self.tablero:
+                i.tablero[k] = self.tablero[k].copy()
+        return tiposJug
+    
+    def CopiarJugada(self, jugada):
+        jug = [None for _ in range(len(jugada))]
+        for i in range(len(jugada)):
+            if(type(jugada[i])==list):
+                jug[i] = jugada[i].copy()
+            else:
+                jug[i] = copy.deepcopy(jugada[i])
+        return jug        
+        
+    def Copiar(self,jugadores):
+        jug_original=juego.instanciaOriginal._jugadores
+        for i in range(len(jug_original)):
+            jug_original[i].mano = jugadores[i].mano.copy()
+            for k in jug_original[i].tablero:
+                jug_original[i].tablero[k] = jugadores[i].tablero[k].copy()
+        a=5
+    
+    def GuardarJugadores(self,jugadores):
+        jug_original=juego.instanciaOriginal._jugadores
+        for i in range(len(jug_original)):
+            jugadores[i].mano = jug_original[i].mano.copy()
+            for k in jug_original[i].tablero:
+                jugadores[i].tablero[k] = jug_original[i].tablero[k].copy()
+        a=5
+
+    def InicializaJugadores(self,jugadores):
+        jugs = []
+        for i in jugadores:
+            if(type(i) == JugadorInteligente):
+                j= JugadorInteligente(i.nombre, True)
+            elif(type(i) == JugadorInteligente1):
+                j= JugadorInteligente1(i.nombre, True)
+            elif(type(i) == JugadorInteligente2):
+                j= JugadorInteligente2(i.nombre, True)
+            elif(type(i) == JugadorAleatorio):
+                j= JugadorAleatorio(i.nombre, True)
+            elif(type(i) == JugadorMontecarlo):
+                j= JugadorMontecarlo(i.nombre, True)
+            jugs.append(j) 
+        return jugs
+
 class JugadorInteligente(Jugador):
     def __init__(self, nombre, esBot):
         super().__init__(nombre, esBot)
@@ -225,8 +486,7 @@ class JugadorInteligente(Jugador):
                                 else:
                                     valor += 1/10
                         valor += 1/4 * count
-           
-            #poner aki las cosas!!!!!!!!!!!!
+
         return valor
     
     def EvaluarJugadaD(self, jugada, jugadores):
@@ -319,7 +579,7 @@ class JugadorInteligente(Jugador):
     def PosiblesJugadas(self, mazo, descarte, jugadores):
         listaJugadas = []
         jugadasPosibles = []
-        for i in range(1000): #Poner otro numero!!!!!!!!!!!
+        for i in range(100): 
             j = JugadaRandom(self, mazo, descarte,jugadores)
             jugada = j.CrearJugada()
             if(jugada not in jugadasPosibles):
@@ -359,7 +619,7 @@ class JugadorInteligente(Jugador):
     def DescartarCartasJ(self, mazo, descarte, jugadores):
         j = JugadaRandom(self, mazo, descarte, jugadores)
         cartasADescartar = []
-        for i in range(1000):
+        for i in range(100):
             cartasADescartar.append(j.CartasADescartar())
         max = -1000 #poner el min value
         result = {}
@@ -379,7 +639,7 @@ class JugadorInteligente(Jugador):
         respuestas = []
         result = {}
         max = -1000
-        for i in range(1000):
+        for i in range(100):
             respuestas.append(j.CartasResponder(jugadorActual, carta, monto))
         for i in respuestas:    
             ev = j.jugador.EvaluarJugadaR(i, monto)
@@ -627,7 +887,7 @@ class JugadorInteligente1(Jugador):
     def PosiblesJugadas(self, mazo, descarte, jugadores):
         listaJugadas = []
         jugadasPosibles = []
-        for i in range(1000): #Poner otro numero!!!!!!!!!!!
+        for i in range(100): 
             j = JugadaRandom(self, mazo, descarte,jugadores)
             jugada = j.CrearJugada()
             if(jugada not in jugadasPosibles):
@@ -667,7 +927,7 @@ class JugadorInteligente1(Jugador):
     def DescartarCartasJ(self, mazo, descarte, jugadores):
         j = JugadaRandom(self, mazo, descarte, jugadores)
         cartasADescartar = []
-        for i in range(1000):
+        for i in range(100):
             cartasADescartar.append(j.CartasADescartar())
         max = -1000 #poner el min value
         result = {}
@@ -687,7 +947,7 @@ class JugadorInteligente1(Jugador):
         respuestas = []
         result = {}
         max = -1000
-        for i in range(1000):
+        for i in range(100):
             respuestas.append(j.CartasResponder(jugadorActual, carta, monto))
         for i in respuestas:    
             ev = j.jugador.EvaluarJugadaR(i, monto)
@@ -717,13 +977,15 @@ class JugadorInteligente2(Jugador):
         ranking = RankingPropiedades(jugadorActual)
 
         for i in jugada:
+            if i==None:
+                a=5
             if (i == jugada[len(jugada) - 1]):
                 break
             if(i[0].tipo == 'propiedad'):
                 for k in ranking:
                     if(i[0].color in ranking[k] and k != 0):
                         if(k == 1):
-                            valor += 1/k# - CalcularProbabilidad(True, jugadores, jugadorActual, descarte, mazo)
+                            valor += 1/k # - CalcularProbabilidad(True, jugadores, jugadorActual, descarte, mazo)
                         else:
                             valor += 1 / k #- CalcularProbabilidad(False, jugadores, jugadorActual, descarte, mazo)
                         ranking[k - 1].append(i[0].color)
@@ -860,7 +1122,7 @@ class JugadorInteligente2(Jugador):
                         tieneProp = TieneProp(jugadorObjetivo)
                         if(i[0].monto > din):
                             if(tieneProp):
-                                valor += 1 #arreglar
+                                valor += 1 
                             else:
                                 valor += 1/7
                         else:
@@ -880,8 +1142,7 @@ class JugadorInteligente2(Jugador):
                                 else:
                                     valor += 1/4
                         #valor += 1/4 * count
-           
-            #poner aki las cosas!!!!!!!!!!!!
+
         return valor
     
     def EvaluarJugadaD(self, jugada, jugadores):
@@ -974,7 +1235,7 @@ class JugadorInteligente2(Jugador):
     def PosiblesJugadas(self, mazo, descarte, jugadores):
         listaJugadas = []
         jugadasPosibles = []
-        for i in range(1000): #Poner otro numero!!!!!!!!!!!
+        for i in range(100): 
             j = JugadaRandom(self, mazo, descarte,jugadores)
             jugada = j.CrearJugada()
             if(jugada not in jugadasPosibles):
@@ -1014,7 +1275,7 @@ class JugadorInteligente2(Jugador):
     def DescartarCartasJ(self, mazo, descarte, jugadores):
         j = JugadaRandom(self, mazo, descarte, jugadores)
         cartasADescartar = []
-        for i in range(1000):
+        for i in range(100):
             cartasADescartar.append(j.CartasADescartar())
         max = -1000 #poner el min value
         result = {}
@@ -1034,7 +1295,7 @@ class JugadorInteligente2(Jugador):
         respuestas = []
         result = {}
         max = -1000
-        for i in range(1000):
+        for i in range(100):
             respuestas.append(j.CartasResponder(jugadorActual, carta, monto))
         for i in respuestas:    
             ev = j.jugador.EvaluarJugadaR(i, monto)
