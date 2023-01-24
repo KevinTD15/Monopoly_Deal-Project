@@ -64,8 +64,8 @@ class Jugador(ABC):
             else:
                 jugadorActual.tablero[carta.color].append(carta)
                 jugadorObjetivo.tablero[carta.color].remove(carta)
-                if jugadorActual.tablero[carta.color][0].tipo == 'comodin': #quitar
-                    a=5  
+                #print(f' jugadorActual {jugadorActual} anade {carta.tipo} {carta.nombre}')
+                #print(f' jugadorObjetivo {jugadorObjetivo} elimina {carta.tipo} {carta.nombre}')
     
     def AnadirConstruccion(jugadorObjetivo, jugadorActual, carta):
         if(carta in jugadorObjetivo.tablero[carta.colorC]): 
@@ -89,7 +89,8 @@ class Jugador(ABC):
                 carta.enUso = None
         else:
             jugadorActual.tablero['dinero'].append(carta)
-            jugadorObjetivo.tablero['dinero'].remove(carta)
+            if carta in jugadorObjetivo.tablero['dinero']:
+                jugadorObjetivo.tablero['dinero'].remove(carta)
         
     def AnadirSimple(jugadorObjetivo, jugadorActual,carta):
         jugadorActual.tablero[carta.tipo].append(carta)
@@ -98,9 +99,14 @@ class Jugador(ABC):
 
     def AcomodarTablero(jugadorActual): #####COMPLETAR ESTOOOOOOOOOOOOOOOOOOOO
         jugador = jugadorActual
+
         for i in jugadorActual.tablero:
             if(i != 'dinero' and i != 'comodines' and len(jugadorActual.tablero[i]) > 0):
-                if(len(jugadorActual.tablero[i]) == 1 and jugadorActual.tablero[i][0].tipo == 'comodin'):
+                if(len(jugadorActual.tablero[i]) == 1 and jugadorActual.tablero[i][0].tipo == 'accion'):
+                    jugadorActual.tablero[i][0].colorc = None
+                    jugadorActual.tablero['dinero'].append(jugadorActual.tablero[i][0])
+                    jugadorActual.tablero[i].remove(jugadorActual.tablero[i][0])
+                elif(len(jugadorActual.tablero[i]) == 1 and jugadorActual.tablero[i][0].tipo == 'comodin'):
                     jugadorActual.tablero[i][0].enUso = None
                     jugadorActual.tablero['comodines'].append(jugadorActual.tablero[i][0])
                     jugadorActual.tablero[i].remove(jugadorActual.tablero[i][0])
